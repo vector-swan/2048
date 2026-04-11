@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>2048 ✨</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title-row">
+        <h1>2048 <span class="sparkle">✨</span></h1>
+        <div class="scores">
+          <div class="score-box">
+            <div class="score-label">SCORE</div>
+            <div class="score-value" id="score">0</div>
+          </div>
+          <div class="score-box">
+            <div class="score-label">BEST</div>
+            <div class="score-value" id="best">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" id="newGameBtn">New Game</button>
+        <button class="btn btn-icon" id="soundBtn" title="Toggle Sound">🔊</button>
+      </div>
+    </header>
+
+    <div class="board-wrapper">
+      <div class="board" id="board">
+        <div class="grid-bg">
+          <div class="cell"></div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div>
+        </div>
+        <div class="tiles" id="tiles"></div>
+      </div>
+    </div>
+
+    <p class="hint">Swipe or use arrow keys to play</p>
+  </div>
+
+  <!-- Celebration overlay -->
+  <div class="celebration" id="celebration">
+    <div class="celebration-content">
+      <div class="celebration-emoji">🎉</div>
+      <h2>You reached 2048!</h2>
+      <p>Amazing! Keep going!</p>
+      <button class="btn btn-big" id="keepGoingBtn">Keep Going!</button>
+      <button class="btn btn-big btn-secondary" id="celebNewGameBtn">New Game</button>
+    </div>
+    <canvas id="confetti"></canvas>
+  </div>
+
+  <!-- Game Over overlay -->
+  <div class="gameover" id="gameover">
+    <div class="gameover-content">
+      <div class="gameover-emoji">😿</div>
+      <h2>Game Over</h2>
+      <p>No more moves!</p>
+      <button class="btn btn-big" id="gameoverNewGameBtn">Try Again</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
