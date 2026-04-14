@@ -1,6 +1,8 @@
 'use strict';
 
-// ── Audio ────────────────────────────────────────────────────────────────────
+const pause = ms => new Promise(r => setTimeout(r, ms));
+
+// ── Audio ─────────────────────────────────────────────────────────────────────
 let audioCtx = null;
 let soundOn = true;
 
@@ -9,7 +11,7 @@ function getAudio() {
   return audioCtx;
 }
 
-function playTone(freq, type, duration, vol = 0.18, delay = 0) {
+function playTone(freq, type, duration, vol = 0.18, d = 0) {
   if (!soundOn) return;
   try {
     const ctx = getAudio();
@@ -18,64 +20,48 @@ function playTone(freq, type, duration, vol = 0.18, delay = 0) {
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.type = type;
-    osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-    gain.gain.setValueAtTime(0, ctx.currentTime + delay);
-    gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + delay + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
-    osc.start(ctx.currentTime + delay);
-    osc.stop(ctx.currentTime + delay + duration + 0.05);
-  } catch (e) { /* silently ignore */ }
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + d);
+    gain.gain.setValueAtTime(0, ctx.currentTime + d);
+    gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + d + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d + duration);
+    osc.start(ctx.currentTime + d);
+    osc.stop(ctx.currentTime + d + duration + 0.05);
+  } catch (_) {}
 }
 
-function soundSlide() {
-  playTone(220, 'sine', 0.07, 0.06);
+function soundSlide()        { playTone(220, 'sine', 0.07, 0.05); }
+function soundMerge(value)   {
+  const freq = 330 * Math.pow(1.12, Math.min(Math.log2(value) - 1, 12));
+  playTone(freq,        'sine', 0.25, 0.14);
+  playTone(freq * 1.5,  'sine', 0.18, 0.07, 0.04);
 }
-
-function soundMerge(value) {
-  // Higher merge = higher and brighter chime
-  const base = 330;
-  const steps = Math.log2(value) - 1;
-  const freq = base * Math.pow(1.12, Math.min(steps, 12));
-  playTone(freq, 'sine', 0.25, 0.14);
-  playTone(freq * 1.5, 'sine', 0.18, 0.07, 0.04);
-}
-
-function soundGameOver() {
-  [220, 196, 174, 164].forEach((f, i) => playTone(f, 'triangle', 0.35, 0.12, i * 0.15));
-}
-
-function soundVictory() {
-  const melody = [523, 659, 784, 1047];
-  melody.forEach((f, i) => {
-    playTone(f, 'sine', 0.4, 0.2, i * 0.14);
-    playTone(f * 1.26, 'sine', 0.3, 0.1, i * 0.14 + 0.07);
+function soundGameOver()     { [220,196,174,164].forEach((f,i) => playTone(f,'triangle',0.35,0.12,i*0.15)); }
+function soundVictory()      {
+  [523,659,784,1047].forEach((f,i) => {
+    playTone(f,        'sine', 0.4, 0.2,  i*0.14);
+    playTone(f * 1.26, 'sine', 0.3, 0.1,  i*0.14 + 0.07);
   });
 }
 
-// ── Confetti ─────────────────────────────────────────────────────────────────
-const COLORS = ['#f9c74f','#f3722c','#90e0ef','#a8dadc','#c77dff','#b5e48c','#ff99c8'];
+// ── Confetti ──────────────────────────────────────────────────────────────────
+const CC = ['#FF85C2','#CF91F0','#80D5E0','#FFE05A','#B5E48C','#FF99C8','#A8DADC'];
 
-class ConfettiParticle {
-  constructor(canvas) {
-    this.reset(canvas);
-    this.y = Math.random() * canvas.height; // start spread vertically
-  }
-  reset(canvas) {
-    this.x = Math.random() * canvas.width;
-    this.y = -20;
-    this.w = 8 + Math.random() * 8;
-    this.h = 4 + Math.random() * 6;
-    this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
-    this.vx = (Math.random() - 0.5) * 3;
+class Particle {
+  constructor(canvas) { this.c = canvas; this.reset(); this.y = Math.random() * canvas.height; }
+  reset() {
+    this.x  = Math.random() * this.c.width;
+    this.y  = -20;
+    this.w  = 7 + Math.random() * 8;
+    this.h  = 4 + Math.random() * 5;
+    this.color = CC[Math.floor(Math.random() * CC.length)];
+    this.vx = (Math.random() - 0.5) * 2.5;
     this.vy = 2 + Math.random() * 3;
     this.angle = Math.random() * Math.PI * 2;
-    this.va = (Math.random() - 0.5) * 0.2;
+    this.va = (Math.random() - 0.5) * 0.15;
   }
-  update(canvas) {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.angle += this.va;
-    if (this.y > canvas.height + 20) this.reset(canvas);
+  update() {
+    this.x += this.vx; this.y += this.vy; this.angle += this.va;
+    if (this.y > this.c.height + 20) this.reset();
   }
   draw(ctx) {
     ctx.save();
@@ -87,103 +73,265 @@ class ConfettiParticle {
   }
 }
 
-let confettiParticles = [];
-let confettiAnim = null;
+let particles = [], animId = null;
 
 function startConfetti() {
-  const canvas = document.getElementById('confetti');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const ctx = canvas.getContext('2d');
-  confettiParticles = Array.from({ length: 120 }, () => new ConfettiParticle(canvas));
-
-  function frame() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    confettiParticles.forEach(p => { p.update(canvas); p.draw(ctx); });
-    confettiAnim = requestAnimationFrame(frame);
-  }
-  cancelAnimationFrame(confettiAnim);
-  frame();
+  const cv = document.getElementById('confetti');
+  cv.width = window.innerWidth; cv.height = window.innerHeight;
+  const ctx = cv.getContext('2d');
+  particles = Array.from({ length: 130 }, () => new Particle(cv));
+  const frame = () => {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    particles.forEach(p => { p.update(); p.draw(ctx); });
+    animId = requestAnimationFrame(frame);
+  };
+  cancelAnimationFrame(animId); frame();
 }
 
 function stopConfetti() {
-  cancelAnimationFrame(confettiAnim);
-  const canvas = document.getElementById('confetti');
-  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  cancelAnimationFrame(animId);
+  const cv = document.getElementById('confetti');
+  cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
 }
 
-// ── Game State ────────────────────────────────────────────────────────────────
+// ── Constants & live state ────────────────────────────────────────────────────
 const SIZE = 4;
-let grid = [];          // 4x4 array of values (0 = empty)
+const GAP  = 10;
+const SLIDE_MS = 130;   // must match CSS transition duration
+
+// liveTiles: the single source of truth — array of { id, value, r, c, el }
+let liveTiles = [];
+let nextId = 1;
 let score = 0;
 let best = parseInt(localStorage.getItem('2048best') || '0', 10);
-let won = false;        // has reached 2048 this game
 let celebrationShown = false;
-let tileId = 0;
-let tileMap = {};       // id -> {row, col, value, el, isNew, isMerge}
+let busy = false;             // blocks input during slide+merge animation
 
-function newGrid() {
-  return Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
-}
-
-function emptyCell(g) {
-  const cells = [];
-  for (let r = 0; r < SIZE; r++)
-    for (let c = 0; c < SIZE; c++)
-      if (g[r][c] === 0) cells.push([r, c]);
-  return cells;
-}
-
-function placeRandom(g) {
-  const cells = emptyCell(g);
-  if (!cells.length) return null;
-  const [r, c] = cells[Math.floor(Math.random() * cells.length)];
-  g[r][c] = Math.random() < 0.9 ? 2 : 4;
-  return [r, c];
-}
-
-// ── Rendering ─────────────────────────────────────────────────────────────────
 const tilesEl = document.getElementById('tiles');
 
-function cellPx(idx) {
-  // pixel offset for row/col idx within .tiles container
-  const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 10;
-  const tileSize = tilesEl.offsetWidth / SIZE - gap + gap / SIZE;
-  return idx * (tileSize + gap);
+// ── Tile sizing helpers ───────────────────────────────────────────────────────
+function tileSize() {
+  const w = tilesEl.offsetWidth;
+  return w > 0 ? (w - (SIZE - 1) * GAP) / SIZE : 80;
 }
+function tileLeft(c) { return c * (tileSize() + GAP); }
+function tileTop(r)  { return r * (tileSize() + GAP); }
 
-function renderAll() {
-  tilesEl.innerHTML = '';
-  tileMap = {};
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      if (grid[r][c]) {
-        const id = ++tileId;
-        const el = createTileEl(grid[r][c], r, c, false);
-        tilesEl.appendChild(el);
-        tileMap[id] = { r, c, value: grid[r][c], el };
-      }
-    }
-  }
-}
+// ── DOM helpers ───────────────────────────────────────────────────────────────
+function tileClass(value) { return 't' + Math.min(value, 8192); }
 
-function createTileEl(value, r, c, isNew) {
+// Create element and set initial position BEFORE appending to DOM
+// (so the CSS left/top transition doesn't fire on first placement)
+function makeTileEl(value, r, c) {
   const el = document.createElement('div');
-  el.className = `tile t${Math.min(value, 8192)} ${isNew ? 'tile-new' : ''}`;
+  el.className = `tile ${tileClass(value)}`;
   el.textContent = value;
-  positionTile(el, r, c);
+  const sz = tileSize();
+  el.style.cssText = `width:${sz}px;height:${sz}px;left:${tileLeft(c)}px;top:${tileTop(r)}px`;
   return el;
 }
 
-function positionTile(el, r, c) {
-  const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 10;
-  const size = tilesEl.offsetWidth / SIZE - gap + gap / SIZE;
-  el.style.width  = size + 'px';
-  el.style.height = size + 'px';
-  el.style.left   = c * (size + gap) + 'px';
-  el.style.top    = r * (size + gap) + 'px';
+function applyTileDisplay(tile) {
+  tile.el.className = `tile ${tileClass(tile.value)}`;
+  tile.el.textContent = tile.value;
 }
 
+function placeTile(el, r, c) {
+  el.style.left = tileLeft(c) + 'px';
+  el.style.top  = tileTop(r)  + 'px';
+}
+
+function sizeTile(el) {
+  const sz = tileSize();
+  el.style.width  = sz + 'px';
+  el.style.height = sz + 'px';
+}
+
+// ── Move computation (pure — does not touch DOM) ───────────────────────────────
+//
+// Returns { newPos, merges, moved, scoreAdd }
+//   newPos  : Map<id, {r,c}> — final grid position for every tile
+//   merges  : [{survivorId, removedId, newValue}]
+//   moved   : boolean
+//   scoreAdd: number
+
+function getRC(dir, pri, sec) {
+  switch (dir) {
+    case 'left':  return [pri, sec];
+    case 'right': return [pri, SIZE - 1 - sec];
+    case 'up':    return [sec, pri];
+    case 'down':  return [SIZE - 1 - sec, pri];
+  }
+}
+
+function computeMove(dir) {
+  // Build 2D grid of tile refs
+  const g = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+  liveTiles.forEach(t => { g[t.r][t.c] = t; });
+
+  const newPos = new Map();   // id -> {r,c}
+  const merges = [];
+  let scoreAdd = 0;
+  let moved = false;
+
+  for (let pri = 0; pri < SIZE; pri++) {
+    // Extract this line in movement direction
+    const line = [];
+    for (let sec = 0; sec < SIZE; sec++) {
+      const [r, c] = getRC(dir, pri, sec);
+      line.push(g[r][c]);
+    }
+
+    // Slide: compact non-null, then merge adjacent equals
+    const arr = line.filter(Boolean);
+    const lineMerges = [];
+    for (let i = 0; i < arr.length - 1; i++) {
+      if (arr[i].value === arr[i + 1].value) {
+        lineMerges.push({ survivorId: arr[i].id, removedId: arr[i + 1].id, newValue: arr[i].value * 2 });
+        arr.splice(i + 1, 1); // survivor stays in arr, removed is gone
+      }
+    }
+    merges.push(...lineMerges);
+
+    // Map survivors to new grid positions
+    arr.forEach((tile, sec) => {
+      const [r, c] = getRC(dir, pri, sec);
+      newPos.set(tile.id, { r, c });
+    });
+
+    // Removed tiles animate to their survivor's destination
+    lineMerges.forEach(m => {
+      newPos.set(m.removedId, newPos.get(m.survivorId));
+      scoreAdd += m.newValue;
+    });
+
+    // Detect movement
+    line.forEach((tile, sec) => {
+      if (!tile) return;
+      const [r, c] = getRC(dir, pri, sec);
+      const np = newPos.get(tile.id);
+      if (np && (np.r !== tile.r || np.c !== tile.c)) moved = true;
+    });
+  }
+
+  if (merges.length) moved = true;
+  return { newPos, merges, moved, scoreAdd };
+}
+
+// ── Move execution ────────────────────────────────────────────────────────────
+async function doMove(dir) {
+  if (busy) return;
+  const { newPos, merges, moved, scoreAdd } = computeMove(dir);
+  if (!moved) return;
+
+  busy = true;
+  soundSlide();
+
+  // ① Slide every tile to its new position (CSS transition animates this)
+  const removedIds = new Set(merges.map(m => m.removedId));
+  liveTiles.forEach(t => {
+    const p = newPos.get(t.id);
+    if (!p) return;
+    t.r = p.r; t.c = p.c;
+    placeTile(t.el, t.r, t.c);
+    // Tiles being consumed slide *under* their target
+    if (removedIds.has(t.id)) t.el.style.zIndex = '0';
+  });
+
+  // ② Wait for slide to finish
+  await pause(SLIDE_MS + 20);
+
+  // ③ Apply merges: remove consumed tiles, update survivors, play pop
+  merges.forEach(m => {
+    soundMerge(m.newValue);
+
+    const survivor = liveTiles.find(t => t.id === m.survivorId);
+    if (survivor) {
+      survivor.value = m.newValue;
+      applyTileDisplay(survivor);
+      survivor.el.style.zIndex = '';
+      survivor.el.classList.remove('tile-pop');
+      void survivor.el.offsetWidth; // force reflow so animation restarts
+      survivor.el.classList.add('tile-pop');
+      survivor.el.addEventListener('animationend', () => survivor.el.classList.remove('tile-pop'), { once: true });
+    }
+
+    const removed = liveTiles.find(t => t.id === m.removedId);
+    if (removed) removed.el.remove();
+  });
+  liveTiles = liveTiles.filter(t => !removedIds.has(t.id));
+
+  // ④ Update score
+  if (scoreAdd) updateScore(scoreAdd);
+
+  // ⑤ Spawn new tile in a random empty cell
+  spawnTile();
+
+  // ⑥ Win / lose checks
+  if (!celebrationShown && liveTiles.some(t => t.value >= 2048)) {
+    celebrationShown = true;
+    await pause(280);
+    showCelebration();
+    busy = false;
+    return;
+  }
+  if (!canMove()) {
+    soundGameOver();
+    await pause(400);
+    showGameOver();
+  }
+
+  busy = false;
+}
+
+// ── Game helpers ──────────────────────────────────────────────────────────────
+function canMove() {
+  if (liveTiles.length < SIZE * SIZE) return true;
+  const g = Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
+  liveTiles.forEach(t => { g[t.r][t.c] = t.value; });
+  for (let r = 0; r < SIZE; r++)
+    for (let c = 0; c < SIZE; c++) {
+      if (c < SIZE - 1 && g[r][c] === g[r][c + 1]) return true;
+      if (r < SIZE - 1 && g[r][c] === g[r + 1][c]) return true;
+    }
+  return false;
+}
+
+function spawnTile() {
+  const occupied = new Set(liveTiles.map(t => `${t.r},${t.c}`));
+  const empty = [];
+  for (let r = 0; r < SIZE; r++)
+    for (let c = 0; c < SIZE; c++)
+      if (!occupied.has(`${r},${c}`)) empty.push([r, c]);
+  if (!empty.length) return;
+
+  const [r, c] = empty[Math.floor(Math.random() * empty.length)];
+  const value  = Math.random() < 0.9 ? 2 : 4;
+  const id     = nextId++;
+  const el     = makeTileEl(value, r, c);  // position set before append
+  tilesEl.appendChild(el);
+
+  // Spring-appear animation starts after layout
+  requestAnimationFrame(() => {
+    el.classList.add('tile-new');
+    el.addEventListener('animationend', () => el.classList.remove('tile-new'), { once: true });
+  });
+
+  liveTiles.push({ id, value, r, c, el });
+}
+
+// Re-layout all tiles without animation (used on resize)
+function relayout() {
+  liveTiles.forEach(t => {
+    t.el.classList.add('no-anim');
+    sizeTile(t.el);
+    placeTile(t.el, t.r, t.c);
+  });
+  tilesEl.offsetHeight; // force reflow before removing class
+  liveTiles.forEach(t => t.el.classList.remove('no-anim'));
+}
+
+// ── Score ─────────────────────────────────────────────────────────────────────
 function updateScore(add) {
   score += add;
   const el = document.getElementById('score');
@@ -198,185 +346,61 @@ function updateScore(add) {
   }
 }
 
-// ── Move Logic ────────────────────────────────────────────────────────────────
-// Returns {newGrid, merges:[{r,c,value}], moved}
-function slideRow(row) {
-  let arr = row.filter(v => v !== 0);
-  const merges = [];
-  for (let i = 0; i < arr.length - 1; i++) {
-    if (arr[i] === arr[i + 1]) {
-      arr[i] *= 2;
-      merges.push({ value: arr[i] });
-      arr.splice(i + 1, 1);
-    }
-  }
-  while (arr.length < SIZE) arr.push(0);
-  return { arr, merges };
-}
-
-function applyMove(direction) {
-  const newG = newGrid();
-  let moved = false;
-  let totalMerges = [];
-
-  const transform = {
-    left:  (r, c) => [r, c],
-    right: (r, c) => [r, SIZE - 1 - c],
-    up:    (r, c) => [c, r],
-    down:  (r, c) => [SIZE - 1 - c, r],
-  }[direction];
-
-  for (let r = 0; r < SIZE; r++) {
-    const row = [];
-    for (let c = 0; c < SIZE; c++) {
-      const [gr, gc] = transform(r, c);
-      row.push(grid[gr][gc]);
-    }
-    const { arr, merges } = slideRow(row);
-    for (let c = 0; c < SIZE; c++) {
-      const [gr, gc] = transform(r, c);
-      if (newG[gr][gc] !== arr[c]) moved = true;
-      newG[gr][gc] = arr[c];
-    }
-    totalMerges.push(...merges);
-  }
-
-  return { newG, merges: totalMerges, moved };
-}
-
-function hasMovesLeft(g) {
-  for (let r = 0; r < SIZE; r++)
-    for (let c = 0; c < SIZE; c++) {
-      if (g[r][c] === 0) return true;
-      if (c < SIZE - 1 && g[r][c] === g[r][c + 1]) return true;
-      if (r < SIZE - 1 && g[r][c] === g[r + 1][c]) return true;
-    }
-  return false;
-}
-
-function hasValue(g, v) {
-  return g.some(row => row.includes(v));
-}
-
-// ── Move Execution ────────────────────────────────────────────────────────────
-function move(direction) {
-  const { newG, merges, moved } = applyMove(direction);
-  if (!moved) return;
-
-  soundSlide();
-  grid = newG;
-
-  // Spawn new tile
-  const spawned = placeRandom(grid);
-
-  // Score merges
-  let scoreAdd = 0;
-  merges.forEach(m => {
-    scoreAdd += m.value;
-    soundMerge(m.value);
-  });
-  if (scoreAdd) updateScore(scoreAdd);
-
-  // Re-render (simple full re-render with animation)
-  renderAll();
-
-  // Check win
-  if (!celebrationShown && hasValue(grid, 2048)) {
-    celebrationShown = true;
-    won = true;
-    setTimeout(() => showCelebration(), 300);
-    return;
-  }
-
-  // Check game over
-  if (!hasMovesLeft(grid)) {
-    soundGameOver();
-    setTimeout(() => showGameOver(), 400);
-  }
-}
-
-// ── Overlays ─────────────────────────────────────────────────────────────────
+// ── Overlays ──────────────────────────────────────────────────────────────────
 function showCelebration() {
-  soundVictory();
-  startConfetti();
+  soundVictory(); startConfetti();
   document.getElementById('celebration').classList.add('show');
 }
-
 function hideCelebration() {
   stopConfetti();
   document.getElementById('celebration').classList.remove('show');
 }
+function showGameOver() { document.getElementById('gameover').classList.add('show'); }
+function hideGameOver() { document.getElementById('gameover').classList.remove('show'); }
 
-function showGameOver() {
-  document.getElementById('gameover').classList.add('show');
-}
-
-function hideGameOver() {
-  document.getElementById('gameover').classList.remove('show');
-}
-
-// ── New Game ──────────────────────────────────────────────────────────────────
+// ── New game ──────────────────────────────────────────────────────────────────
 function newGame() {
-  hideCelebration();
-  hideGameOver();
-  score = 0;
-  won = false;
-  celebrationShown = false;
+  hideCelebration(); hideGameOver();
+  liveTiles.forEach(t => t.el.remove());
+  liveTiles = [];
+  score = 0; celebrationShown = false; busy = false;
   document.getElementById('score').textContent = '0';
   document.getElementById('best').textContent = best;
-  grid = newGrid();
-  placeRandom(grid);
-  placeRandom(grid);
-  renderAll();
+  spawnTile(); spawnTile();
 }
 
-// ── Input: Keyboard ───────────────────────────────────────────────────────────
+// ── Input ─────────────────────────────────────────────────────────────────────
 const KEY_MAP = {
-  ArrowLeft: 'left', ArrowRight: 'right',
-  ArrowUp: 'up', ArrowDown: 'down',
-  a: 'left', d: 'right', w: 'up', s: 'down',
+  ArrowLeft:'left', ArrowRight:'right', ArrowUp:'up', ArrowDown:'down',
+  a:'left', d:'right', w:'up', s:'down',
 };
-
 document.addEventListener('keydown', e => {
   const dir = KEY_MAP[e.key];
-  if (dir) { e.preventDefault(); move(dir); }
+  if (dir) { e.preventDefault(); doMove(dir); }
 });
 
-// ── Input: Touch ──────────────────────────────────────────────────────────────
-let touchStartX = 0, touchStartY = 0;
-
-document.addEventListener('touchstart', e => {
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
-}, { passive: true });
-
+let tx = 0, ty = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
 document.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  const dy = e.changedTouches[0].clientY - touchStartY;
-  const absDx = Math.abs(dx), absDy = Math.abs(dy);
-  if (Math.max(absDx, absDy) < 20) return; // too short
-  if (absDx > absDy) move(dx > 0 ? 'right' : 'left');
-  else               move(dy > 0 ? 'down'  : 'up');
+  const dx = e.changedTouches[0].clientX - tx;
+  const dy = e.changedTouches[0].clientY - ty;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+  if (Math.abs(dx) > Math.abs(dy)) doMove(dx > 0 ? 'right' : 'left');
+  else                             doMove(dy > 0 ? 'down'  : 'up');
 }, { passive: true });
 
 // ── Buttons ───────────────────────────────────────────────────────────────────
 document.getElementById('newGameBtn').addEventListener('click', newGame);
-
 document.getElementById('soundBtn').addEventListener('click', () => {
   soundOn = !soundOn;
   document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
 });
-
-document.getElementById('keepGoingBtn').addEventListener('click', () => {
-  hideCelebration();
-});
-
+document.getElementById('keepGoingBtn').addEventListener('click', hideCelebration);
 document.getElementById('celebNewGameBtn').addEventListener('click', newGame);
 document.getElementById('gameoverNewGameBtn').addEventListener('click', newGame);
 
-// ── Resize ────────────────────────────────────────────────────────────────────
-window.addEventListener('resize', () => renderAll());
+window.addEventListener('resize', relayout);
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// ── Start ─────────────────────────────────────────────────────────────────────
 document.getElementById('best').textContent = best;
 newGame();
