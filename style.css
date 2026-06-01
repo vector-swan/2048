@@ -166,17 +166,19 @@ h1 {
 .tile {
   position: absolute;
   border-radius: 10px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 900;
-  letter-spacing: -0.5px;
   user-select: none;
   z-index: 1;
+  background: #FFD0E8;
   /* left/top transitions power the slide animation */
-  transition: left 0.13s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              top  0.13s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: left 0.09s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              top  0.09s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+
+.tile svg { width: 100%; height: 100%; display: block; }
 
 /* Tile spawns with a springy pop */
 .tile-new {
@@ -200,47 +202,20 @@ h1 {
 /* Suppress transitions during resize re-layout */
 .no-anim { transition: none !important; animation: none !important; }
 
-/* ── Kawaii tile palette ── */
-.t2    { background: #FFF0F8; color: #C06090;
-         font-size: calc(var(--tile-size) * 0.44);
-         box-shadow: 0 2px 8px rgba(192,94,132,0.12), inset 0 1px 0 rgba(255,255,255,0.9); }
-.t4    { background: #FFD9EF; color: #A84E78;
-         font-size: calc(var(--tile-size) * 0.44);
-         box-shadow: 0 2px 10px rgba(192,94,132,0.2), inset 0 1px 0 rgba(255,255,255,0.8); }
-.t8    { background: linear-gradient(145deg, #FFB0DA, #FF8FCA); color: #fff;
-         font-size: calc(var(--tile-size) * 0.44);
-         box-shadow: 0 3px 12px rgba(255,127,195,0.4), inset 0 1px 0 rgba(255,255,255,0.3); }
-.t16   { background: linear-gradient(145deg, #FF7DC4, #FF5BAD); color: #fff;
-         font-size: calc(var(--tile-size) * 0.40);
-         box-shadow: 0 3px 14px rgba(255,91,173,0.42), inset 0 1px 0 rgba(255,255,255,0.25); }
-.t32   { background: linear-gradient(145deg, #FF5BAD, #E8198F); color: #fff;
-         font-size: calc(var(--tile-size) * 0.40);
-         box-shadow: 0 4px 16px rgba(232,25,143,0.45), inset 0 1px 0 rgba(255,255,255,0.2); }
-.t64   { background: linear-gradient(145deg, #E8198F, #C0006A); color: #fff;
-         font-size: calc(var(--tile-size) * 0.40);
-         box-shadow: 0 4px 18px rgba(192,0,106,0.5), inset 0 1px 0 rgba(255,255,255,0.15); }
-.t128  { background: linear-gradient(145deg, #CF91F0, #B36AE4); color: #fff;
-         font-size: calc(var(--tile-size) * 0.36);
-         box-shadow: 0 4px 18px rgba(179,106,228,0.5), inset 0 1px 0 rgba(255,255,255,0.22); }
-.t256  { background: linear-gradient(145deg, #B06AE0, #9348CB); color: #fff;
-         font-size: calc(var(--tile-size) * 0.36);
-         box-shadow: 0 4px 20px rgba(147,72,203,0.5), inset 0 1px 0 rgba(255,255,255,0.18); }
-.t512  { background: linear-gradient(145deg, #9348CB, #7629B5); color: #fff;
-         font-size: calc(var(--tile-size) * 0.36);
-         box-shadow: 0 4px 20px rgba(118,41,181,0.5), inset 0 1px 0 rgba(255,255,255,0.15); }
-.t1024 { background: linear-gradient(145deg, #5CC4FF, #209EFF); color: #fff;
-         font-size: calc(var(--tile-size) * 0.30);
-         box-shadow: 0 4px 22px rgba(32,158,255,0.55), inset 0 1px 0 rgba(255,255,255,0.22); }
-.t2048 { background: linear-gradient(145deg, #FFE05A, #FFB700, #FF8C00); color: #fff;
-         font-size: calc(var(--tile-size) * 0.28);
-         box-shadow: 0 0 32px rgba(255,185,0,0.65), 0 4px 16px rgba(255,140,0,0.4),
-                     inset 0 1px 0 rgba(255,255,255,0.4); }
-.t4096 { background: linear-gradient(145deg, #7DF9FF, #00CFFF); color: #fff;
-         font-size: calc(var(--tile-size) * 0.26);
-         box-shadow: 0 0 30px rgba(0,207,255,0.65), inset 0 1px 0 rgba(255,255,255,0.3); }
-.t8192 { background: linear-gradient(145deg, #D47FFF, #9A3DFF); color: #fff;
-         font-size: calc(var(--tile-size) * 0.24);
-         box-shadow: 0 0 30px rgba(212,127,255,0.65), inset 0 1px 0 rgba(255,255,255,0.3); }
+/* ── Tile shadows (SVG provides backgrounds) ── */
+.t2    { box-shadow: 0 2px 8px rgba(192,94,132,0.18); }
+.t4    { box-shadow: 0 2px 10px rgba(192,94,132,0.25); }
+.t8    { box-shadow: 0 3px 12px rgba(100,160,220,0.4); }
+.t16   { box-shadow: 0 3px 14px rgba(80,140,220,0.42); }
+.t32   { box-shadow: 0 4px 16px rgba(220,190,40,0.48); }
+.t64   { box-shadow: 0 4px 18px rgba(220,160,30,0.52); }
+.t128  { box-shadow: 0 4px 18px rgba(220,130,20,0.52); }
+.t256  { box-shadow: 0 4px 20px rgba(200,80,40,0.5); }
+.t512  { box-shadow: 0 4px 20px rgba(160,40,130,0.5); }
+.t1024 { box-shadow: 0 4px 22px rgba(30,30,100,0.6); }
+.t2048 { box-shadow: 0 0 28px rgba(200,160,255,0.7), 0 4px 16px rgba(20,10,50,0.5); }
+.t4096 { box-shadow: 0 0 30px rgba(0,207,255,0.65); }
+.t8192 { box-shadow: 0 0 30px rgba(212,127,255,0.65); }
 
 /* ── Overlays ── */
 .celebration, .gameover {

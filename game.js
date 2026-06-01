@@ -97,7 +97,7 @@ function stopConfetti() {
 // ── Constants & live state ────────────────────────────────────────────────────
 const SIZE = 4;
 const GAP  = 10;
-const SLIDE_MS = 130;   // must match CSS transition duration
+const SLIDE_MS = 85;    // must match CSS transition duration
 
 // liveTiles: the single source of truth — array of { id, value, r, c, el }
 let liveTiles = [];
@@ -125,7 +125,7 @@ function tileClass(value) { return 't' + Math.min(value, 8192); }
 function makeTileEl(value, r, c) {
   const el = document.createElement('div');
   el.className = `tile ${tileClass(value)}`;
-  el.textContent = value;
+  el.innerHTML = TILE_ART[value] || '';
   const sz = tileSize();
   el.style.cssText = `width:${sz}px;height:${sz}px;left:${tileLeft(c)}px;top:${tileTop(r)}px`;
   return el;
@@ -133,7 +133,7 @@ function makeTileEl(value, r, c) {
 
 function applyTileDisplay(tile) {
   tile.el.className = `tile ${tileClass(tile.value)}`;
-  tile.el.textContent = tile.value;
+  tile.el.innerHTML = TILE_ART[tile.value] || '';
 }
 
 function placeTile(el, r, c) {
