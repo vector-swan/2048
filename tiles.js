@@ -489,7 +489,7 @@ const TILE_ART = THEMES[ACTIVE_THEME].art;
 // ── Picnic basket (app icon and game-over card) ───────────────────────────────
 // A round wicker fruit basket with a tall arched handle,
 // twisted rope rim and scalloped weave. Fruit sits low so the handle shows:
-// green grapes at the back, orange, pear, apple, lemon and purple grapes
+// a watermelon at the back, orange, pear, apple, lemon and purple grapes
 // along the rim. No faces. background=true adds the gingham cloth.
 function picnicBasketSVG(background = false) {
   const c = { p: background ? 'pbi' : 'pb', n: 0, defs: '', bg: {} };
@@ -499,9 +499,10 @@ function picnicBasketSVG(background = false) {
   const leaf = grad(c, 'l', '#B6F08E', '#5FC055');
   const orange = rgrad(c, 'o', '#FFCB80', '#FF8A2A'), apple = rgrad(c, 'a', '#FF9A9A', '#D42638');
   const lemon = rgrad(c, 'le', '#FFF6A6', '#F7C531'), pear = rgrad(c, 'pr', '#D9F08A', '#7FAE3A');
-  const grapeP = rgrad(c, 'gp', '#D2AEFF', '#7046C8'), grapeG = rgrad(c, 'gg', '#EEF9C4', '#A6D25E');
+  const grapeP = rgrad(c, 'gp', '#D2AEFF', '#7046C8'), melon = rgrad(c, 'm', '#A6EC86', '#3E9E4E');
   const body = 'M 12,67 C 12,84 20,92 50,92 C 80,92 88,84 88,67 Z';
-  c.defs += `<clipPath id="${P}bc"><path d="${body}"/></clipPath>`;
+  c.defs += `<clipPath id="${P}bc"><path d="${body}"/></clipPath>`
+    + `<clipPath id="${P}mc"><ellipse cx="34" cy="47" rx="19" ry="13" transform="rotate(-14 34 47)"/></clipPath>`;
   if (background) c.defs += `<pattern id="${P}gh" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#FFF8EC"/><rect width="10" height="20" fill="#FF7891" opacity="0.22"/><rect width="20" height="10" fill="#FF7891" opacity="0.22"/></pattern>`;
   const berry = (x, y, r, g) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${g}" ${LN}/>` + shine(x - r * 0.3, y - r * 0.35, r * 0.25, r * 0.15);
 
@@ -512,9 +513,16 @@ function picnicBasketSVG(background = false) {
   const arch = 'M 16,66 C 14,4 86,4 84,66';
   s += `<path d="${arch}" fill="none" stroke="${INK}" stroke-width="7.4" stroke-linecap="round"/><path d="${arch}" fill="none" stroke="${handleG}" stroke-width="4.4" stroke-linecap="round"/>`;
 
-  // back: green grapes
-  for (const [x, y] of [[25, 42], [31, 40], [37, 42], [22, 47], [28, 46], [34, 47], [40, 48], [25, 52], [31, 51], [37, 52]]) s += berry(x, y, 3.8, grapeG);
-  s += stem('M 31,37 Q 31,33 34,31');
+  // back: a watermelon lying on its side
+  let stripes = '';
+  for (const y of [34, 40, 46, 52, 58]) {
+    let d = `M 10,${y}`;
+    for (let x = 10; x < 58; x += 6) d += ' l 3,2 l 3,-2';
+    stripes += `<path d="${d}" fill="none" stroke="#24803A" stroke-width="2.3" stroke-linejoin="round" opacity="0.8"/>`;
+  }
+  s += `<ellipse cx="34" cy="47" rx="19" ry="13" transform="rotate(-14 34 47)" fill="${melon}" ${LN}/>`
+    + `<g clip-path="url(#${P}mc)"><g transform="rotate(-14 34 47)">${stripes}</g></g>`
+    + `<ellipse cx="34" cy="47" rx="19" ry="13" transform="rotate(-14 34 47)" fill="none" ${LN}/>` + shine(26, 40, 5, 2.2, -14);
   // middle row: orange and pear
   s += `<circle cx="54" cy="55" r="9.5" fill="${orange}" ${LN}/>` + shine(50, 51, 2.6, 1.3) + stem('M 54,46 L 54,43');
   s += `<path d="M 76,46 C 72,46 71,51 71,53 C 66,56 65,62 67,66 C 69,71 83,71 85,66 C 87,62 86,56 81,53 C 81,51 80,46 76,46 Z" fill="${pear}" ${LN}/>` + shine(71, 58, 1.8, 1.1) + stem('M 76,47 Q 76,42 78,39');
