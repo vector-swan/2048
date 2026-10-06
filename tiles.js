@@ -2,7 +2,7 @@
 
 // ── Tile illustrations: cute glowy bear-family story ──────────────────────────
 // One subject per tile, large and centred, so it reads at ~80px:
-//   2 sleepy bear · 4 scarf · 8 berry basket · 16 sapling · 32 cream bear
+//   2 sleepy bear · 4 scarf · 8 sapling · 16 berry basket · 32 cream bear
 //   64 house · 128 mailbox · 256 cub · 512 cub on a swing · 1024 lantern
 //   2048 the whole family · 4096 / 8192 the family, crowned
 // Glow is done with gradients (no SVG filters) so sliding tiles stay smooth.
@@ -152,24 +152,10 @@ const TILE_ART = {
   4: tile(4, c => backdrop(c, 4, { hy: 52 }) + ground(c, 50, 90, 26)
     + face(c, 50, 48, 28, PAL.brown, { scarf: true })),
 
-  // A basket of berries.
-  8: tile(8, c => {
-    const wood = grad(c, 'w', '#E2A965', '#BC8048'), rim = grad(c, 'r', '#EDBB7A', '#CF9558');
-    const berry = rgrad(c, 'b', '#FF8DA3', '#D92A58');
-    const b = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${berry}" ${LN}/><ellipse cx="${x - r * 0.35}" cy="${y - r * 0.4}" rx="${r * 0.22}" ry="${r * 0.14}" fill="white" opacity="0.8"/>`;
-    return backdrop(c, 8, { hy: 58 }) + ground(c, 50, 88, 30)
-      + `<path d="M 28,52 Q 50,2 72,52" fill="none" stroke="${INK}" stroke-width="5.6" stroke-linecap="round"/><path d="M 28,52 Q 50,2 72,52" fill="none" stroke="#D49A5C" stroke-width="3" stroke-linecap="round"/>`
-      + `<path d="M 19,50 L 81,50 L 74,84 Q 50,90 26,84 Z" fill="${wood}" ${LN}/>`
-      + `<g fill="none" stroke="#A8703E" stroke-width="1" opacity="0.7"><path d="M 21,60 Q 50,67 79,60"/><path d="M 23,70 Q 50,77 77,70"/><path d="M 25,79 Q 50,85 75,79"/><path d="M 40,52 L 38,84 M 60,52 L 62,84"/></g>`
-      + b(33, 46, 8) + b(67, 46, 8) + b(50, 42, 9) + b(41, 34, 7.5) + b(59, 34, 7.5)
-      + `<path d="M 50,31 q 6,-8 13,-5 q -3,8 -13,5 Z" fill="#7ED36E" ${LN}/>`
-      + `<rect x="15" y="46" width="70" height="9" rx="4.5" fill="${rim}" ${LN}/>`;
-  }),
-
   // A sapling, freshly planted.
-  16: tile(16, c => {
+  8: tile(8, c => {
     const leaf = grad(c, 'l', '#B6F08E', '#5FC055'), dirt = grad(c, 'd', '#C79563', '#9C6E45');
-    return backdrop(c, 16, { hy: 54 })
+    return backdrop(c, 8, { hy: 54 })
       + `<ellipse cx="50" cy="82" rx="28" ry="9" fill="${dirt}" ${LN}/><ellipse cx="42" cy="79" rx="8" ry="2.4" fill="white" opacity="0.25"/>`
       + `<path d="M 50,80 Q 48,62 50,44" fill="none" stroke="${INK}" stroke-width="5.4" stroke-linecap="round"/><path d="M 50,80 Q 48,62 50,44" fill="none" stroke="#5BAE50" stroke-width="3" stroke-linecap="round"/>`
       + `<path d="M 49,60 Q 20,58 22,36 Q 46,36 49,60 Z" fill="${leaf}" ${LN}/><path d="M 47,56 Q 34,52 27,41" fill="none" stroke="#3E8F43" stroke-width="1" opacity="0.6"/>`
@@ -178,6 +164,20 @@ const TILE_ART = {
       + `<ellipse cx="30" cy="42" rx="3" ry="1.4" fill="white" opacity="0.5" transform="rotate(-30 30 42)"/>`
       + `<g fill="#9ADBFF" stroke="${INK}" stroke-width="0.8"><path d="M 80,56 q -3,5 0,7 q 3,-2 0,-7 Z"/><path d="M 20,64 q -2.4,4 0,5.6 q 2.4,-1.6 0,-5.6 Z"/></g>`
       + star(78, 12, 3.5, '#FFF') + heart(26, 20, 1.1, '#FFB3D1');
+  }),
+
+  // A basket of berries.
+  16: tile(16, c => {
+    const wood = grad(c, 'w', '#E2A965', '#BC8048'), rim = grad(c, 'r', '#EDBB7A', '#CF9558');
+    const berry = rgrad(c, 'b', '#FF8DA3', '#D92A58');
+    const b = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${berry}" ${LN}/><ellipse cx="${x - r * 0.35}" cy="${y - r * 0.4}" rx="${r * 0.22}" ry="${r * 0.14}" fill="white" opacity="0.8"/>`;
+    return backdrop(c, 16, { hy: 58 }) + ground(c, 50, 88, 30)
+      + `<path d="M 28,52 Q 50,2 72,52" fill="none" stroke="${INK}" stroke-width="5.6" stroke-linecap="round"/><path d="M 28,52 Q 50,2 72,52" fill="none" stroke="#D49A5C" stroke-width="3" stroke-linecap="round"/>`
+      + `<path d="M 19,50 L 81,50 L 74,84 Q 50,90 26,84 Z" fill="${wood}" ${LN}/>`
+      + `<g fill="none" stroke="#A8703E" stroke-width="1" opacity="0.7"><path d="M 21,60 Q 50,67 79,60"/><path d="M 23,70 Q 50,77 77,70"/><path d="M 25,79 Q 50,85 75,79"/><path d="M 40,52 L 38,84 M 60,52 L 62,84"/></g>`
+      + b(33, 46, 8) + b(67, 46, 8) + b(50, 42, 9) + b(41, 34, 7.5) + b(59, 34, 7.5)
+      + `<path d="M 50,31 q 6,-8 13,-5 q -3,8 -13,5 Z" fill="#7ED36E" ${LN}/>`
+      + `<rect x="15" y="46" width="70" height="9" rx="4.5" fill="${rim}" ${LN}/>`;
   }),
 
   // A second bear arrives, a cream one with a bow.
