@@ -142,6 +142,17 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden && audioCtx && audioCtx.state !== 'running') audioCtx.resume().catch(() => {});
 });
 
+// Sound button icon: music notes, with a slash when sound is off
+const NOTES = '<path d="M10 17V6.5l9-2V15"/><path d="M10 9l9-2"/>'
+  + '<circle cx="7.6" cy="17" r="2.5" fill="#FFF8EC"/><circle cx="16.6" cy="15" r="2.5" fill="#FFF8EC"/>';
+function showSoundIcon() {
+  const btn = document.getElementById('soundBtn');
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#7A3B2E" stroke-width="1.9" '
+    + 'stroke-linecap="round" stroke-linejoin="round">' + NOTES
+    + (soundOn ? '' : '<path d="M4 4l16 16" stroke-width="2.2"/>') + '</svg>';
+  btn.setAttribute('aria-label', soundOn ? 'Sound on' : 'Sound off');
+}
+
 // Reaching 2048: the watermelon phrase is the finale
 function soundVictory() { soundNewFruit(2048); }
 
@@ -555,7 +566,7 @@ document.getElementById('newGameBtn').addEventListener('click', newGame);
 document.getElementById('soundBtn').addEventListener('click', () => {
   soundOn = !soundOn;
   if (soundOn) unlockAudio();
-  document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+  showSoundIcon();
   try { localStorage.setItem('2048sound', soundOn ? 'on' : 'off'); } catch (_) {}
 });
 document.getElementById('keepGoingBtn').addEventListener('click', hideCelebration);
@@ -570,7 +581,7 @@ document.getElementById('winArt').src =
   'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(picnicBasketSVG(false, { blanket: true }));
 document.getElementById('gameoverArt').src =
   'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(picnicBasketSVG(false, { empty: true, blanket: true, ants: true }));
-document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+showSoundIcon();
 newGame();
 
 // Test shortcut: open the game with #almost-win at the end of the link to

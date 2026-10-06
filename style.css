@@ -78,13 +78,26 @@ header { width: 100%; margin-bottom: 14px; }
 
 h1 {
   font-family: var(--display);
-  font-size: 3.3rem;
+  font-size: clamp(1.8rem, 9vw, 2.35rem);   /* shrinks on narrow phones */
   font-weight: 800;
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
   line-height: 1;
+  white-space: nowrap;
   color: var(--accent);
   text-shadow: 0 3px 0 var(--accent-dark);
 }
+
+.subtitle {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: var(--muted);
+}
+
+/* Sound button shows a drawn music-note icon (set in game.js) */
+#soundBtn { display: flex; align-items: center; justify-content: center; }
+#soundBtn svg { width: 22px; height: 22px; display: block; }
 
 .scores { display: flex; gap: 8px; }
 
