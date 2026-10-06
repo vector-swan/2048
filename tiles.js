@@ -485,3 +485,74 @@ const THEMES = {
 };
 const ACTIVE_THEME = 'fruit';
 const TILE_ART = THEMES[ACTIVE_THEME].art;
+
+// ── Picnic basket (app icon and game-over card) ───────────────────────────────
+// A wide wicker basket with folded-down handles and a nicely arranged pile of
+// fruit: pineapple and watermelon at the back, pear / apple / orange / lemon
+// nestled in the middle, grapes and cherries spilling over the front rim.
+// No faces. background=true adds the gingham picnic cloth.
+function picnicBasketSVG(background = false) {
+  const c = { p: background ? 'pbi' : 'pb', n: 0, defs: '', bg: {} };
+  const P = c.p;
+  const wood = grad(c, 'w', '#E8B070', '#B9783F'), band = grad(c, 'b', '#F2C384', '#CF9558');
+  const leaf = grad(c, 'l', '#B6F08E', '#5FC055'), crown = grad(c, 'cr', '#9BE57E', '#3FA651');
+  const melon = rgrad(c, 'm', '#A6EC86', '#3E9E4E'), orange = rgrad(c, 'o', '#FFCB80', '#FF8A2A');
+  const apple = rgrad(c, 'a', '#FF9A9A', '#D42638'), grape = rgrad(c, 'g', '#D2AEFF', '#7046C8');
+  const pear = rgrad(c, 'pr', '#F4FBB4', '#A2CF4A'), lemon = rgrad(c, 'le', '#FFF6A6', '#F7C531');
+  const pine = grad(c, 'pb', '#FFE98A', '#E89A30'), cherry = rgrad(c, 'ch', '#FF8A9C', '#C81642');
+  c.defs += `<clipPath id="${P}mc"><ellipse cx="68" cy="42" rx="19" ry="14" transform="rotate(-12 68 42)"/></clipPath>`
+    + `<clipPath id="${P}pc"><ellipse cx="41" cy="42" rx="11" ry="14"/></clipPath>`;
+  if (background) c.defs += `<pattern id="${P}gh" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#FFF8EC"/><rect width="10" height="20" fill="#FF7891" opacity="0.22"/><rect width="20" height="10" fill="#FF7891" opacity="0.22"/></pattern>`;
+  const handle = d => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#D49A5C" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const contact = (x, y, rx) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${rx * 0.28}" fill="#5A3020" opacity="0.18"/>`;
+  const spike = (bx, tx, ty, w) => `<path d="M ${bx - w},31 Q ${(bx + tx) / 2 - w * 0.5},${(31 + ty) / 2} ${tx},${ty} Q ${(bx + tx) / 2 + w * 0.5},${(31 + ty) / 2} ${bx + w},31 Z" fill="${crown}" ${LN}/>`;
+
+  let s = '';
+  if (background) s += `<rect width="100" height="100" fill="url(#${P}gh)"/><ellipse cx="50" cy="91" rx="38" ry="4.5" fill="#A06A3A" opacity="0.18"/>`;
+  // handles folded down at the sides, and the dark inside of the basket
+  s += handle('M 17,64 L 8,79 Q 6,85 13,85 L 26,86') + handle('M 83,64 L 92,79 Q 94,85 87,85 L 74,86');
+  s += `<path d="M 13,62 Q 50,52 87,62 L 87,64 L 13,64 Z" fill="#8E5A2E" ${LN}/>`;
+
+  // back: pineapple (crown up high) and a watermelon lying on its side
+  s += spike(41, 30, 18, 3) + spike(41, 52, 18, 3) + spike(41, 35, 10, 3) + spike(41, 47, 10, 3) + spike(41, 41, 5, 3.4);
+  let hatch = '';
+  for (let k = -30; k <= 30; k += 6) hatch += `<path d="M ${41 + k - 16},28 L ${41 + k + 16},58 M ${41 + k + 16},28 L ${41 + k - 16},58" stroke="#C98A2E" stroke-width="0.8" opacity="0.6"/>`;
+  s += `<ellipse cx="41" cy="42" rx="11" ry="14" fill="${pine}" ${LN}/><g clip-path="url(#${P}pc)">${hatch}</g><ellipse cx="41" cy="42" rx="11" ry="14" fill="none" ${LN}/>`;
+  let stripes = '';
+  for (const y of [30, 36, 42, 48, 54]) {
+    let d = `M 44,${y}`;
+    for (let x = 44; x < 94; x += 6) d += ' l 3,2 l 3,-2';
+    stripes += `<path d="${d}" fill="none" stroke="#24803A" stroke-width="2.4" stroke-linejoin="round" opacity="0.8"/>`;
+  }
+  s += `<ellipse cx="68" cy="42" rx="19" ry="14" transform="rotate(-12 68 42)" fill="${melon}" ${LN}/>`
+    + `<g clip-path="url(#${P}mc)"><g transform="rotate(-12 68 42)">${stripes}</g></g>`
+    + `<ellipse cx="68" cy="42" rx="19" ry="14" transform="rotate(-12 68 42)" fill="none" ${LN}/>` + shine(60, 33, 5, 2.2, -12);
+
+  // middle: pear (leaning), apple, orange, all sitting down into the basket
+  s += `<g transform="rotate(-14 22 52)"><path d="M 22,36 C 18,36 17,41 17,44 C 12,47 11,54 13,58 C 15,64 29,64 31,58 C 33,54 32,47 27,44 C 27,41 26,36 22,36 Z" fill="${pear}" ${LN}/>`
+    + shine(18, 50, 2.4, 1.4) + stem('M 22,37 Q 22,33 24,30') + `</g>`;
+  s += contact(47, 61, 12) + `<path d="M 47,46 C 42,42 34,44 34,54 C 34,63 41,68 47,65 C 53,68 60,63 60,54 C 60,44 52,42 47,46 Z" fill="${apple}" ${LN}/>`
+    + shine(39, 51, 3, 1.6) + stem('M 47,47 Q 46,42 49,38') + leafAt(48, 42, -30, 8, leaf);
+  s += contact(68, 62, 11) + `<circle cx="68" cy="55" r="11.5" fill="${orange}" ${LN}/>` + shine(63, 49, 3, 1.5)
+    + `<circle cx="72" cy="58" r="0.7" fill="#D9661A" opacity="0.45"/><circle cx="64" cy="61" r="0.7" fill="#D9661A" opacity="0.45"/>`;
+  // a lemon leaning against the front-left of the rim
+  s += `<ellipse cx="29" cy="55" rx="9.5" ry="6.5" transform="rotate(-22 29 55)" fill="${lemon}" ${LN}/>`
+    + `<ellipse cx="20.5" cy="58.5" rx="2" ry="1.4" transform="rotate(-22 20.5 58.5)" fill="#F7C531" ${LN}/>` + shine(26, 52, 2.6, 1.2, -22);
+
+  // basket body, weave and top band (hides the bottoms of the fruit)
+  s += `<path d="M 12,64 L 88,64 L 83,86 Q 82,90 77,90 L 23,90 Q 18,90 17,86 Z" fill="${wood}" ${LN}/>`;
+  s += `<g fill="none" stroke="#9A6233" stroke-width="1" opacity="0.65"><path d="M 15,78 Q 50,82 85,78"/><path d="M 26,70 L 27,89 M 38,70 L 38,90 M 50,70 L 50,90 M 62,70 L 62,90 M 74,70 L 73,89"/></g>`;
+  s += `<rect x="10" y="59" width="80" height="11" rx="3" fill="${band}" ${LN}/>`;
+  s += `<path d="M 14,62.5 L 86,62.5" stroke="white" stroke-width="1.4" stroke-linecap="round" opacity="0.45"/>`;
+
+  // front: grapes draped over the right of the rim, cherries hanging on the left
+  s += contact(77, 70, 9);
+  s += stem('M 78,57 Q 79,53 82,51') + leafAt(80, 54, -20, 9, leaf);
+  for (const [x, y] of [[72, 59], [78, 58], [84, 60], [75, 64], [81, 64], [78, 69], [73, 69], [76, 74]])
+    s += `<circle cx="${x}" cy="${y}" r="3.9" fill="${grape}" ${LN}/>` + shine(x - 1.2, y - 1.4, 1, 0.6);
+  s += `<path d="M 24,60 Q 21,63 19,70" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/><path d="M 24,60 Q 21,63 19,70" fill="none" stroke="#7DA03A" stroke-width="1.2" stroke-linecap="round"/>`
+    + `<path d="M 24,60 Q 26,65 26,72" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/><path d="M 24,60 Q 26,65 26,72" fill="none" stroke="#7DA03A" stroke-width="1.2" stroke-linecap="round"/>`;
+  s += `<circle cx="19" cy="73" r="4.4" fill="${cherry}" ${LN}/><circle cx="26.5" cy="75" r="4.4" fill="${cherry}" ${LN}/>` + shine(17.6, 71.4, 1.3, 0.7) + shine(25.1, 73.4, 1.3, 0.7);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>${c.defs}</defs>${s}</svg>`;
+}
