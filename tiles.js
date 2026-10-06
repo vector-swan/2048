@@ -487,10 +487,10 @@ const ACTIVE_THEME = 'fruit';
 const TILE_ART = THEMES[ACTIVE_THEME].art;
 
 // ── Picnic basket (app icon and game-over card) ───────────────────────────────
-// A round wicker fruit basket with a tall arched handle and a teal bow,
+// A round wicker fruit basket with a tall arched handle,
 // twisted rope rim and scalloped weave. Fruit sits low so the handle shows:
-// green grapes and bananas at the back, orange, pear, apple, lemon and purple
-// grapes along the rim. No faces. background=true adds the gingham cloth.
+// green grapes at the back, orange, pear, apple, lemon and purple grapes
+// along the rim. No faces. background=true adds the gingham cloth.
 function picnicBasketSVG(background = false) {
   const c = { p: background ? 'pbi' : 'pb', n: 0, defs: '', bg: {} };
   const P = c.p;
@@ -500,7 +500,6 @@ function picnicBasketSVG(background = false) {
   const orange = rgrad(c, 'o', '#FFCB80', '#FF8A2A'), apple = rgrad(c, 'a', '#FF9A9A', '#D42638');
   const lemon = rgrad(c, 'le', '#FFF6A6', '#F7C531'), pear = rgrad(c, 'pr', '#D9F08A', '#7FAE3A');
   const grapeP = rgrad(c, 'gp', '#D2AEFF', '#7046C8'), grapeG = rgrad(c, 'gg', '#EEF9C4', '#A6D25E');
-  const banana = grad(c, 'bn', '#FFF0A0', '#F2C53A'), bow = rgrad(c, 'bw', '#A8E8E4', '#4FB3B5');
   const body = 'M 12,67 C 12,84 20,92 50,92 C 80,92 88,84 88,67 Z';
   c.defs += `<clipPath id="${P}bc"><path d="${body}"/></clipPath>`;
   if (background) c.defs += `<pattern id="${P}gh" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#FFF8EC"/><rect width="10" height="20" fill="#FF7891" opacity="0.22"/><rect width="20" height="10" fill="#FF7891" opacity="0.22"/></pattern>`;
@@ -513,15 +512,9 @@ function picnicBasketSVG(background = false) {
   const arch = 'M 16,66 C 14,4 86,4 84,66';
   s += `<path d="${arch}" fill="none" stroke="${INK}" stroke-width="7.4" stroke-linecap="round"/><path d="${arch}" fill="none" stroke="${handleG}" stroke-width="4.4" stroke-linecap="round"/>`;
 
-  // back: green grapes (left), bananas leaning on the handle (right)
+  // back: green grapes
   for (const [x, y] of [[25, 42], [31, 40], [37, 42], [22, 47], [28, 46], [34, 47], [40, 48], [25, 52], [31, 51], [37, 52]]) s += berry(x, y, 3.8, grapeG);
   s += stem('M 31,37 Q 31,33 34,31');
-  // a bunch of bananas leaning up toward the handle
-  const nana = d => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="7" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#F7D44A" stroke-width="4.4" stroke-linecap="round"/>`;
-  for (const [d, tip] of [['M 62,62 Q 72,54 73,38', [73, 38]], ['M 65,63 Q 77,56 79,41', [79, 41]], ['M 68,64 Q 82,58 85,46', [85, 46]]])
-    s += nana(d) + `<circle cx="${tip[0]}" cy="${tip[1]}" r="1.4" fill="#7A4A22"/>`;
-  s += `<path d="M 64,58 Q 70,52 71,42" fill="none" stroke="white" stroke-width="1" stroke-linecap="round" opacity="0.5"/>`;
-
   // middle row: orange and pear
   s += `<circle cx="54" cy="55" r="9.5" fill="${orange}" ${LN}/>` + shine(50, 51, 2.6, 1.3) + stem('M 54,46 L 54,43');
   s += `<path d="M 76,46 C 72,46 71,51 71,53 C 66,56 65,62 67,66 C 69,71 83,71 85,66 C 87,62 86,56 81,53 C 81,51 80,46 76,46 Z" fill="${pear}" ${LN}/>` + shine(71, 58, 1.8, 1.1) + stem('M 76,47 Q 76,42 78,39');
@@ -541,11 +534,6 @@ function picnicBasketSVG(background = false) {
   for (let x = 13; x < 88; x += 5) s += `<path d="M ${x},63.5 q 3.4,3 1.6,6" fill="none" stroke="#9A6233" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>`;
   s += `<path d="M 13,64 L 87,64" stroke="white" stroke-width="1.1" stroke-linecap="round" opacity="0.4"/>`;
 
-  // teal ribbon bow tied on the handle
-  s += `<path d="M 73,32 Q 71,36 72,40" fill="none" stroke="${INK}" stroke-width="3.4" stroke-linecap="round"/><path d="M 73,32 Q 71,36 72,40" fill="none" stroke="#5FC0C0" stroke-width="1.8" stroke-linecap="round"/>`;
-  s += `<path d="M 75,32 Q 78,36 77,40" fill="none" stroke="${INK}" stroke-width="3.4" stroke-linecap="round"/><path d="M 75,32 Q 78,36 77,40" fill="none" stroke="#5FC0C0" stroke-width="1.8" stroke-linecap="round"/>`;
-  s += `<ellipse cx="67.5" cy="27.5" rx="6.5" ry="4.2" transform="rotate(-28 67.5 27.5)" fill="${bow}" ${LN}/><ellipse cx="81" cy="27" rx="6.5" ry="4.2" transform="rotate(28 81 27)" fill="${bow}" ${LN}/>`;
-  s += `<circle cx="74" cy="30.5" r="2.8" fill="#5FC0C0" ${LN}/>` + shine(65.5, 26, 2, 1, -28) + shine(79.5, 25.2, 2, 1, 28);
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>${c.defs}</defs>${s}</svg>`;
 }
