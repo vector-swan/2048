@@ -1,6 +1,6 @@
 {
-  "name": "Kawaii 2048",
-  "short_name": "Kawaii 2048",
+  "name": "Fruit Picnic",
+  "short_name": "Fruit Picnic",
   "description": "Merge cute fruit from cherries to a watermelon.",
   "start_url": "./",
   "scope": "./",
