@@ -554,6 +554,8 @@ window.addEventListener('resize', relayout);
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 document.getElementById('best').textContent = best;
+document.getElementById('gameoverArt').src =
+  'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(picnicBasketSVG(false, { empty: true }));
 document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
 newGame();
 

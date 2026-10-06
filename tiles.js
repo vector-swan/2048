@@ -511,9 +511,10 @@ const TILE_ART = THEMES[ACTIVE_THEME].art;
 // twisted rope rim and scalloped weave. Fruit sits low so the handle shows:
 // a watermelon in the middle with an apple and grapes either side, drawn with
 // the game's own fruit art (FRUIT_BODY), without faces, slightly tilted.
-// background=true adds the gingham cloth (used for the app icon).
-function picnicBasketSVG(background = false) {
-  const c = { p: background ? 'pbi' : 'pb', n: 0, defs: '', bg: {} };
+// background=true adds the gingham cloth (used for the app icon);
+// opts.empty draws it with no fruit (used on the game-over card).
+function picnicBasketSVG(background = false, opts = {}) {
+  const c = { p: (background ? 'pbi' : 'pb') + (opts.empty ? 'e' : ''), n: 0, defs: '', bg: {} };
   const P = c.p;
   const wood = grad(c, 'w', '#E2A866', '#B9783F'), rimG = grad(c, 'r', '#EDBB7A', '#C98A4E');
   const handleG = grad(c, 'h', '#E8B474', '#C48546');
@@ -537,10 +538,15 @@ function picnicBasketSVG(background = false) {
       .replace(/stroke-width="2\.2"/g, 'stroke-width="2.6"');
     return `<g transform="translate(${(x - 50 * k).toFixed(2)},${(y - 58 * k).toFixed(2)}) scale(${k}) rotate(${tilt} 50 58)">${part}</g>`;
   };
-  // three fruit, each tilted a little so they look naturally tossed in
-  s += place(FRUIT_BODY.watermelon, 50, 52, 0.5, -10);
-  s += place(FRUIT_BODY.apple, 29, 59, 0.44, -16);
-  s += place(FRUIT_BODY.grape, 71, 59, 0.42, 18);
+  if (opts.empty) {
+    // empty basket (game over): show the dark inside of the back wall
+    s += `<path d="M 13,66 Q 50,54 87,66 Z" fill="#8E5A2E" ${LN}/>`;
+  } else {
+    // three fruit, each tilted a little so they look naturally tossed in
+    s += place(FRUIT_BODY.watermelon, 50, 52, 0.5, -10);
+    s += place(FRUIT_BODY.apple, 29, 59, 0.44, -16);
+    s += place(FRUIT_BODY.grape, 71, 59, 0.42, 18);
+  }
 
   // basket body with scalloped weave rows
   let weave = '';
