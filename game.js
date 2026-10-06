@@ -573,6 +573,22 @@ document.getElementById('gameoverArt').src =
 document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
 newGame();
 
+// Test shortcut: open the game with #almost-win at the end of the link to
+// start one swipe (left) away from the watermelon, to try the win screen.
+function setUpAlmostWin() {
+  newGame();
+  liveTiles.forEach(t => t.el.remove());
+  liveTiles = [];
+  [[0, 0, 1024], [0, 1, 1024], [1, 0, 512], [1, 1, 256], [2, 0, 32], [3, 3, 2]].forEach(([r, c, value]) => {
+    const el = makeTileEl(value, r, c);
+    tilesEl.appendChild(el);
+    liveTiles.push({ id: nextId++, value, r, c, el });
+  });
+  highestThisGame = 1024;
+}
+if (location.hash === '#almost-win') setUpAlmostWin();
+window.addEventListener('hashchange', () => { if (location.hash === '#almost-win') setUpAlmostWin(); });
+
 // Installable app: keep a copy on the phone so it works offline
 if ('serviceWorker' in navigator && window.isSecureContext) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
