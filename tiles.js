@@ -513,7 +513,7 @@ const TILE_ART = THEMES[ACTIVE_THEME].art;
 // the game's own fruit art (FRUIT_BODY), without faces, slightly tilted.
 // background=true adds the gingham cloth (used for the app icon);
 // opts.empty draws it with no fruit; opts.blanket sets it on a gingham picnic
-// blanket and opts.ants adds ants marching off (all used on the game-over card).
+// blanket and opts.ants adds a little ant (all used on the game-over card).
 function picnicBasketSVG(background = false, opts = {}) {
   const c = { p: (background ? 'pbi' : 'pb') + (opts.empty ? 'e' : ''), n: 0, defs: '', bg: {} };
   const P = c.p;
@@ -539,10 +539,7 @@ function picnicBasketSVG(background = false, opts = {}) {
       .replace(/stroke-width="2\.2"/g, 'stroke-width="2.6"');
     return `<g transform="translate(${(x - 50 * k).toFixed(2)},${(y - 58 * k).toFixed(2)}) scale(${k}) rotate(${tilt} 50 58)">${part}</g>`;
   };
-  if (opts.empty) {
-    // empty basket (game over): show the dark inside of the back wall
-    s += `<path d="M 13,66 Q 50,54 87,66 Z" fill="#8E5A2E" ${LN}/>`;
-  } else {
+  if (!opts.empty) {
     // three fruit, each tilted a little so they look naturally tossed in
     s += place(FRUIT_BODY.watermelon, 50, 52, 0.5, -10);
     s += place(FRUIT_BODY.apple, 29, 59, 0.44, -16);
@@ -561,7 +558,7 @@ function picnicBasketSVG(background = false, opts = {}) {
 
 
   if (opts.ants) {
-    // a few ants marching off with the fruit (game over: the basket is empty)
+    // a little ant on the blanket (game over: the basket is empty)
     const ant = (x, y, rot, carry) => {
       let a = `<g transform="translate(${x},${y}) rotate(${rot}) scale(1.6)">`;
       a += `<g stroke="${INK}" stroke-width="0.7" stroke-linecap="round" fill="none">`
@@ -572,12 +569,12 @@ function picnicBasketSVG(background = false, opts = {}) {
       if (carry) a += `<circle cx="0.4" cy="-3.4" r="2.6" fill="#9B6BE0" ${LN.replace('stroke-width="1.5"', 'stroke-width="0.7"')}/><circle cx="-0.3" cy="-4.1" r="0.7" fill="white" opacity="0.7"/>`;
       return a + '</g>';
     };
-    var ants = ant(12, 92, -8, true) + ant(27, 95, 6, false) + ant(86, 91, 186, false);
+    var ants = ant(18, 92, -6, false);
   }
   if (opts.blanket) {
     // set the basket (a little smaller) on a gingham picnic blanket
     c.defs += `<pattern id="${P}bl" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#FFFFFF"/><rect width="4" height="8" fill="#FF5D7E" opacity="0.45"/><rect width="8" height="4" fill="#FF5D7E" opacity="0.45"/></pattern>`;
-    const blanket = `<path d="M 13,66 Q 50,63 87,66 L 98,95 Q 99,98 95,98 L 5,98 Q 1,98 2,95 Z" fill="url(#${P}bl)" ${LN}/>`;
+    const blanket = `<rect x="6" y="64" width="88" height="34" rx="2" fill="url(#${P}bl)" ${LN}/>`;
     s = blanket + `<g transform="translate(50 88) scale(0.8) translate(-50 -91)">${s}</g>` + (opts.ants ? ants : '');
   } else if (opts.ants) {
     s += ants;
