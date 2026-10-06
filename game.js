@@ -498,7 +498,10 @@ function hideCelebration() {
   stopConfetti();
   document.getElementById('celebration').classList.remove('show');
 }
-function showGameOver() { document.getElementById('gameover').classList.add('show'); }
+function showGameOver() {
+  document.getElementById('finalScore').textContent = score.toLocaleString();
+  document.getElementById('gameover').classList.add('show');
+}
 function hideGameOver() { document.getElementById('gameover').classList.remove('show'); }
 
 // ── New game ──────────────────────────────────────────────────────────────────
@@ -555,7 +558,7 @@ window.addEventListener('resize', relayout);
 // ── Start ─────────────────────────────────────────────────────────────────────
 document.getElementById('best').textContent = best;
 document.getElementById('gameoverArt').src =
-  'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(picnicBasketSVG(false, { empty: true }));
+  'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(picnicBasketSVG(false, { empty: true, blanket: true, ants: true }));
 document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
 newGame();
 

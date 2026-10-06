@@ -512,7 +512,8 @@ const TILE_ART = THEMES[ACTIVE_THEME].art;
 // a watermelon in the middle with an apple and grapes either side, drawn with
 // the game's own fruit art (FRUIT_BODY), without faces, slightly tilted.
 // background=true adds the gingham cloth (used for the app icon);
-// opts.empty draws it with no fruit (used on the game-over card).
+// opts.empty draws it with no fruit; opts.blanket sets it on a gingham picnic
+// blanket and opts.ants adds ants marching off (all used on the game-over card).
 function picnicBasketSVG(background = false, opts = {}) {
   const c = { p: (background ? 'pbi' : 'pb') + (opts.empty ? 'e' : ''), n: 0, defs: '', bg: {} };
   const P = c.p;
@@ -523,7 +524,7 @@ function picnicBasketSVG(background = false, opts = {}) {
   if (background) c.defs += `<pattern id="${P}gh" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#FFF8EC"/><rect width="10" height="20" fill="#FF7891" opacity="0.22"/><rect width="20" height="10" fill="#FF7891" opacity="0.22"/></pattern>`;
 
   let s = '';
-  if (background) s += `<ellipse cx="50" cy="93" rx="36" ry="4" fill="#A06A3A" opacity="0.18"/>`;
+  if (background || opts.blanket) s += `<ellipse cx="50" cy="92" rx="36" ry="4" fill="#A06A3A" opacity="0.2"/>`;
 
   // tall arched handle (behind the fruit)
   const arch = 'M 16,66 C 14,4 86,4 84,66';
@@ -558,6 +559,29 @@ function picnicBasketSVG(background = false, opts = {}) {
   for (let x = 13; x < 88; x += 5) s += `<path d="M ${x},63.5 q 3.4,3 1.6,6" fill="none" stroke="#9A6233" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>`;
   s += `<path d="M 13,64 L 87,64" stroke="white" stroke-width="1.1" stroke-linecap="round" opacity="0.4"/>`;
 
+
+  if (opts.ants) {
+    // a few ants marching off with the fruit (game over: the basket is empty)
+    const ant = (x, y, rot, carry) => {
+      let a = `<g transform="translate(${x},${y}) rotate(${rot}) scale(1.6)">`;
+      a += `<g stroke="${INK}" stroke-width="0.7" stroke-linecap="round" fill="none">`
+        + `<path d="M 0.5,0 l -1.6,2.6 M 0.5,0 l 0.4,3 M 0.5,0 l 2,2.6 M 0.5,0 l -1.6,-2.6 M 0.5,0 l 0.4,-3 M 0.5,0 l 2,-2.6"/>`
+        + `<path d="M 3.6,-0.6 q 1.4,-2.2 2.8,-2.2 M 3.6,0.6 q 1.4,2.2 2.8,2.2"/></g>`;
+      a += `<ellipse cx="-2.4" cy="0" rx="2.6" ry="2" fill="#4A2A4C"/><circle cx="0.6" cy="0" r="1.3" fill="#4A2A4C"/><circle cx="3.4" cy="0" r="1.6" fill="#4A2A4C"/>`;
+      a += `<circle cx="3.9" cy="-0.5" r="0.45" fill="white"/>`;
+      if (carry) a += `<circle cx="0.4" cy="-3.4" r="2.6" fill="#9B6BE0" ${LN.replace('stroke-width="1.5"', 'stroke-width="0.7"')}/><circle cx="-0.3" cy="-4.1" r="0.7" fill="white" opacity="0.7"/>`;
+      return a + '</g>';
+    };
+    var ants = ant(12, 92, -8, true) + ant(27, 95, 6, false) + ant(86, 91, 186, false);
+  }
+  if (opts.blanket) {
+    // set the basket (a little smaller) on a gingham picnic blanket
+    c.defs += `<pattern id="${P}bl" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#FFFFFF"/><rect width="4" height="8" fill="#FF5D7E" opacity="0.45"/><rect width="8" height="4" fill="#FF5D7E" opacity="0.45"/></pattern>`;
+    const blanket = `<path d="M 13,66 Q 50,63 87,66 L 98,95 Q 99,98 95,98 L 5,98 Q 1,98 2,95 Z" fill="url(#${P}bl)" ${LN}/>`;
+    s = blanket + `<g transform="translate(50 88) scale(0.8) translate(-50 -91)">${s}</g>` + (opts.ants ? ants : '');
+  } else if (opts.ants) {
+    s += ants;
+  }
 
   // on the app icon, zoom the basket in slightly so it fills more of the square
   if (background) s = `<rect width="100" height="100" fill="url(#${P}gh)"/><g transform="translate(50 50) scale(1.06) translate(-50 -50)">${s}</g>`;

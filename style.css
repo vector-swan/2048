@@ -298,7 +298,20 @@ h1 {
   font-weight: 700;
 }
 
-.basket-art { width: 120px; height: 120px; display: block; }
+.basket-art { width: 150px; height: 150px; display: block; }
+
+.gameover-content .final-score {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  color: var(--text-dark);
+  margin-top: -4px;
+}
+.gameover-content .final-score span {
+  font-size: 1.6rem;
+  color: var(--accent);
+  margin-left: 4px;
+  font-variant-numeric: tabular-nums;
+}
 
 #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
 
