@@ -5,6 +5,7 @@ const pause = ms => new Promise(r => setTimeout(r, ms));
 // ── Audio ─────────────────────────────────────────────────────────────────────
 let audioCtx = null;
 let soundOn = true;
+try { soundOn = localStorage.getItem('2048sound') !== 'off'; } catch (_) {}
 
 function getAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -29,17 +30,52 @@ function playTone(freq, type, duration, vol = 0.18, d = 0) {
   } catch (_) {}
 }
 
-function soundSlide()        { playTone(220, 'sine', 0.07, 0.05); }
-function soundMerge(value)   {
-  const freq = 330 * Math.pow(1.12, Math.min(Math.log2(value) - 1, 12));
-  playTone(freq,        'sine', 0.25, 0.14);
-  playTone(freq * 1.5,  'sine', 0.18, 0.07, 0.04);
+// Notes come from a C-major pentatonic scale, so any run of merges sounds
+// pleasant. Index 0 = the 2 tile, 10 = the 2048 tile.
+const PENTA = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24, 26, 28];
+function noteFor(value) {
+  const i = Math.min(Math.max(Math.log2(value) - 1, 0), PENTA.length - 1);
+  return 523.25 * Math.pow(2, PENTA[i] / 12);
 }
-function soundGameOver()     { [220,196,174,164].forEach((f,i) => playTone(f,'triangle',0.35,0.12,i*0.15)); }
+
+// Soft bubble pop: a quick downward glide into the note, very short
+function playPop(freq, vol = 0.08, d = 0) {
+  if (!soundOn) return;
+  try {
+    const ctx = getAudio();
+    const t = ctx.currentTime + d;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq * 1.5, t);
+    osc.frequency.exponentialRampToValueAtTime(freq, t + 0.04);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(vol, t + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    osc.start(t); osc.stop(t + 0.25);
+  } catch (_) {}
+}
+
+// One pop per swipe, pitched to the biggest fruit made
+function soundMerge(value) {
+  const f = noteFor(value);
+  playPop(f, 0.08);
+  playTone(f * 2, 'sine', 0.08, 0.015, 0.01);   // faint marimba-like overtone
+}
+
+// Sparkle chime the first time a new fruit appears in a game
+function soundNewFruit(value) {
+  const i = Math.min(Math.log2(value) - 1, PENTA.length - 3);
+  [0, 1, 2].forEach(k => playTone(523.25 * Math.pow(2, PENTA[i + k] / 12), 'sine', 0.35, 0.06, k * 0.08));
+  playTone(noteFor(value) * 4, 'sine', 0.5, 0.02, 0.24);
+}
+
+function soundGameOver()     { [392, 330, 294, 262].forEach((f, i) => playTone(f, 'sine', 0.4, 0.07, i * 0.16)); }
 function soundVictory()      {
-  [523,659,784,1047].forEach((f,i) => {
-    playTone(f,        'sine', 0.4, 0.2,  i*0.14);
-    playTone(f * 1.26, 'sine', 0.3, 0.1,  i*0.14 + 0.07);
+  [523, 659, 784, 1047].forEach((f, i) => {
+    playTone(f,        'sine', 0.4, 0.11, i * 0.14);
+    playTone(f * 1.5,  'sine', 0.3, 0.04, i * 0.14 + 0.07);
   });
 }
 
@@ -105,6 +141,7 @@ let nextId = 1;
 let score = 0;
 let best = parseInt(localStorage.getItem('2048best') || '0', 10);
 let celebrationShown = false;
+let highestThisGame = 0;      // for the new-fruit chime
 let busy = false;             // blocks input during slide+merge animation
 
 const tilesEl = document.getElementById('tiles');
@@ -248,7 +285,6 @@ async function doMove(dir) {
   if (!moved) return;
 
   busy = true;
-  soundSlide();
 
   // ① Slide every tile to its new position (CSS transition animates this)
   const removedIds = new Set(merges.map(m => m.removedId));
@@ -266,7 +302,6 @@ async function doMove(dir) {
 
   // ③ Apply merges: remove consumed tiles, update survivors, play pop
   merges.forEach(m => {
-    soundMerge(m.newValue);
 
     const survivor = liveTiles.find(t => t.id === m.survivorId);
     if (survivor) {
@@ -283,6 +318,17 @@ async function doMove(dir) {
     if (removed) removed.el.remove();
   });
   liveTiles = liveTiles.filter(t => !removedIds.has(t.id));
+
+  // One sound per swipe: a chime for a brand-new fruit, otherwise a soft pop
+  if (merges.length) {
+    const top = Math.max(...merges.map(m => m.newValue));
+    const victoryNext = !celebrationShown && top >= 2048;   // fanfare plays instead
+    if (!victoryNext) {
+      if (top > highestThisGame && top >= 32) soundNewFruit(top);
+      else soundMerge(top);
+    }
+    highestThisGame = Math.max(highestThisGame, top);
+  }
 
   // ④ Update score
   if (scoreAdd) updateScore(scoreAdd);
@@ -389,7 +435,7 @@ function newGame() {
   hideCelebration(); hideGameOver();
   liveTiles.forEach(t => t.el.remove());
   liveTiles = [];
-  score = 0; celebrationShown = false; busy = false; queuedDir = null;
+  score = 0; celebrationShown = false; busy = false; queuedDir = null; highestThisGame = 0;
   document.getElementById('score').textContent = '0';
   document.getElementById('best').textContent = best;
   spawnTile(); spawnTile();
@@ -426,6 +472,7 @@ document.getElementById('newGameBtn').addEventListener('click', newGame);
 document.getElementById('soundBtn').addEventListener('click', () => {
   soundOn = !soundOn;
   document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+  try { localStorage.setItem('2048sound', soundOn ? 'on' : 'off'); } catch (_) {}
 });
 document.getElementById('keepGoingBtn').addEventListener('click', hideCelebration);
 document.getElementById('celebNewGameBtn').addEventListener('click', newGame);
@@ -435,4 +482,5 @@ window.addEventListener('resize', relayout);
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 document.getElementById('best').textContent = best;
+document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
 newGame();
