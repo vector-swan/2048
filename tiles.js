@@ -20,10 +20,20 @@ const PAL = {
   cubB:  { hi: '#FFF7E8', lo: '#F7DDB5', inner: '#FFFBF4', ear: '#EFD6AF' },
 };
 
+// Backgrounds walk the rainbow: twilight blue at 2, slowly round to pink at 2048
 const BG = {
-  2: '#FFE4F3', 4: '#FFD9EA', 8: '#FFEFC4', 16: '#E2F5CC', 32: '#FFF1DC',
-  64: '#FFE0C4', 128: '#D4E9FF', 256: '#E6DBFF', 512: '#D5F0F2',
-  1024: '#5B4AA6', 2048: '#3B2C6E', 4096: '#33265F', 8192: '#2B1F55',
+  2: '#C9D5F6',     // twilight blue
+  4: '#C8E4FA',     // sky blue
+  8: '#C6EFEE',     // aqua
+  16: '#D2F2D3',    // mint
+  32: '#E5F4C4',    // spring green
+  64: '#FFF2BC',    // butter yellow
+  128: '#FFE3BC',   // apricot
+  256: '#FFD7C4',   // peach
+  512: '#FFCCC8',   // coral
+  1024: '#FFCCDF',  // rose
+  2048: '#FFBDDB',  // pink
+  4096: '#FFB2D4', 8192: '#FFA6CC',
 };
 
 // ── Small parts ───────────────────────────────────────────────────────────────
@@ -34,7 +44,7 @@ const heart = (x, y, s, color = '#FF6FA5') =>
   `<g transform="translate(${x},${y}) scale(${s})"><path d="M0,2.8 C-3.6,0 -3.6,-3.2 -1.7,-3.2 C-0.6,-3.2 0,-2.3 0,-1.7 C0,-2.3 0.6,-3.2 1.7,-3.2 C3.6,-3.2 3.6,0 0,2.8 Z" fill="${color}" stroke="${INK}" stroke-width="${0.9 / s}" stroke-linejoin="round"/><ellipse cx="-1.2" cy="-1.6" rx="0.7" ry="0.45" fill="white" opacity="0.8"/></g>`;
 
 function backdrop(c, v, o = {}) {
-  const dark = v >= 1024;
+  const dark = false;
   const { hx = 50, hy = 52, hr = 44, color = dark ? '#FFE9A8' : '#FFFFFF', op = dark ? 0.35 : 0.75 } = o;
   c.defs += `<radialGradient id="${c.p}bg" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#FFFFFF" stop-opacity="${dark ? 0.1 : 0.55}"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
 <radialGradient id="${c.p}halo"><stop offset="0" stop-color="${color}" stop-opacity="${op}"/><stop offset="0.6" stop-color="${color}" stop-opacity="${op * 0.45}"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient>`;
@@ -124,18 +134,17 @@ const rgrad = (c, id, a, b) => {
 
 // ── Family scene (2048 and up) ────────────────────────────────────────────────
 function family(c, v, o = {}) {
-  let s = backdrop(c, v, { hy: 56, hr: 48, color: '#FFD98A', op: 0.45 });
-  s += `<path d="M 84,15 a 8,8 0 1 0 7,11 a 6,6 0 1 1 -7,-11 Z" fill="#FFE98A" opacity="0.95"/>`;
+  let s = backdrop(c, v, { hy: 56, hr: 48 });
   s += face(c, 32, 48, 17, PAL.brown, { closed: true, scarf: true, crown: o.crown });
   s += face(c, 70, 48, 17, PAL.cream, { closed: true, bow: true, crown: o.crown });
   s += face(c, 38, 79, 12, PAL.cubA, { closed: true, crown: o.crown });
   s += face(c, 63, 79, 12, PAL.cubB, { big: true, crown: o.crown });
   s += heart(51, 20, 1.5) + heart(51, 66, 1.1, '#FFB3D1');
-  if (o.hearts) s += heart(14, 70, 1.1, '#FFB3D1') + heart(88, 70, 1.3) + heart(50, 92, 1) + star(50, 12, 4, '#FFF6C4');
+  if (o.hearts) s += heart(14, 70, 1.1, '#FFB3D1') + heart(88, 70, 1.3) + heart(50, 92, 1) + star(50, 10, 4, '#FFFFFF');
   if (o.frame) {
     const g = grad(c, 'gold', '#FFF08A', '#FFB82E');
     s += `<rect x="1.8" y="1.8" width="96.4" height="96.4" rx="9" fill="none" stroke="${g}" stroke-width="3.2"/>`;
-    s += star(92, 8, 4, '#FFF6C4') + star(8, 92, 3.4, '#FFF6C4');
+    s += star(92, 8, 4, '#FFFFFF') + star(8, 92, 3.4, '#FFFFFF');
   }
   return s;
 }
@@ -146,7 +155,9 @@ const TILE_ART = {
   // A sleepy bear, all alone.
   2: tile(2, c => backdrop(c, 2, { hy: 56 }) + ground(c, 50, 86, 26)
     + face(c, 50, 56, 29, PAL.brown, { sleepy: true })
-    + `<g fill="none" stroke="#B58AD0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M 80,22 h 7 l -7,8 h 7"/><path d="M 71,13 h 4.5 l -4.5,5.5 h 4.5"/></g>`),
+    + `<circle cx="84" cy="16" r="13" fill="#FFF6C8" opacity="0.35"/><path d="M 82,7 a 9,9 0 1 0 9,13 a 7,7 0 1 1 -9,-13 Z" fill="#FFF3B0" stroke="${INK}" stroke-width="1" stroke-linejoin="round"/>`
+    + star(60, 10, 2.4, '#FFFFFF') + star(94, 36, 2, '#FFFFFF')
+    + `<g fill="none" stroke="#7C83C9" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M 66,20 h 6 l -6,7 h 6"/><path d="M 58,14 h 4 l -4,4.6 h 4"/></g>`),
 
   // A warm red scarf.
   4: tile(4, c => backdrop(c, 4, { hy: 52 }) + ground(c, 50, 90, 26)
@@ -237,7 +248,7 @@ const TILE_ART = {
   // Evening: the lantern is lit.
   1024: tile(1024, c => {
     const glass = grad(c, 'g', '#FFF6BF', '#FFC94D'), flame = grad(c, 'f', '#FFE27A', '#FF8A3D'), metal = grad(c, 'm', '#D3A06C', '#A8744A');
-    const fly = (x, y) => `<circle cx="${x}" cy="${y}" r="4.5" fill="#FFF3A0" opacity="0.28"/><circle cx="${x}" cy="${y}" r="1.7" fill="#FFF8C9"/>`;
+    const fly = (x, y) => `<circle cx="${x}" cy="${y}" r="4.5" fill="#FFD25A" opacity="0.35"/><circle cx="${x}" cy="${y}" r="1.8" fill="#FFC531" stroke="${INK}" stroke-width="0.5"/>`;
     return backdrop(c, 1024, { hy: 50, hr: 46, color: '#FFE08A', op: 0.55 })
       + `<path d="M 38,24 Q 50,0 62,24" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M 38,24 Q 50,0 62,24" fill="none" stroke="#E5B97E" stroke-width="2.6" stroke-linecap="round"/>`
       + `<path d="M 35,31 L 65,31 L 58,20 L 42,20 Z" fill="${metal}" ${LN}/><circle cx="50" cy="18" r="2.8" fill="${metal}" ${LN}/>`
