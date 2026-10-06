@@ -538,7 +538,7 @@ function picnicBasketSVG(background = false) {
     return `<g transform="translate(${(x - 50 * k).toFixed(2)},${(y - 58 * k).toFixed(2)}) scale(${k}) rotate(${tilt} 50 58)">${part}</g>`;
   };
   // three fruit, each tilted a little so they look naturally tossed in
-  s += place(FRUIT_BODY.watermelon, 50, 46, 0.5, -10);
+  s += place(FRUIT_BODY.watermelon, 50, 52, 0.5, -10);
   s += place(FRUIT_BODY.apple, 29, 59, 0.44, -16);
   s += place(FRUIT_BODY.grape, 71, 59, 0.42, 18);
 
