@@ -30,50 +30,72 @@ function playTone(freq, type, duration, vol = 0.18, d = 0) {
   } catch (_) {}
 }
 
-// Notes come from a C-major pentatonic scale, so any run of merges sounds
-// pleasant. Index 0 = the 2 tile, 10 = the 2048 tile.
+// Notes come from a pentatonic scale, so any run of merges sounds pleasant.
+// Low and mellow: the 2 tile is G3, the 2048 tile tops out around G5.
 const PENTA = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24, 26, 28];
-function noteFor(value) {
-  const i = Math.min(Math.max(Math.log2(value) - 1, 0), PENTA.length - 1);
-  return 523.25 * Math.pow(2, PENTA[i] / 12);
-}
+const BASE_HZ = 196;
+function noteAt(i) { return BASE_HZ * Math.pow(2, PENTA[Math.min(i, PENTA.length - 1)] / 12); }
+function noteFor(value) { return noteAt(Math.max(Math.log2(value) - 1, 0)); }
 
-// Soft bubble pop: a quick downward glide into the note, very short
-function playPop(freq, vol = 0.08, d = 0) {
+// Bubble "bloop": a soft, filtered tone that slides up into the note
+function playBloop(freq, vol = 0.12, d = 0) {
   if (!soundOn) return;
   try {
     const ctx = getAudio();
     const t = ctx.currentTime + d;
     const osc = ctx.createOscillator();
+    const filt = ctx.createBiquadFilter();
     const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq * 1.5, t);
-    osc.frequency.exponentialRampToValueAtTime(freq, t + 0.04);
+    osc.type = 'triangle';
+    filt.type = 'lowpass'; filt.frequency.value = 1400; filt.Q.value = 0.7;
+    osc.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(freq * 0.62, t);
+    osc.frequency.exponentialRampToValueAtTime(freq, t + 0.06);
     gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(vol, t + 0.006);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-    osc.start(t); osc.stop(t + 0.25);
+    gain.gain.linearRampToValueAtTime(vol, t + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+    osc.start(t); osc.stop(t + 0.2);
   } catch (_) {}
 }
 
-// One pop per swipe, pitched to the biggest fruit made
-function soundMerge(value) {
-  const f = noteFor(value);
-  playPop(f, 0.08);
-  playTone(f * 2, 'sine', 0.08, 0.015, 0.01);   // faint marimba-like overtone
+// Soft woody tap: a tiny burst of filtered noise
+let tapBuffer = null;
+function playTap(vol = 0.05, d = 0) {
+  if (!soundOn) return;
+  try {
+    const ctx = getAudio();
+    if (!tapBuffer) {
+      tapBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.02), ctx.sampleRate);
+      const ch = tapBuffer.getChannelData(0);
+      for (let k = 0; k < ch.length; k++) ch[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / ch.length, 3);
+    }
+    const src = ctx.createBufferSource();
+    const filt = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+    src.buffer = tapBuffer;
+    filt.type = 'bandpass'; filt.frequency.value = 900; filt.Q.value = 1.2;
+    gain.gain.value = vol;
+    src.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
+    src.start(ctx.currentTime + d);
+  } catch (_) {}
 }
 
-// Sparkle chime the first time a new fruit appears in a game
+// One tap + bloop per swipe, pitched to the biggest fruit made
+function soundMerge(value) {
+  playTap(0.05);
+  playBloop(noteFor(value), 0.12);
+}
+
+// Three rising bloops the first time a new fruit appears in a game
 function soundNewFruit(value) {
-  const i = Math.min(Math.log2(value) - 1, PENTA.length - 3);
-  [0, 1, 2].forEach(k => playTone(523.25 * Math.pow(2, PENTA[i + k] / 12), 'sine', 0.35, 0.06, k * 0.08));
-  playTone(noteFor(value) * 4, 'sine', 0.5, 0.02, 0.24);
+  const i = Math.log2(value) - 1;
+  playTap(0.05);
+  [0, 1, 2].forEach(k => playBloop(noteAt(i + k), 0.1, k * 0.09));
 }
 
 function soundGameOver()     { [392, 330, 294, 262].forEach((f, i) => playTone(f, 'sine', 0.4, 0.07, i * 0.16)); }
 function soundVictory()      {
-  [523, 659, 784, 1047].forEach((f, i) => {
+  [262, 330, 392, 523].forEach((f, i) => {
     playTone(f,        'sine', 0.4, 0.11, i * 0.14);
     playTone(f * 1.5,  'sine', 0.3, 0.04, i * 0.14 + 0.07);
   });
