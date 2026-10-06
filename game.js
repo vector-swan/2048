@@ -161,19 +161,28 @@ class Particle {
     this.w  = 7 + Math.random() * 8;
     this.h  = 4 + Math.random() * 5;
     this.color = CC[Math.floor(Math.random() * CC.length)];
-    this.vx = (Math.random() - 0.5) * 2.5;
-    this.vy = 2 + Math.random() * 3;
+    this.vx = (Math.random() - 0.5) * 1.2;
+    this.vy = 1.6 + Math.random() * 2.2;
     this.angle = Math.random() * Math.PI * 2;
-    this.va = (Math.random() - 0.5) * 0.15;
+    this.va = (Math.random() - 0.5) * 0.1;
+    // paper flutter: side-to-side sway and a flip as it falls
+    this.sway = Math.random() * Math.PI * 2;
+    this.swaySpeed = 0.03 + Math.random() * 0.04;
+    this.flip = Math.random() * Math.PI * 2;
+    this.flipSpeed = 0.06 + Math.random() * 0.08;
   }
   update() {
-    this.x += this.vx; this.y += this.vy; this.angle += this.va;
+    this.sway += this.swaySpeed; this.flip += this.flipSpeed;
+    this.x += this.vx + Math.sin(this.sway) * 1.1;
+    this.y += this.vy;
+    this.angle += this.va;
     if (this.y > this.c.height + 20) this.reset();
   }
   draw(ctx) {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
+    ctx.scale(1, Math.cos(this.flip));
     ctx.fillStyle = this.color;
     ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
     ctx.restore();
@@ -557,6 +566,8 @@ window.addEventListener('resize', relayout);
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 document.getElementById('best').textContent = best;
+document.getElementById('winArt').src =
+  'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(picnicBasketSVG(false, { blanket: true }));
 document.getElementById('gameoverArt').src =
   'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(picnicBasketSVG(false, { empty: true, blanket: true, ants: true }));
 document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
