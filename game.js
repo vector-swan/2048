@@ -556,3 +556,8 @@ window.addEventListener('resize', relayout);
 document.getElementById('best').textContent = best;
 document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
 newGame();
+
+// Installable app: keep a copy on the phone so it works offline
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
