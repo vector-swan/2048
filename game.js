@@ -3,105 +3,125 @@
 const pause = ms => new Promise(r => setTimeout(r, ms));
 
 // ── Audio ─────────────────────────────────────────────────────────────────────
-let audioCtx = null;
+// Kalimba garden: a soft muted thump for every merge, and a short "climbing
+// phrase" the first time each new fruit appears (same shape, one step higher
+// per fruit). Everything is synthesised with Web Audio; no sound files.
 let soundOn = true;
 try { soundOn = localStorage.getItem('2048sound') !== 'off'; } catch (_) {}
 
+let audioCtx = null, audioBus = null, audioVerb = null, noiseBuf = null;
+
 function getAudio() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (!audioCtx) {
+    const ctx = audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -14; comp.ratio.value = 4;
+    comp.connect(ctx.destination);
+    audioBus = ctx.createGain(); audioBus.gain.value = 0.9; audioBus.connect(comp);
+    // Small generated room reverb for warmth
+    audioVerb = ctx.createConvolver();
+    const n = Math.floor(ctx.sampleRate * 1.8), ir = ctx.createBuffer(2, n, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = ir.getChannelData(ch);
+      for (let k = 0; k < n; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / n, 3);
+    }
+    audioVerb.buffer = ir;
+    const vg = ctx.createGain(); vg.gain.value = 0.45;
+    audioVerb.connect(vg); vg.connect(comp);
+    noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.1), ctx.sampleRate);
+    const nd = noiseBuf.getChannelData(0);
+    for (let k = 0; k < nd.length; k++) nd[k] = Math.random() * 2 - 1;
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
   return audioCtx;
 }
 
-function playTone(freq, type, duration, vol = 0.18, d = 0) {
-  if (!soundOn) return;
-  try {
-    const ctx = getAudio();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, ctx.currentTime + d);
-    gain.gain.setValueAtTime(0, ctx.currentTime + d);
-    gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + d + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d + duration);
-    osc.start(ctx.currentTime + d);
-    osc.stop(ctx.currentTime + d + duration + 0.05);
-  } catch (_) {}
+function route(node, send) {
+  node.connect(audioBus);
+  if (send) { const s = audioCtx.createGain(); s.gain.value = send; node.connect(s); s.connect(audioVerb); }
 }
 
-// Notes come from a pentatonic scale, so any run of merges sounds pleasant.
-// Low and mellow: the 2 tile is G3, the 2048 tile tops out around G5.
-const PENTA = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24, 26, 28];
-const BASE_HZ = 196;
-function noteAt(i) { return BASE_HZ * Math.pow(2, PENTA[Math.min(i, PENTA.length - 1)] / 12); }
-function noteFor(value) { return noteAt(Math.max(Math.log2(value) - 1, 0)); }
-
-// Bubble "bloop": a soft, filtered tone that slides up into the note
-function playBloop(freq, vol = 0.12, d = 0) {
-  if (!soundOn) return;
-  try {
-    const ctx = getAudio();
-    const t = ctx.currentTime + d;
-    const osc = ctx.createOscillator();
-    const filt = ctx.createBiquadFilter();
-    const gain = ctx.createGain();
-    osc.type = 'triangle';
-    filt.type = 'lowpass'; filt.frequency.value = 1400; filt.Q.value = 0.7;
-    osc.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
-    osc.frequency.setValueAtTime(freq * 0.62, t);
-    osc.frequency.exponentialRampToValueAtTime(freq, t + 0.06);
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(vol, t + 0.008);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
-    osc.start(t); osc.stop(t + 0.2);
-  } catch (_) {}
+function tone(t, { f, type = 'sine', vol = 0.1, a = 0.005, d = 0.3, lp = null, send = 0 }) {
+  const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(f, t);
+  let last = osc;
+  if (lp) { const fl = audioCtx.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = lp; osc.connect(fl); last = fl; }
+  last.connect(g);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + a);
+  g.gain.exponentialRampToValueAtTime(0.0005, t + a + d);
+  route(g, send);
+  osc.start(t); osc.stop(t + a + d + 0.05);
 }
 
-// Soft woody tap: a tiny burst of filtered noise
-let tapBuffer = null;
-function playTap(vol = 0.05, d = 0, centre = 900) {
-  if (!soundOn) return;
-  try {
-    const ctx = getAudio();
-    if (!tapBuffer) {
-      tapBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.02), ctx.sampleRate);
-      const ch = tapBuffer.getChannelData(0);
-      for (let k = 0; k < ch.length; k++) ch[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / ch.length, 3);
-    }
-    const src = ctx.createBufferSource();
-    const filt = ctx.createBiquadFilter();
-    const gain = ctx.createGain();
-    src.buffer = tapBuffer;
-    filt.type = 'bandpass'; filt.frequency.value = centre; filt.Q.value = 1.2;
-    gain.gain.value = vol;
-    src.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
-    src.start(ctx.currentTime + d);
-  } catch (_) {}
+function tap(t, vol) {
+  const src = audioCtx.createBufferSource(), fl = audioCtx.createBiquadFilter(), g = audioCtx.createGain();
+  src.buffer = noiseBuf;
+  fl.type = 'bandpass'; fl.frequency.value = 700; fl.Q.value = 1;
+  src.connect(fl); fl.connect(g);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.0005, t + 0.01);
+  route(g, 0);
+  src.start(t); src.stop(t + 0.05);
 }
 
-// Every merge: just a soft tap, nudged slightly so it never sounds robotic
-function soundMerge(value) {
-  const level = Math.log2(value);
-  playTap(0.07, 0, (820 + level * 25) * (0.95 + Math.random() * 0.1));
+function kalimba(t, f, vol, send = 0.15) {
+  tone(t, { f, type: 'triangle', vol, a: 0.003, d: 0.5, lp: 2200, send });
+  tone(t, { f: f * 2, vol: vol * 0.3, a: 0.002, d: 0.15, send });
 }
 
-// First time a new fruit appears in a game: a burst of bubbles.
-// Bigger fruit get more bubbles (orange 3 … watermelon 6).
-const BUBBLE_STEPS = [0, 2, 1, 3, 2, 4];
-function soundNewFruit(value) {
-  const i = Math.log2(value) - 1;
-  const count = Math.min(3 + Math.max(i - 4, 0) / 2, 6) | 0;
-  playTap(0.07);
-  for (let k = 0; k < count; k++) playBloop(noteAt(i - 2 + BUBBLE_STEPS[k]), 0.09, 0.03 + k * 0.065);
+// Pentatonic notes: i = 0 is C4, every 5 steps is an octave
+const STEPS = [0, 2, 4, 7, 9];
+function note(i) {
+  const o = Math.floor(i / 5), s = STEPS[((i % 5) + 5) % 5];
+  return 261.63 * Math.pow(2, o + s / 12);
 }
 
-function soundGameOver()     { [392, 330, 294, 262].forEach((f, i) => playTone(f, 'sine', 0.4, 0.07, i * 0.16)); }
-function soundVictory()      {
-  [262, 330, 392, 523].forEach((f, i) => {
-    playTone(f,        'sine', 0.4, 0.11, i * 0.14);
-    playTone(f * 1.5,  'sine', 0.3, 0.04, i * 0.14 + 0.07);
+const BEAT = 0.14;
+function playPhrase(t, phrase, vol = 0.09, send = 0.2) {
+  let at = t;
+  phrase.forEach(([i, beats], k) => {
+    const last = k === phrase.length - 1;
+    kalimba(at, note(i), last ? vol * 1.15 : vol, send);
+    if (!last) at += beats * BEAT;
   });
+  return at;
+}
+
+function withAudio(fn) {
+  if (!soundOn) return;
+  try { const t = getAudio().currentTime + 0.01; fn(t); } catch (_) {}
+}
+
+// Every merge: a soft, muted woody thump
+function soundMerge() {
+  withAudio(t => {
+    tone(t, { f: 170 * (0.97 + Math.random() * 0.06), type: 'triangle', vol: 0.06, a: 0.002, d: 0.06, lp: 500 });
+    tap(t, 0.016);
+  });
+}
+
+// New fruit: the climbing phrase. L = 0 for orange (32) … 6 for watermelon (2048)
+function soundNewFruit(value) {
+  const L = Math.min(Math.max(Math.log2(value) - 5, 0), 6);
+  withAudio(t => {
+    const b = 2 + L;
+    const phrase = L >= 6
+      ? [[b, 1], [b + 2, 1], [b + 1, 1], [b + 3, 1], [b + 5, 3]]
+      : [[b, 1], [b + 2, 1], [b + 1, 1], [b + 3, 2]];
+    const lastAt = playPhrase(t, phrase);
+    if (L >= 5) kalimba(lastAt, note(phrase[phrase.length - 1][0] - 5), 0.05, 0.3);
+    if (L >= 6) [b - 5, b - 3, b - 2, b].forEach((i, k) => kalimba(lastAt + 0.02 + k * 0.03, note(i), 0.045, 0.4));
+  });
+}
+
+// Reaching 2048: the watermelon phrase is the finale
+function soundVictory() { soundNewFruit(2048); }
+
+// Game over: a gentle phrase stepping down
+function soundGameOver() {
+  withAudio(t => playPhrase(t, [[7, 1], [5, 1], [4, 1], [2, 1], [0, 3]], 0.07, 0.25));
 }
 
 // ── Confetti ──────────────────────────────────────────────────────────────────
