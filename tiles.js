@@ -575,7 +575,7 @@ function picnicBasketSVG(background = false, opts = {}) {
     // set the basket (a little smaller) on a gingham picnic blanket
     c.defs += `<pattern id="${P}bl" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#FFFFFF"/><rect width="4" height="8" fill="#FF5D7E" opacity="0.45"/><rect width="8" height="4" fill="#FF5D7E" opacity="0.45"/></pattern>`;
     const blanket = `<rect x="6" y="64" width="88" height="34" rx="2" fill="url(#${P}bl)" ${LN}/>`;
-    s = blanket + `<g transform="translate(50 88) scale(0.8) translate(-50 -91)">${s}</g>` + (opts.ants ? ants : '');
+    s = blanket + `<g transform="translate(50 84) scale(0.8) translate(-50 -91)">${s}</g>` + (opts.ants ? ants : '');
   } else if (opts.ants) {
     s += ants;
   }
