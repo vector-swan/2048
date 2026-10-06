@@ -487,53 +487,65 @@ const ACTIVE_THEME = 'fruit';
 const TILE_ART = THEMES[ACTIVE_THEME].art;
 
 // ── Picnic basket (app icon and game-over card) ───────────────────────────────
-// A simple wicker basket of fruit: watermelon at the back, apple and orange in
-// front, grapes over the rim. The handles loop down and attach to the front of
-// the basket. No faces. background=true adds the gingham picnic cloth.
+// A round wicker fruit basket with a tall arched handle and a teal bow,
+// twisted rope rim and scalloped weave. Fruit sits low so the handle shows:
+// green grapes and bananas at the back, orange, pear, apple, lemon and purple
+// grapes along the rim. No faces. background=true adds the gingham cloth.
 function picnicBasketSVG(background = false) {
   const c = { p: background ? 'pbi' : 'pb', n: 0, defs: '', bg: {} };
   const P = c.p;
-  const wood = grad(c, 'w', '#E8B070', '#B9783F'), band = grad(c, 'b', '#F2C384', '#CF9558');
+  const wood = grad(c, 'w', '#E2A866', '#B9783F'), rimG = grad(c, 'r', '#EDBB7A', '#C98A4E');
+  const handleG = grad(c, 'h', '#E8B474', '#C48546');
   const leaf = grad(c, 'l', '#B6F08E', '#5FC055');
-  const melon = rgrad(c, 'm', '#A6EC86', '#3E9E4E'), orange = rgrad(c, 'o', '#FFCB80', '#FF8A2A');
-  const apple = rgrad(c, 'a', '#FF9A9A', '#D42638'), grape = rgrad(c, 'g', '#D2AEFF', '#7046C8');
-  c.defs += `<clipPath id="${P}mc"><ellipse cx="62" cy="42" rx="21" ry="16" transform="rotate(-10 62 42)"/></clipPath>`;
+  const orange = rgrad(c, 'o', '#FFCB80', '#FF8A2A'), apple = rgrad(c, 'a', '#FF9A9A', '#D42638');
+  const lemon = rgrad(c, 'le', '#FFF6A6', '#F7C531'), pear = rgrad(c, 'pr', '#D9F08A', '#7FAE3A');
+  const grapeP = rgrad(c, 'gp', '#D2AEFF', '#7046C8'), grapeG = rgrad(c, 'gg', '#EEF9C4', '#A6D25E');
+  const banana = grad(c, 'bn', '#FFF0A0', '#F2C53A'), bow = rgrad(c, 'bw', '#A8E8E4', '#4FB3B5');
+  const body = 'M 12,67 C 12,84 20,92 50,92 C 80,92 88,84 88,67 Z';
+  c.defs += `<clipPath id="${P}bc"><path d="${body}"/></clipPath>`;
   if (background) c.defs += `<pattern id="${P}gh" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#FFF8EC"/><rect width="10" height="20" fill="#FF7891" opacity="0.22"/><rect width="20" height="10" fill="#FF7891" opacity="0.22"/></pattern>`;
-  const handle = d => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#D49A5C" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const berry = (x, y, r, g) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${g}" ${LN}/>` + shine(x - r * 0.3, y - r * 0.35, r * 0.25, r * 0.15);
 
   let s = '';
-  if (background) s += `<rect width="100" height="100" fill="url(#${P}gh)"/><ellipse cx="50" cy="91" rx="38" ry="4.5" fill="#A06A3A" opacity="0.18"/>`;
+  if (background) s += `<rect width="100" height="100" fill="url(#${P}gh)"/><ellipse cx="50" cy="93" rx="36" ry="4" fill="#A06A3A" opacity="0.18"/>`;
 
-  // watermelon lying at the back
-  let stripes = '';
-  for (const y of [28, 34, 40, 46, 52, 58]) {
-    let d = `M 36,${y}`;
-    for (let x = 36; x < 92; x += 6) d += ' l 3,2 l 3,-2';
-    stripes += `<path d="${d}" fill="none" stroke="#24803A" stroke-width="2.4" stroke-linejoin="round" opacity="0.8"/>`;
-  }
-  s += `<ellipse cx="62" cy="42" rx="21" ry="16" transform="rotate(-10 62 42)" fill="${melon}" ${LN}/>`
-    + `<g clip-path="url(#${P}mc)"><g transform="rotate(-10 62 42)">${stripes}</g></g>`
-    + `<ellipse cx="62" cy="42" rx="21" ry="16" transform="rotate(-10 62 42)" fill="none" ${LN}/>` + shine(53, 32, 5.5, 2.4, -10);
+  // tall arched handle (behind the fruit)
+  const arch = 'M 16,66 C 14,4 86,4 84,66';
+  s += `<path d="${arch}" fill="none" stroke="${INK}" stroke-width="7.4" stroke-linecap="round"/><path d="${arch}" fill="none" stroke="${handleG}" stroke-width="4.4" stroke-linecap="round"/>`;
 
-  // apple and orange in front of it
-  s += `<path d="M 31,44 C 25,39 15,42 15,53 C 15,64 24,70 31,66 C 38,70 47,64 47,53 C 47,42 37,39 31,44 Z" fill="${apple}" ${LN}/>`
-    + shine(22, 50, 3.4, 1.8) + stem('M 31,45 Q 30,39 33,35') + leafAt(32, 39, -30, 9, leaf);
-  s += `<circle cx="53" cy="55" r="13" fill="${orange}" ${LN}/>` + shine(47, 49, 3.4, 1.7) + leafAt(53, 42, -40, 8, leaf);
+  // back: green grapes (left), bananas leaning on the handle (right)
+  for (const [x, y] of [[25, 42], [31, 40], [37, 42], [22, 47], [28, 46], [34, 47], [40, 48], [25, 52], [31, 51], [37, 52]]) s += berry(x, y, 3.8, grapeG);
+  s += stem('M 31,37 Q 31,33 34,31');
+  // a bunch of bananas leaning up toward the handle
+  const nana = d => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="7" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#F7D44A" stroke-width="4.4" stroke-linecap="round"/>`;
+  for (const [d, tip] of [['M 62,62 Q 72,54 73,38', [73, 38]], ['M 65,63 Q 77,56 79,41', [79, 41]], ['M 68,64 Q 82,58 85,46', [85, 46]]])
+    s += nana(d) + `<circle cx="${tip[0]}" cy="${tip[1]}" r="1.4" fill="#7A4A22"/>`;
+  s += `<path d="M 64,58 Q 70,52 71,42" fill="none" stroke="white" stroke-width="1" stroke-linecap="round" opacity="0.5"/>`;
 
-  // basket body with a top band
-  s += `<path d="M 12,64 L 88,64 L 83,86 Q 82,90 77,90 L 23,90 Q 18,90 17,86 Z" fill="${wood}" ${LN}/>`;
-  s += `<g fill="none" stroke="#9A6233" stroke-width="1" opacity="0.6"><path d="M 16,79 Q 50,83 84,79"/><path d="M 36,70 L 36,90 M 64,70 L 64,90"/></g>`;
-  s += `<rect x="10" y="59" width="80" height="11" rx="3" fill="${band}" ${LN}/>`;
-  s += `<path d="M 14,62.5 L 86,62.5" stroke="white" stroke-width="1.4" stroke-linecap="round" opacity="0.45"/>`;
+  // middle row: orange and pear
+  s += `<circle cx="54" cy="55" r="9.5" fill="${orange}" ${LN}/>` + shine(50, 51, 2.6, 1.3) + stem('M 54,46 L 54,43');
+  s += `<path d="M 76,46 C 72,46 71,51 71,53 C 66,56 65,62 67,66 C 69,71 83,71 85,66 C 87,62 86,56 81,53 C 81,51 80,46 76,46 Z" fill="${pear}" ${LN}/>` + shine(71, 58, 1.8, 1.1) + stem('M 76,47 Q 76,42 78,39');
 
-  // grapes spilling over the right of the rim
-  s += stem('M 74,56 Q 75,52 78,50') + leafAt(76, 53, -20, 9, leaf);
-  for (const [x, y] of [[69, 59], [75, 58], [81, 60], [72, 64], [78, 64], [75, 69]])
-    s += `<circle cx="${x}" cy="${y}" r="4" fill="${grape}" ${LN}/>` + shine(x - 1.2, y - 1.4, 1, 0.6);
+  // front row: apple, lemon, purple grapes (some spill over the rim)
+  s += `<path d="M 30,51 C 25,47 18,49 18,58 C 18,67 25,72 30,69 C 35,72 42,67 42,58 C 42,49 35,47 30,51 Z" fill="${apple}" ${LN}/>` + shine(23, 56, 2.8, 1.5) + stem('M 30,52 Q 29,47 32,44');
+  s += `<ellipse cx="44" cy="60" rx="10.5" ry="7" transform="rotate(-8 44 60)" fill="${lemon}" ${LN}/>` + shine(40, 56.5, 3, 1.3, -8);
+  for (const [x, y] of [[54, 58], [60, 57], [66, 58], [57, 62], [63, 62], [69, 63]]) s += berry(x, y, 4, grapeP);
 
-  // handles: out from the band at each side, looping down onto the basket front
-  s += handle('M 14,64 Q 4,66 6,77 Q 8,86 22,82') + handle('M 86,64 Q 96,66 94,77 Q 92,86 78,82');
-  s += `<circle cx="22" cy="82" r="2.2" fill="#B9783F" ${LN}/><circle cx="78" cy="82" r="2.2" fill="#B9783F" ${LN}/>`;
+  // basket body with scalloped weave rows
+  let weave = '';
+  [[74, 0], [80, 4], [86, 0]].forEach(([y, off]) => { for (let x = 10 + off; x < 92; x += 8) weave += `<path d="M ${x},${y} q 3,2.6 6,0" fill="none" stroke="#8E5A2E" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>`; });
+  s += `<path d="${body}" fill="${wood}" ${LN}/><g clip-path="url(#${P}bc)">${weave}</g><path d="${body}" fill="none" ${LN}/>`;
+
+  // twisted rope rim
+  s += `<rect x="9" y="62" width="82" height="9" rx="4.5" fill="${rimG}" ${LN}/>`;
+  for (let x = 13; x < 88; x += 5) s += `<path d="M ${x},63.5 q 3.4,3 1.6,6" fill="none" stroke="#9A6233" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>`;
+  s += `<path d="M 13,64 L 87,64" stroke="white" stroke-width="1.1" stroke-linecap="round" opacity="0.4"/>`;
+
+  // teal ribbon bow tied on the handle
+  s += `<path d="M 73,32 Q 71,36 72,40" fill="none" stroke="${INK}" stroke-width="3.4" stroke-linecap="round"/><path d="M 73,32 Q 71,36 72,40" fill="none" stroke="#5FC0C0" stroke-width="1.8" stroke-linecap="round"/>`;
+  s += `<path d="M 75,32 Q 78,36 77,40" fill="none" stroke="${INK}" stroke-width="3.4" stroke-linecap="round"/><path d="M 75,32 Q 78,36 77,40" fill="none" stroke="#5FC0C0" stroke-width="1.8" stroke-linecap="round"/>`;
+  s += `<ellipse cx="67.5" cy="27.5" rx="6.5" ry="4.2" transform="rotate(-28 67.5 27.5)" fill="${bow}" ${LN}/><ellipse cx="81" cy="27" rx="6.5" ry="4.2" transform="rotate(28 81 27)" fill="${bow}" ${LN}/>`;
+  s += `<circle cx="74" cy="30.5" r="2.8" fill="#5FC0C0" ${LN}/>` + shine(65.5, 26, 2, 1, -28) + shine(79.5, 25.2, 2, 1, 28);
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>${c.defs}</defs>${s}</svg>`;
 }
