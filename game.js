@@ -103,9 +103,11 @@ function soundMerge() {
   });
 }
 
-// New fruit: the climbing phrase. L = 0 for orange (32) … 6 for watermelon (2048)
+// New fruit: the climbing phrase. L = -3 for strawberry (4), 0 for orange (32)
+// … 6 for watermelon (2048). Strawberry, grapes and lemon continue the climb
+// downward, so orange and up are unchanged.
 function soundNewFruit(value) {
-  const L = Math.min(Math.max(Math.log2(value) - 5, 0), 6);
+  const L = Math.min(Math.max(Math.log2(value) - 5, -3), 6);
   withAudio(t => {
     const b = 2 + L;
     const phrase = L >= 6
@@ -393,7 +395,7 @@ async function doMove(dir) {
     const top = Math.max(...merges.map(m => m.newValue));
     const victoryNext = !celebrationShown && top >= 2048;   // fanfare plays instead
     if (!victoryNext) {
-      if (top > highestThisGame && top >= 32) soundNewFruit(top);
+      if (top > highestThisGame && top >= 4) soundNewFruit(top);
       else soundMerge(top);
     }
     highestThisGame = Math.max(highestThisGame, top);
