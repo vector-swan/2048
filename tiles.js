@@ -320,21 +320,9 @@ const fruitTile = (v, build) => tile(v, build, FRUIT_BG, 'fr');
 
 function watermelon(c, v, o = {}) {
   const gold = !!o.gold;
-  const body = rgrad(c, 'wm', gold ? '#FFF6A8' : '#A6EC86', gold ? '#F2B32E' : '#43AE55');
-  const clip = `${c.p}wmc`;
-  c.defs += `<clipPath id="${clip}"><circle cx="50" cy="58" r="35"/></clipPath>`;
-  let stripes = '';
-  for (const x of [24, 37, 50, 63, 76]) {
-    let d = `M ${x},18`;
-    for (let y = 18; y < 98; y += 8) d += ` l 3,4 l -3,4`;
-    stripes += `<path d="${d}" fill="none" stroke="${gold ? '#D98E1C' : '#2A8A40'}" stroke-width="3.6" stroke-linejoin="round" opacity="0.8"/>`;
-  }
+  const fruit = FRUIT_BODY.watermelon(c, gold);
   let s = backdrop(c, v, { hy: 58, hr: 46 }) + ground(c, 50, 92, 32)
-    + `<circle cx="50" cy="58" r="35" fill="${body}" ${LN}/>`
-    + `<g clip-path="url(#${clip})">${stripes}</g>`
-    + `<circle cx="50" cy="58" r="35" fill="none" ${LN}/>`
-    + shine(36, 38, 9, 4.5)
-    + stem('M 50,24 q 2,-7 8,-6')
+    + fruit
     + `<ellipse cx="50" cy="62" rx="17" ry="11" fill="white" opacity="0.28"/>`
     + kface(50, 61, 30);
   if (gold) s += crownAt(c, 50, 25, 26, 14);
@@ -346,6 +334,60 @@ function watermelon(c, v, o = {}) {
   if (o.hearts) s += heart(14, 30, 1.2) + heart(86, 76, 1.3, '#FFB3D1') + star(88, 30, 3.4);
   return s;
 }
+
+// Fruit drawings without the tile background or face, in tile coordinates
+// (100 × 100, centred around 50,58). The game tiles add a backdrop and face;
+// the picnic basket places them, smaller, inside the basket.
+const FRUIT_BODY = {
+  grape(c) {
+    const g = rgrad(c, 'g', '#D2AEFF', '#7B4FD0'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    const pts = [[34, 40], [50, 38], [66, 40], [36, 54], [50, 53], [64, 54], [42, 67], [58, 67], [50, 79]];
+    return stem('M 50,32 Q 50,24 54,19') + leafAt(52, 25, -30, 18, lf)
+      + pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="${g}" ${LN}/>` + shine(x - 3, y - 3.5, 2.4, 1.3)).join('');
+  },
+  lemon(c) {
+    const y = grad(c, 'y', '#FFF6A6', '#FFD23F'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    return `<ellipse cx="23" cy="63" rx="5" ry="3.6" transform="rotate(-12 23 63)" fill="#FFD84A" ${LN}/><ellipse cx="77" cy="52" rx="5" ry="3.6" transform="rotate(-12 77 52)" fill="#FFD84A" ${LN}/>`
+      + `<ellipse cx="50" cy="58" rx="28" ry="21" transform="rotate(-12 50 58)" fill="${y}" ${LN}/>`
+      + shine(38, 47, 7, 3)
+      + leafAt(64, 40, -40, 17, lf) + stem('M 62,41 q 1,-4 4,-6');
+  },
+  orange(c) {
+    const o = rgrad(c, 'o', '#FFCB80', '#FF8A2A'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    const dots = [[36, 46], [62, 42], [70, 62], [32, 66], [56, 78], [44, 80], [68, 74]]
+      .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="0.9" fill="#D9661A" opacity="0.4"/>`).join('');
+    return `<circle cx="50" cy="58" r="28" fill="${o}" ${LN}/>` + dots + shine(38, 44, 7, 3.4)
+      + stem('M 50,31 q 0,-5 2,-7') + leafAt(51, 29, -25, 19, lf);
+  },
+  apple(c) {
+    const r = rgrad(c, 'a', '#FF9A9A', '#DA2B3D'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    return `<path d="M 50,36 C 40,27 20,31 20,52 C 20,74 38,88 50,81 C 62,88 80,74 80,52 C 80,31 60,27 50,36 Z" fill="${r}" ${LN}/>`
+      + shine(33, 45, 6, 3.4)
+      + stem('M 50,38 Q 49,30 53,22') + leafAt(52, 30, -30, 19, lf);
+  },
+  pear(c) {
+    const p = rgrad(c, 'pr', '#F2FBB0', '#A6D24E'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    return `<path d="M 50,26 C 41,26 39,37 39,44 C 28,50 24,63 28,73 C 33,86 67,86 72,73 C 76,63 72,50 61,44 C 61,37 59,26 50,26 Z" fill="${p}" ${LN}/>`
+      + shine(38, 56, 5, 3)
+      + stem('M 50,28 Q 50,19 54,14') + leafAt(53, 19, -20, 17, lf);
+  },
+  watermelon(c, gold = false) {
+    const body = rgrad(c, 'wm', gold ? '#FFF6A8' : '#A6EC86', gold ? '#F2B32E' : '#43AE55');
+    const clip = `${c.p}wmc`;
+    c.defs += `<clipPath id="${clip}"><circle cx="50" cy="58" r="35"/></clipPath>`;
+    let stripes = '';
+    for (const x of [24, 37, 50, 63, 76]) {
+      let d = `M ${x},18`;
+      for (let y = 18; y < 98; y += 8) d += ` l 3,4 l -3,4`;
+      stripes += `<path d="${d}" fill="none" stroke="${gold ? '#D98E1C' : '#2A8A40'}" stroke-width="3.6" stroke-linejoin="round" opacity="0.8"/>`;
+    }
+    return `<circle cx="50" cy="58" r="35" fill="${body}" ${LN}/>`
+      + `<g clip-path="url(#${clip})">${stripes}</g>`
+      + `<circle cx="50" cy="58" r="35" fill="none" ${LN}/>`
+      + shine(36, 38, 9, 4.5)
+      + stem('M 50,24 q 2,-7 8,-6');
+  },
+};
 
 const FRUIT_ART = {
 
@@ -375,44 +417,26 @@ const FRUIT_ART = {
 
   // Grapes
   8: fruitTile(8, c => {
-    const g = rgrad(c, 'g', '#D2AEFF', '#7B4FD0'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
-    const pts = [[34, 40], [50, 38], [66, 40], [36, 54], [50, 53], [64, 54], [42, 67], [58, 67], [50, 79]];
-    return backdrop(c, 8, { hy: 58 }) + ground(c, 50, 90, 22)
-      + stem('M 50,32 Q 50,24 54,19') + leafAt(52, 25, -30, 18, lf)
-      + pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="${g}" ${LN}/>` + shine(x - 3, y - 3.5, 2.4, 1.3)).join('')
-      + kface(50, 54, 26);
+    const fruit = FRUIT_BODY.grape(c);
+    return backdrop(c, 8, { hy: 58 }) + ground(c, 50, 90, 22) + fruit + kface(50, 54, 26);
   }),
 
   // Lemon
   16: fruitTile(16, c => {
-    const y = grad(c, 'y', '#FFF6A6', '#FFD23F'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
-    return backdrop(c, 16, { hy: 58 }) + ground(c, 50, 86, 28)
-      + `<ellipse cx="23" cy="63" rx="5" ry="3.6" transform="rotate(-12 23 63)" fill="#FFD84A" ${LN}/><ellipse cx="77" cy="52" rx="5" ry="3.6" transform="rotate(-12 77 52)" fill="#FFD84A" ${LN}/>`
-      + `<ellipse cx="50" cy="58" rx="28" ry="21" transform="rotate(-12 50 58)" fill="${y}" ${LN}/>`
-      + shine(38, 47, 7, 3)
-      + leafAt(64, 40, -40, 17, lf) + stem('M 62,41 q 1,-4 4,-6')
-      + kface(50, 59, 24);
+    const fruit = FRUIT_BODY.lemon(c);
+    return backdrop(c, 16, { hy: 58 }) + ground(c, 50, 86, 28) + fruit + kface(50, 59, 24);
   }),
 
   // Orange
   32: fruitTile(32, c => {
-    const o = rgrad(c, 'o', '#FFCB80', '#FF8A2A'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
-    const dots = [[36, 46], [62, 42], [70, 62], [32, 66], [56, 78], [44, 80], [68, 74]]
-      .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="0.9" fill="#D9661A" opacity="0.4"/>`).join('');
-    return backdrop(c, 32, { hy: 58 }) + ground(c, 50, 88, 28)
-      + `<circle cx="50" cy="58" r="28" fill="${o}" ${LN}/>` + dots + shine(38, 44, 7, 3.4)
-      + stem('M 50,31 q 0,-5 2,-7') + leafAt(51, 29, -25, 19, lf)
-      + kface(50, 60, 27);
+    const fruit = FRUIT_BODY.orange(c);
+    return backdrop(c, 32, { hy: 58 }) + ground(c, 50, 88, 28) + fruit + kface(50, 60, 27);
   }),
 
   // Apple
   64: fruitTile(64, c => {
-    const r = rgrad(c, 'a', '#FF9A9A', '#DA2B3D'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
-    return backdrop(c, 64, { hy: 58 }) + ground(c, 50, 88, 30)
-      + `<path d="M 50,36 C 40,27 20,31 20,52 C 20,74 38,88 50,81 C 62,88 80,74 80,52 C 80,31 60,27 50,36 Z" fill="${r}" ${LN}/>`
-      + shine(33, 45, 6, 3.4)
-      + stem('M 50,38 Q 49,30 53,22') + leafAt(52, 30, -30, 19, lf)
-      + kface(50, 59, 28);
+    const fruit = FRUIT_BODY.apple(c);
+    return backdrop(c, 64, { hy: 58 }) + ground(c, 50, 88, 30) + fruit + kface(50, 59, 28);
   }),
 
   // Peach
@@ -428,12 +452,8 @@ const FRUIT_ART = {
 
   // Pear
   256: fruitTile(256, c => {
-    const p = rgrad(c, 'pr', '#F2FBB0', '#A6D24E'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
-    return backdrop(c, 256, { hy: 58 }) + ground(c, 50, 90, 28)
-      + `<path d="M 50,26 C 41,26 39,37 39,44 C 28,50 24,63 28,73 C 33,86 67,86 72,73 C 76,63 72,50 61,44 C 61,37 59,26 50,26 Z" fill="${p}" ${LN}/>`
-      + shine(38, 56, 5, 3)
-      + stem('M 50,28 Q 50,19 54,14') + leafAt(53, 19, -20, 17, lf)
-      + kface(50, 66, 26);
+    const fruit = FRUIT_BODY.pear(c);
+    return backdrop(c, 256, { hy: 58 }) + ground(c, 50, 90, 28) + fruit + kface(50, 66, 26);
   }),
 
   // Pineapple
@@ -489,22 +509,16 @@ const TILE_ART = THEMES[ACTIVE_THEME].art;
 // ── Picnic basket (app icon and game-over card) ───────────────────────────────
 // A round wicker fruit basket with a tall arched handle,
 // twisted rope rim and scalloped weave. Fruit sits low so the handle shows:
-// a watermelon at the back, orange, pear, apple, lemon and purple grapes
-// along the rim. No faces. background=true adds the gingham cloth.
+// a watermelon at the back, orange, pear, apple, lemon and grapes along the
+// rim, drawn with the game's own fruit art (FRUIT_BODY), without faces. No faces. background=true adds the gingham cloth.
 function picnicBasketSVG(background = false) {
   const c = { p: background ? 'pbi' : 'pb', n: 0, defs: '', bg: {} };
   const P = c.p;
   const wood = grad(c, 'w', '#E2A866', '#B9783F'), rimG = grad(c, 'r', '#EDBB7A', '#C98A4E');
   const handleG = grad(c, 'h', '#E8B474', '#C48546');
-  const leaf = grad(c, 'l', '#B6F08E', '#5FC055');
-  const orange = rgrad(c, 'o', '#FFCB80', '#FF8A2A'), apple = rgrad(c, 'a', '#FF9A9A', '#D42638');
-  const lemon = rgrad(c, 'le', '#FFF6A6', '#F7C531'), pear = rgrad(c, 'pr', '#D9F08A', '#7FAE3A');
-  const grapeP = rgrad(c, 'gp', '#D2AEFF', '#7046C8'), melon = rgrad(c, 'm', '#A6EC86', '#3E9E4E');
   const body = 'M 12,67 C 12,84 20,92 50,92 C 80,92 88,84 88,67 Z';
-  c.defs += `<clipPath id="${P}bc"><path d="${body}"/></clipPath>`
-    + `<clipPath id="${P}mc"><ellipse cx="34" cy="47" rx="19" ry="13" transform="rotate(-14 34 47)"/></clipPath>`;
+  c.defs += `<clipPath id="${P}bc"><path d="${body}"/></clipPath>`;
   if (background) c.defs += `<pattern id="${P}gh" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#FFF8EC"/><rect width="10" height="20" fill="#FF7891" opacity="0.22"/><rect width="20" height="10" fill="#FF7891" opacity="0.22"/></pattern>`;
-  const berry = (x, y, r, g) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${g}" ${LN}/>` + shine(x - r * 0.3, y - r * 0.35, r * 0.25, r * 0.15);
 
   let s = '';
   if (background) s += `<rect width="100" height="100" fill="url(#${P}gh)"/><ellipse cx="50" cy="93" rx="36" ry="4" fill="#A06A3A" opacity="0.18"/>`;
@@ -513,24 +527,21 @@ function picnicBasketSVG(background = false) {
   const arch = 'M 16,66 C 14,4 86,4 84,66';
   s += `<path d="${arch}" fill="none" stroke="${INK}" stroke-width="7.4" stroke-linecap="round"/><path d="${arch}" fill="none" stroke="${handleG}" stroke-width="4.4" stroke-linecap="round"/>`;
 
-  // back: a watermelon lying on its side
-  let stripes = '';
-  for (const y of [34, 40, 46, 52, 58]) {
-    let d = `M 10,${y}`;
-    for (let x = 10; x < 58; x += 6) d += ' l 3,2 l 3,-2';
-    stripes += `<path d="${d}" fill="none" stroke="#24803A" stroke-width="2.3" stroke-linejoin="round" opacity="0.8"/>`;
-  }
-  s += `<ellipse cx="34" cy="47" rx="19" ry="13" transform="rotate(-14 34 47)" fill="${melon}" ${LN}/>`
-    + `<g clip-path="url(#${P}mc)"><g transform="rotate(-14 34 47)">${stripes}</g></g>`
-    + `<ellipse cx="34" cy="47" rx="19" ry="13" transform="rotate(-14 34 47)" fill="none" ${LN}/>` + shine(26, 40, 5, 2.2, -14);
-  // middle row: orange and pear
-  s += `<circle cx="54" cy="55" r="9.5" fill="${orange}" ${LN}/>` + shine(50, 51, 2.6, 1.3) + stem('M 54,46 L 54,43');
-  s += `<path d="M 76,46 C 72,46 71,51 71,53 C 66,56 65,62 67,66 C 69,71 83,71 85,66 C 87,62 86,56 81,53 C 81,51 80,46 76,46 Z" fill="${pear}" ${LN}/>` + shine(71, 58, 1.8, 1.1) + stem('M 76,47 Q 76,42 78,39');
-
-  // front row: apple, lemon, purple grapes (some spill over the rim)
-  s += `<path d="M 30,51 C 25,47 18,49 18,58 C 18,67 25,72 30,69 C 35,72 42,67 42,58 C 42,49 35,47 30,51 Z" fill="${apple}" ${LN}/>` + shine(23, 56, 2.8, 1.5) + stem('M 30,52 Q 29,47 32,44');
-  s += `<ellipse cx="44" cy="60" rx="10.5" ry="7" transform="rotate(-8 44 60)" fill="${lemon}" ${LN}/>` + shine(40, 56.5, 3, 1.3, -8);
-  for (const [x, y] of [[54, 58], [60, 57], [66, 58], [57, 62], [63, 62], [69, 63]]) s += berry(x, y, 4, grapeP);
+  // fruit: the game's own fruit drawings (no faces), placed smaller in the
+  // basket. Outlines are thickened so they match the basket's line weight.
+  const place = (draw, x, y, k) => {
+    const part = draw(c)
+      .split(LN).join(`stroke="${INK}" stroke-width="${(LW / k).toFixed(2)}" stroke-linejoin="round" stroke-linecap="round"`)
+      .replace(/stroke-width="4\.4"/g, `stroke-width="${(2.6 + LW * 2 / k).toFixed(2)}"`)
+      .replace(/stroke-width="2\.2"/g, 'stroke-width="2.6"');
+    return `<g transform="translate(${(x - 50 * k).toFixed(2)},${(y - 58 * k).toFixed(2)}) scale(${k})">${part}</g>`;
+  };
+  s += place(FRUIT_BODY.watermelon, 33, 47, 0.42);
+  s += place(FRUIT_BODY.pear, 76, 56, 0.34);
+  s += place(FRUIT_BODY.orange, 54, 52, 0.34);
+  s += place(FRUIT_BODY.apple, 30, 59, 0.38);
+  s += place(FRUIT_BODY.lemon, 44, 62, 0.36);
+  s += place(FRUIT_BODY.grape, 63, 61, 0.34);
 
   // basket body with scalloped weave rows
   let weave = '';
