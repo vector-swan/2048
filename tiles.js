@@ -509,8 +509,9 @@ const TILE_ART = THEMES[ACTIVE_THEME].art;
 // ── Picnic basket (app icon and game-over card) ───────────────────────────────
 // A round wicker fruit basket with a tall arched handle,
 // twisted rope rim and scalloped weave. Fruit sits low so the handle shows:
-// a watermelon at the back, orange, pear, apple, lemon and grapes along the
-// rim, drawn with the game's own fruit art (FRUIT_BODY), without faces. No faces. background=true adds the gingham cloth.
+// a watermelon in the middle with an apple and grapes either side, drawn with
+// the game's own fruit art (FRUIT_BODY), without faces, slightly tilted.
+// background=true adds the gingham cloth (used for the app icon).
 function picnicBasketSVG(background = false) {
   const c = { p: background ? 'pbi' : 'pb', n: 0, defs: '', bg: {} };
   const P = c.p;
@@ -521,7 +522,7 @@ function picnicBasketSVG(background = false) {
   if (background) c.defs += `<pattern id="${P}gh" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#FFF8EC"/><rect width="10" height="20" fill="#FF7891" opacity="0.22"/><rect width="20" height="10" fill="#FF7891" opacity="0.22"/></pattern>`;
 
   let s = '';
-  if (background) s += `<rect width="100" height="100" fill="url(#${P}gh)"/><ellipse cx="50" cy="93" rx="36" ry="4" fill="#A06A3A" opacity="0.18"/>`;
+  if (background) s += `<ellipse cx="50" cy="93" rx="36" ry="4" fill="#A06A3A" opacity="0.18"/>`;
 
   // tall arched handle (behind the fruit)
   const arch = 'M 16,66 C 14,4 86,4 84,66';
@@ -529,19 +530,17 @@ function picnicBasketSVG(background = false) {
 
   // fruit: the game's own fruit drawings (no faces), placed smaller in the
   // basket. Outlines are thickened so they match the basket's line weight.
-  const place = (draw, x, y, k) => {
+  const place = (draw, x, y, k, tilt = 0) => {
     const part = draw(c)
       .split(LN).join(`stroke="${INK}" stroke-width="${(LW / k).toFixed(2)}" stroke-linejoin="round" stroke-linecap="round"`)
       .replace(/stroke-width="4\.4"/g, `stroke-width="${(2.6 + LW * 2 / k).toFixed(2)}"`)
       .replace(/stroke-width="2\.2"/g, 'stroke-width="2.6"');
-    return `<g transform="translate(${(x - 50 * k).toFixed(2)},${(y - 58 * k).toFixed(2)}) scale(${k})">${part}</g>`;
+    return `<g transform="translate(${(x - 50 * k).toFixed(2)},${(y - 58 * k).toFixed(2)}) scale(${k}) rotate(${tilt} 50 58)">${part}</g>`;
   };
-  s += place(FRUIT_BODY.watermelon, 33, 47, 0.42);
-  s += place(FRUIT_BODY.pear, 76, 56, 0.34);
-  s += place(FRUIT_BODY.orange, 54, 52, 0.34);
-  s += place(FRUIT_BODY.apple, 30, 59, 0.38);
-  s += place(FRUIT_BODY.lemon, 44, 62, 0.36);
-  s += place(FRUIT_BODY.grape, 63, 61, 0.34);
+  // three fruit, each tilted a little so they look naturally tossed in
+  s += place(FRUIT_BODY.watermelon, 50, 46, 0.5, -10);
+  s += place(FRUIT_BODY.apple, 29, 59, 0.44, -16);
+  s += place(FRUIT_BODY.grape, 71, 59, 0.42, 18);
 
   // basket body with scalloped weave rows
   let weave = '';
@@ -554,5 +553,7 @@ function picnicBasketSVG(background = false) {
   s += `<path d="M 13,64 L 87,64" stroke="white" stroke-width="1.1" stroke-linecap="round" opacity="0.4"/>`;
 
 
+  // on the app icon, zoom the basket in slightly so it fills more of the square
+  if (background) s = `<rect width="100" height="100" fill="url(#${P}gh)"/><g transform="translate(50 50) scale(1.06) translate(-50 -50)">${s}</g>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>${c.defs}</defs>${s}</svg>`;
 }
