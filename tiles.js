@@ -516,7 +516,7 @@ function picnicBasketSVG(background = false) {
   const P = c.p;
   const wood = grad(c, 'w', '#E2A866', '#B9783F'), rimG = grad(c, 'r', '#EDBB7A', '#C98A4E');
   const handleG = grad(c, 'h', '#E8B474', '#C48546');
-  const body = 'M 12,67 C 12,84 20,92 50,92 C 80,92 88,84 88,67 Z';
+  const body = 'M 12,67 L 15,86 Q 16,91 22,91 L 78,91 Q 84,91 85,86 L 88,67 Z';   // flat bottom, small rounded corners
   c.defs += `<clipPath id="${P}bc"><path d="${body}"/></clipPath>`;
   if (background) c.defs += `<pattern id="${P}gh" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#FFF8EC"/><rect width="10" height="20" fill="#FF7891" opacity="0.22"/><rect width="20" height="10" fill="#FF7891" opacity="0.22"/></pattern>`;
 
