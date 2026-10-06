@@ -95,18 +95,10 @@ function withAudio(fn) {
   try { const t = getAudio().currentTime + 0.01; fn(t); } catch (_) {}
 }
 
-// Every merge: a soft, short kalimba "tik" with a woody tap under it.
-// Pitch rises gently with the fruit (C5 for cherries up to A5 near the top),
-// so ordinary merges lead up to the milestone phrases. Kept above ~500 Hz so
-// phone speakers can actually play it.
-function soundMerge(value) {
-  const k = Math.log2(value || 4);
-  const idx = Math.min(4 + Math.floor(k / 2), 9);
+// Every merge: a soft, muted woody thump
+function soundMerge() {
   withAudio(t => {
-    const f = note(idx) * (0.99 + Math.random() * 0.02);
-    tone(t, { f, type: 'triangle', vol: 0.05, a: 0.002, d: 0.12, lp: 1800, send: 0.1 });
-    tone(t, { f: f * 2, vol: 0.012, a: 0.002, d: 0.05 });
-    tone(t, { f: 170, type: 'triangle', vol: 0.03, a: 0.002, d: 0.05, lp: 500 });
+    tone(t, { f: 170 * (0.97 + Math.random() * 0.06), type: 'triangle', vol: 0.06, a: 0.002, d: 0.06, lp: 500 });
     tap(t, 0.016);
   });
 }
