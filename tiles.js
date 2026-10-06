@@ -560,7 +560,7 @@ function picnicBasketSVG(background = false, opts = {}) {
   if (opts.ants) {
     // a little ant on the blanket (game over: the basket is empty)
     const ant = (x, y, rot, carry) => {
-      let a = `<g transform="translate(${x},${y}) rotate(${rot}) scale(1.6)">`;
+      let a = `<g transform="translate(${x},${y}) rotate(${rot}) scale(1.3)">`;
       a += `<g stroke="${INK}" stroke-width="0.7" stroke-linecap="round" fill="none">`
         + `<path d="M 0.5,0 l -1.6,2.6 M 0.5,0 l 0.4,3 M 0.5,0 l 2,2.6 M 0.5,0 l -1.6,-2.6 M 0.5,0 l 0.4,-3 M 0.5,0 l 2,-2.6"/>`
         + `<path d="M 3.6,-0.6 q 1.4,-2.2 2.8,-2.2 M 3.6,0.6 q 1.4,2.2 2.8,2.2"/></g>`;
