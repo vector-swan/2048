@@ -1,6 +1,10 @@
 'use strict';
 
-// ── Tile illustrations: cute glowy bear-family story ──────────────────────────
+// ── Tile illustrations ────────────────────────────────────────────────────────
+// Art is grouped into themes (see THEMES at the bottom). Shared helpers come
+// first, then the bear-family theme, then the fruit ladder.
+
+// ── Bear family theme ─────────────────────────────────────────────────────────
 // One subject per tile, large and centred, so it reads at ~80px:
 //   2 sleepy bear · 4 scarf · 8 sapling · 16 berry basket · 32 cream bear
 //   64 house · 128 mailbox · 256 cub · 512 cub on a swing · 1024 lantern
@@ -49,7 +53,7 @@ function backdrop(c, v, o = {}) {
   c.defs += `<radialGradient id="${c.p}bg" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#FFFFFF" stop-opacity="${dark ? 0.1 : 0.55}"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
 <radialGradient id="${c.p}halo"><stop offset="0" stop-color="${color}" stop-opacity="${op}"/><stop offset="0.6" stop-color="${color}" stop-opacity="${op * 0.45}"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient>`;
   const sc = dark ? '#FFF6C4' : '#FFFFFF';
-  return `<rect width="100" height="100" fill="${BG[v]}"/><rect width="100" height="100" fill="url(#${c.p}bg)"/>`
+  return `<rect width="100" height="100" fill="${c.bg[v]}"/><rect width="100" height="100" fill="url(#${c.p}bg)"/>`
     + `<circle cx="${hx}" cy="${hy}" r="${hr}" fill="url(#${c.p}halo)"/>`
     + star(14, 80, 3, sc, 0.9) + star(88, 32, 2.4, sc, 0.85) + star(82, 86, 3.2, sc, 0.9) + star(20, 34, 2, sc, 0.75)
     + `<circle cx="10" cy="56" r="1.1" fill="${sc}" opacity="0.7"/><circle cx="92" cy="60" r="1.3" fill="${sc}" opacity="0.7"/><circle cx="70" cy="14" r="1" fill="${sc}" opacity="0.6"/>`;
@@ -117,8 +121,8 @@ function face(c, cx, cy, r, pal, o = {}) {
   return s;
 }
 
-function tile(v, build) {
-  const c = { p: `t${v}`, n: 0, defs: '' };
+function tile(v, build, bg = BG, key = 'b') {
+  const c = { p: `${key}${v}`, n: 0, defs: '', bg };
   const body = build(c);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>${c.defs}</defs>${body}</svg>`;
 }
@@ -150,7 +154,7 @@ function family(c, v, o = {}) {
 }
 
 // ── Tiles ─────────────────────────────────────────────────────────────────────
-const TILE_ART = {
+const BEAR_ART = {
 
   // A sleepy bear, all alone.
   2: tile(2, c => backdrop(c, 2, { hy: 56 }) + ground(c, 50, 86, 26)
@@ -268,3 +272,216 @@ const TILE_ART = {
   8192: tile(8192, c => family(c, 8192, { crown: true, frame: true, hearts: true })),
 
 };
+
+// ── Fruit ladder theme ────────────────────────────────────────────────────────
+// Bigger fruit = bigger number: cherry, strawberry, grape, lemon, orange, apple,
+// peach, pear, pineapple, melon, watermelon, then golden watermelons.
+// Backgrounds run purple → blue → green → yellow → orange → pink.
+
+const FRUIT_BG = {
+  2: '#E3D4FA', 4: '#D6DBFB', 8: '#CFE3FB', 16: '#CDEFF2', 32: '#D3F2D6',
+  64: '#E6F4C6', 128: '#FFF3BC', 256: '#FFE3B8', 512: '#FFD4B4',
+  1024: '#FFCFCB', 2048: '#FFC2DE', 4096: '#FFB4D6', 8192: '#FFA6CC',
+};
+
+// Kawaii face: s is roughly the fruit's radius
+function kface(cx, cy, s, o = {}) {
+  const ex = s * 0.36, er = Math.max(2, s * 0.115);
+  let f = '';
+  for (const sg of [-1, 1]) {
+    const x = cx + sg * ex;
+    if (o.wink && sg === 1) {
+      f += `<path d="M ${x - er * 1.2},${cy + er * 0.3} q ${er * 1.2},${-er * 1.6} ${er * 2.4},0" stroke="${FEAT}" stroke-width="${er * 0.8}" fill="none" stroke-linecap="round"/>`;
+    } else {
+      f += `<circle cx="${x}" cy="${cy}" r="${er}" fill="${FEAT}"/><circle cx="${x - er * 0.35}" cy="${cy - er * 0.4}" r="${er * 0.42}" fill="white"/>`;
+    }
+  }
+  f += `<path d="M ${cx - s * 0.12},${cy + s * 0.13} q ${s * 0.12},${s * 0.13} ${s * 0.24},0" stroke="${FEAT}" stroke-width="${Math.max(1.3, s * 0.065)}" fill="none" stroke-linecap="round"/>`;
+  for (const sg of [-1, 1]) f += `<ellipse cx="${cx + sg * s * 0.56}" cy="${cy + s * 0.14}" rx="${s * 0.15}" ry="${s * 0.09}" fill="#FFB0C8" opacity="0.85"/>`;
+  return f;
+}
+
+const shine = (x, y, rx, ry, rot = -30) =>
+  `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${x} ${y})" fill="white" opacity="0.5"/>`;
+
+const leafAt = (x, y, rot, len, fill) =>
+  `<g transform="translate(${x},${y}) rotate(${rot})"><path d="M 0,0 Q ${len * 0.5},${-len * 0.42} ${len},0 Q ${len * 0.5},${len * 0.42} 0,0 Z" fill="${fill}" ${LN}/><path d="M ${len * 0.15},0 L ${len * 0.8},0" stroke="#3E8F43" stroke-width="0.8" opacity="0.6"/></g>`;
+
+const stem = d =>
+  `<path d="${d}" fill="none" stroke="${INK}" stroke-width="4.4" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#9A6A3E" stroke-width="2.2" stroke-linecap="round"/>`;
+
+function crownAt(c, cx, y0, w, h) {
+  const g = grad(c, `cr${c.n++}`, '#FFF08A', '#FFC531');
+  return `<path d="M ${cx - w / 2},${y0} L ${cx - w / 2},${y0 - h} L ${cx - w / 6},${y0 - h * 0.45} L ${cx},${y0 - h} L ${cx + w / 6},${y0 - h * 0.45} L ${cx + w / 2},${y0 - h} L ${cx + w / 2},${y0} Z" fill="${g}" ${LN}/>`
+    + `<circle cx="${cx}" cy="${y0 - h * 0.95}" r="1.8" fill="#FF5FA5"/><circle cx="${cx - w / 2}" cy="${y0 - h}" r="1.4" fill="#7FE0FF"/><circle cx="${cx + w / 2}" cy="${y0 - h}" r="1.4" fill="#7FE0FF"/>`;
+}
+
+const fruitTile = (v, build) => tile(v, build, FRUIT_BG, 'fr');
+
+function watermelon(c, v, o = {}) {
+  const gold = !!o.gold;
+  const body = rgrad(c, 'wm', gold ? '#FFF6A8' : '#A6EC86', gold ? '#F2B32E' : '#43AE55');
+  const clip = `${c.p}wmc`;
+  c.defs += `<clipPath id="${clip}"><circle cx="50" cy="58" r="35"/></clipPath>`;
+  let stripes = '';
+  for (const x of [24, 37, 50, 63, 76]) {
+    let d = `M ${x},18`;
+    for (let y = 18; y < 98; y += 8) d += ` l 3,4 l -3,4`;
+    stripes += `<path d="${d}" fill="none" stroke="${gold ? '#D98E1C' : '#2A8A40'}" stroke-width="3.6" stroke-linejoin="round" opacity="0.8"/>`;
+  }
+  let s = backdrop(c, v, { hy: 58, hr: 46 }) + ground(c, 50, 92, 32)
+    + `<circle cx="50" cy="58" r="35" fill="${body}" ${LN}/>`
+    + `<g clip-path="url(#${clip})">${stripes}</g>`
+    + `<circle cx="50" cy="58" r="35" fill="none" ${LN}/>`
+    + shine(36, 38, 9, 4.5)
+    + stem('M 50,24 q 2,-7 8,-6')
+    + `<ellipse cx="50" cy="62" rx="17" ry="11" fill="white" opacity="0.28"/>`
+    + kface(50, 61, 30);
+  if (gold) s += crownAt(c, 50, 25, 26, 14);
+  if (o.frame) {
+    const g = grad(c, 'gold', '#FFF08A', '#FFB82E');
+    s += `<rect x="1.8" y="1.8" width="96.4" height="96.4" rx="9" fill="none" stroke="${g}" stroke-width="3.2"/>`
+      + star(92, 8, 4) + star(8, 92, 3.4);
+  }
+  if (o.hearts) s += heart(14, 30, 1.2) + heart(86, 76, 1.3, '#FFB3D1') + star(88, 30, 3.4);
+  return s;
+}
+
+const FRUIT_ART = {
+
+  // Cherries
+  2: fruitTile(2, c => {
+    const red = rgrad(c, 'r', '#FF8A9C', '#D61F4A'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    return backdrop(c, 2, { hy: 58 }) + ground(c, 50, 86, 26)
+      + stem('M 50,24 Q 43,40 36,55') + stem('M 50,24 Q 58,40 64,53')
+      + leafAt(50, 24, -25, 18, lf)
+      + `<circle cx="36" cy="66" r="13" fill="${red}" ${LN}/>` + shine(31, 60, 3.6, 2)
+      + `<circle cx="64" cy="64" r="13" fill="${red}" ${LN}/>` + shine(59, 58, 3.6, 2)
+      + kface(36, 67, 13) + kface(64, 65, 13, { wink: true });
+  }),
+
+  // Strawberry
+  4: fruitTile(4, c => {
+    const red = rgrad(c, 'r', '#FF8A9C', '#E02A4E'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    const seeds = [[38, 45], [50, 43], [62, 45], [31, 54], [69, 54], [36, 68], [64, 68], [44, 74], [56, 74], [50, 80]]
+      .map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="1.2" ry="1.8" fill="#FFE27A"/>`).join('');
+    return backdrop(c, 4, { hy: 58 }) + ground(c, 50, 88, 24)
+      + `<path d="M 50,85 C 29,75 21,52 27,42 C 33,32 67,32 73,42 C 79,52 71,75 50,85 Z" fill="${red}" ${LN}/>`
+      + seeds + shine(34, 46, 5, 2.6)
+      + [150, 200, 340, 30, 90].map(r => leafAt(50, 36, r === 90 ? 180 + 90 : r, 13, lf)).join('')
+      + stem('M 50,36 Q 51,29 55,24')
+      + kface(50, 58, 26);
+  }),
+
+  // Grapes
+  8: fruitTile(8, c => {
+    const g = rgrad(c, 'g', '#D2AEFF', '#7B4FD0'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    const pts = [[34, 40], [50, 38], [66, 40], [36, 54], [50, 53], [64, 54], [42, 67], [58, 67], [50, 79]];
+    return backdrop(c, 8, { hy: 58 }) + ground(c, 50, 90, 22)
+      + stem('M 50,32 Q 50,24 54,19') + leafAt(52, 25, -30, 18, lf)
+      + pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="${g}" ${LN}/>` + shine(x - 3, y - 3.5, 2.4, 1.3)).join('')
+      + kface(50, 54, 26);
+  }),
+
+  // Lemon
+  16: fruitTile(16, c => {
+    const y = grad(c, 'y', '#FFF6A6', '#FFD23F'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    return backdrop(c, 16, { hy: 58 }) + ground(c, 50, 86, 28)
+      + `<ellipse cx="23" cy="63" rx="5" ry="3.6" transform="rotate(-12 23 63)" fill="#FFD84A" ${LN}/><ellipse cx="77" cy="52" rx="5" ry="3.6" transform="rotate(-12 77 52)" fill="#FFD84A" ${LN}/>`
+      + `<ellipse cx="50" cy="58" rx="28" ry="21" transform="rotate(-12 50 58)" fill="${y}" ${LN}/>`
+      + shine(38, 47, 7, 3)
+      + leafAt(64, 40, -40, 17, lf) + stem('M 62,41 q 1,-4 4,-6')
+      + kface(50, 59, 24);
+  }),
+
+  // Orange
+  32: fruitTile(32, c => {
+    const o = rgrad(c, 'o', '#FFCB80', '#FF8A2A'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    const dots = [[36, 46], [62, 42], [70, 62], [32, 66], [56, 78], [44, 80], [68, 74]]
+      .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="0.9" fill="#D9661A" opacity="0.4"/>`).join('');
+    return backdrop(c, 32, { hy: 58 }) + ground(c, 50, 88, 28)
+      + `<circle cx="50" cy="58" r="28" fill="${o}" ${LN}/>` + dots + shine(38, 44, 7, 3.4)
+      + stem('M 50,31 q 0,-5 2,-7') + leafAt(51, 29, -25, 19, lf)
+      + kface(50, 60, 27);
+  }),
+
+  // Apple
+  64: fruitTile(64, c => {
+    const r = rgrad(c, 'a', '#FF9A9A', '#DA2B3D'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    return backdrop(c, 64, { hy: 58 }) + ground(c, 50, 88, 30)
+      + `<path d="M 50,36 C 40,27 20,31 20,52 C 20,74 38,88 50,81 C 62,88 80,74 80,52 C 80,31 60,27 50,36 Z" fill="${r}" ${LN}/>`
+      + shine(33, 45, 6, 3.4)
+      + stem('M 50,38 Q 49,30 53,22') + leafAt(52, 30, -30, 19, lf)
+      + kface(50, 59, 28);
+  }),
+
+  // Peach
+  128: fruitTile(128, c => {
+    const p = rgrad(c, 'p', '#FFE0B8', '#FF8F8A'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    return backdrop(c, 128, { hy: 58 }) + ground(c, 50, 88, 30)
+      + `<path d="M 50,33 C 29,25 18,48 24,65 C 30,83 70,83 76,65 C 82,48 71,25 50,33 Z" fill="${p}" ${LN}/>`
+      + `<path d="M 50,34 Q 36,46 34,66" fill="none" stroke="#E0706F" stroke-width="1.2" opacity="0.5" stroke-linecap="round"/>`
+      + shine(36, 42, 6, 3)
+      + leafAt(50, 32, -150, 16, lf) + leafAt(50, 32, -35, 19, lf)
+      + kface(53, 60, 27);
+  }),
+
+  // Pear
+  256: fruitTile(256, c => {
+    const p = rgrad(c, 'pr', '#F2FBB0', '#A6D24E'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+    return backdrop(c, 256, { hy: 58 }) + ground(c, 50, 90, 28)
+      + `<path d="M 50,26 C 41,26 39,37 39,44 C 28,50 24,63 28,73 C 33,86 67,86 72,73 C 76,63 72,50 61,44 C 61,37 59,26 50,26 Z" fill="${p}" ${LN}/>`
+      + shine(38, 56, 5, 3)
+      + stem('M 50,28 Q 50,19 54,14') + leafAt(53, 19, -20, 17, lf)
+      + kface(50, 66, 26);
+  }),
+
+  // Pineapple
+  512: fruitTile(512, c => {
+    const body = grad(c, 'pb', '#FFE98A', '#F2A93B'), lf = grad(c, 'l', '#9BE57E', '#3FA651');
+    const clip = `${c.p}pc`;
+    c.defs += `<clipPath id="${clip}"><ellipse cx="50" cy="64" rx="23" ry="24"/></clipPath>`;
+    let hatch = '';
+    for (let k = -50; k <= 50; k += 9) hatch += `<path d="M ${50 + k - 30},34 L ${50 + k + 30},94 M ${50 + k + 30},34 L ${50 + k - 30},94" stroke="#C98A2E" stroke-width="0.9" opacity="0.55"/>`;
+    const spike = (tx, ty, w) => `<path d="M ${50 - w},44 Q ${(50 + tx) / 2 - w * 0.6},${(44 + ty) / 2} ${tx},${ty} Q ${(50 + tx) / 2 + w * 0.6},${(44 + ty) / 2} ${50 + w},44 Z" fill="${lf}" ${LN}/>`;
+    return backdrop(c, 512, { hy: 58 }) + ground(c, 50, 90, 26)
+      + spike(30, 24, 5) + spike(70, 24, 5) + spike(38, 12, 5) + spike(62, 12, 5) + spike(50, 6, 5.5)
+      + `<ellipse cx="50" cy="64" rx="23" ry="24" fill="${body}" ${LN}/>`
+      + `<g clip-path="url(#${clip})">${hatch}</g>`
+      + `<ellipse cx="50" cy="64" rx="23" ry="24" fill="none" ${LN}/>`
+      + shine(39, 50, 5, 2.6)
+      + kface(50, 64, 25);
+  }),
+
+  // Melon
+  1024: fruitTile(1024, c => {
+    const m = rgrad(c, 'm', '#EEFBC0', '#A9D46A');
+    const clip = `${c.p}mc`;
+    c.defs += `<clipPath id="${clip}"><circle cx="50" cy="58" r="32"/></clipPath>`;
+    let net = '';
+    for (const x of [26, 38, 50, 62, 74]) net += `<path d="M ${x},22 Q ${x + 6},40 ${x},58 Q ${x - 6},76 ${x},94" fill="none" stroke="white" stroke-width="1.3" opacity="0.75"/>`;
+    for (const y of [36, 48, 60, 72, 84]) net += `<path d="M 16,${y} Q 33,${y - 5} 50,${y} Q 67,${y + 5} 84,${y}" fill="none" stroke="white" stroke-width="1.3" opacity="0.75"/>`;
+    return backdrop(c, 1024, { hy: 58, hr: 46 }) + ground(c, 50, 92, 30)
+      + `<circle cx="50" cy="58" r="32" fill="${m}" ${LN}/>`
+      + `<g clip-path="url(#${clip})">${net}</g>`
+      + `<circle cx="50" cy="58" r="32" fill="none" ${LN}/>`
+      + `<path d="M 43,27 L 57,27 M 50,27 L 50,21" stroke="${INK}" stroke-width="4.6" stroke-linecap="round"/><path d="M 43,27 L 57,27 M 50,27 L 50,21" stroke="#9A6A3E" stroke-width="2.4" stroke-linecap="round"/>`
+      + shine(37, 41, 8, 4)
+      + `<ellipse cx="50" cy="63" rx="16" ry="10" fill="white" opacity="0.3"/>`
+      + kface(50, 62, 28);
+  }),
+
+  // Watermelon, then golden watermelons beyond 2048
+  2048: fruitTile(2048, c => watermelon(c, 2048)),
+  4096: fruitTile(4096, c => watermelon(c, 4096, { gold: true, frame: true })),
+  8192: fruitTile(8192, c => watermelon(c, 8192, { gold: true, frame: true, hearts: true })),
+
+};
+
+// ── Themes ────────────────────────────────────────────────────────────────────
+const THEMES = {
+  fruit: { name: 'Fruit', art: FRUIT_ART },
+  bears: { name: 'Bear family', art: BEAR_ART },
+};
+const ACTIVE_THEME = 'fruit';
+const TILE_ART = THEMES[ACTIVE_THEME].art;

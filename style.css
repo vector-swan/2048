@@ -132,7 +132,7 @@ h1 {
   position: relative;
   width: var(--board-size);
   height: var(--board-size);
-  background-color: #DCC8F0;
+  background-color: #C9B4E6;
   background-image: radial-gradient(circle, rgba(255,255,255,0.2) 1.5px, transparent 1.5px);
   background-size: 24px 24px;
   border-radius: 18px;
