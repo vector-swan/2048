@@ -62,14 +62,6 @@ h1 {
   background-clip: text;
 }
 
-.tagline {
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: #C07AAD;
-  letter-spacing: 1px;
-  margin-top: 3px;
-}
-
 .scores { display: flex; gap: 8px; }
 
 .score-box {
