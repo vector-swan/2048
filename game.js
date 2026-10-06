@@ -60,7 +60,7 @@ function playBloop(freq, vol = 0.12, d = 0) {
 
 // Soft woody tap: a tiny burst of filtered noise
 let tapBuffer = null;
-function playTap(vol = 0.05, d = 0) {
+function playTap(vol = 0.05, d = 0, centre = 900) {
   if (!soundOn) return;
   try {
     const ctx = getAudio();
@@ -73,24 +73,27 @@ function playTap(vol = 0.05, d = 0) {
     const filt = ctx.createBiquadFilter();
     const gain = ctx.createGain();
     src.buffer = tapBuffer;
-    filt.type = 'bandpass'; filt.frequency.value = 900; filt.Q.value = 1.2;
+    filt.type = 'bandpass'; filt.frequency.value = centre; filt.Q.value = 1.2;
     gain.gain.value = vol;
     src.connect(filt); filt.connect(gain); gain.connect(ctx.destination);
     src.start(ctx.currentTime + d);
   } catch (_) {}
 }
 
-// One tap + bloop per swipe, pitched to the biggest fruit made
+// Every merge: just a soft tap, nudged slightly so it never sounds robotic
 function soundMerge(value) {
-  playTap(0.05);
-  playBloop(noteFor(value), 0.12);
+  const level = Math.log2(value);
+  playTap(0.07, 0, (820 + level * 25) * (0.95 + Math.random() * 0.1));
 }
 
-// Three rising bloops the first time a new fruit appears in a game
+// First time a new fruit appears in a game: a burst of bubbles.
+// Bigger fruit get more bubbles (orange 3 … watermelon 6).
+const BUBBLE_STEPS = [0, 2, 1, 3, 2, 4];
 function soundNewFruit(value) {
   const i = Math.log2(value) - 1;
-  playTap(0.05);
-  [0, 1, 2].forEach(k => playBloop(noteAt(i + k), 0.1, k * 0.09));
+  const count = Math.min(3 + Math.max(i - 4, 0) / 2, 6) | 0;
+  playTap(0.07);
+  for (let k = 0; k < count; k++) playBloop(noteAt(i - 2 + BUBBLE_STEPS[k]), 0.09, 0.03 + k * 0.065);
 }
 
 function soundGameOver()     { [392, 330, 294, 262].forEach((f, i) => playTone(f, 'sine', 0.4, 0.07, i * 0.16)); }
