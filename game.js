@@ -32,7 +32,8 @@ function getAudio() {
     const nd = noiseBuf.getChannelData(0);
     for (let k = 0; k < nd.length; k++) nd[k] = Math.random() * 2 - 1;
   }
-  if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+  // iOS uses 'suspended' before the first tap and 'interrupted' after a screen lock
+  if (audioCtx.state !== 'running') audioCtx.resume().catch(() => {});
   return audioCtx;
 }
 
@@ -94,10 +95,18 @@ function withAudio(fn) {
   try { const t = getAudio().currentTime + 0.01; fn(t); } catch (_) {}
 }
 
-// Every merge: a soft, muted woody thump
-function soundMerge() {
+// Every merge: a soft, short kalimba "tik" with a woody tap under it.
+// Pitch rises gently with the fruit (C5 for cherries up to A5 near the top),
+// so ordinary merges lead up to the milestone phrases. Kept above ~500 Hz so
+// phone speakers can actually play it.
+function soundMerge(value) {
+  const k = Math.log2(value || 4);
+  const idx = Math.min(4 + Math.floor(k / 2), 9);
   withAudio(t => {
-    tone(t, { f: 170 * (0.97 + Math.random() * 0.06), type: 'triangle', vol: 0.06, a: 0.002, d: 0.06, lp: 500 });
+    const f = note(idx) * (0.99 + Math.random() * 0.02);
+    tone(t, { f, type: 'triangle', vol: 0.05, a: 0.002, d: 0.12, lp: 1800, send: 0.1 });
+    tone(t, { f: f * 2, vol: 0.012, a: 0.002, d: 0.05 });
+    tone(t, { f: 170, type: 'triangle', vol: 0.03, a: 0.002, d: 0.05, lp: 500 });
     tap(t, 0.016);
   });
 }
@@ -115,6 +124,29 @@ function soundNewFruit(value) {
     if (L >= 6) [b - 5, b - 3, b - 2, b].forEach((i, k) => kalimba(lastAt + 0.02 + k * 0.03, note(i), 0.045, 0.4));
   });
 }
+
+// iOS only lets audio start from a tap/click/key (not a finger moving), and
+// swipes fire on touchmove, so wake the audio on the first real tap or key.
+// Runs on every tap (cheap when audio is already running), so it also
+// recovers after the phone was locked or the app was in the background.
+function unlockAudio() {
+  if (!soundOn) return;
+  try {
+    const ctx = getAudio();
+    if (ctx.state !== 'running') {
+      // Starting a silent sound inside the tap is what fully unlocks iOS audio
+      const src = ctx.createBufferSource();
+      src.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+      src.connect(ctx.destination);
+      src.start(0);
+    }
+  } catch (_) {}
+}
+['touchend', 'pointerdown', 'pointerup', 'click', 'keydown'].forEach(ev =>
+  document.addEventListener(ev, unlockAudio, { capture: true, passive: true }));
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && audioCtx && audioCtx.state !== 'running') audioCtx.resume().catch(() => {});
+});
 
 // Reaching 2048: the watermelon phrase is the finale
 function soundVictory() { soundNewFruit(2048); }
@@ -516,6 +548,7 @@ document.addEventListener('touchmove', e => {
 document.getElementById('newGameBtn').addEventListener('click', newGame);
 document.getElementById('soundBtn').addEventListener('click', () => {
   soundOn = !soundOn;
+  if (soundOn) unlockAudio();
   document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
   try { localStorage.setItem('2048sound', soundOn ? 'on' : 'off'); } catch (_) {}
 });
