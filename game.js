@@ -549,6 +549,7 @@ document.addEventListener('keydown', e => {
 const SWIPE_PX = 24;
 let tx = 0, ty = 0, swiped = false;
 document.addEventListener('touchstart', e => {
+  if (!e.touches.length) return;
   tx = e.touches[0].clientX; ty = e.touches[0].clientY; swiped = false;
 }, { passive: true });
 document.addEventListener('touchmove', e => {
@@ -579,6 +580,12 @@ window.addEventListener('resize', relayout);
 // the long-press menu from popping up when a finger rests before swiping
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('contextmenu', e => e.preventDefault());
+// iPhone browsers (Safari, Firefox) can still select text from a long-press or
+// double-tap. Telling the browser to ignore the touch itself stops that; swipes
+// are still read from touchmove, and buttons are left alone so taps work.
+document.addEventListener('touchstart', e => {
+  if (!e.target.closest('button, a')) e.preventDefault();
+}, { passive: false });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 document.getElementById('best').textContent = best;
