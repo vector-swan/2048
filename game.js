@@ -575,6 +575,11 @@ document.getElementById('gameoverNewGameBtn').addEventListener('click', newGame)
 
 window.addEventListener('resize', relayout);
 
+// Nothing in the game is meant to be selected: stop long-press selection and
+// the long-press menu from popping up when a finger rests before swiping
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('contextmenu', e => e.preventDefault());
+
 // ── Start ─────────────────────────────────────────────────────────────────────
 document.getElementById('best').textContent = best;
 document.getElementById('winArt').src =
