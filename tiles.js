@@ -107,16 +107,10 @@ function face(c, cx, cy, r, pal, o = {}) {
   return s;
 }
 
-function badge(v) {
-  const s = String(v), w = 7 + s.length * 6.6;
-  return `<rect x="3" y="3" width="${w}" height="13" rx="6.5" fill="white" opacity="0.92"/>
-<text x="${3 + w / 2}" y="12.8" text-anchor="middle" font-family="Nunito, 'Segoe UI', sans-serif" font-weight="900" font-size="10" fill="#8A4C8C">${s}</text>`;
-}
-
 function tile(v, build) {
   const c = { p: `t${v}`, n: 0, defs: '' };
   const body = build(c);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>${c.defs}</defs>${body}${badge(v)}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>${c.defs}</defs>${body}</svg>`;
 }
 
 const grad = (c, id, a, b) => {

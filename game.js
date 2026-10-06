@@ -110,9 +110,13 @@ let busy = false;             // blocks input during slide+merge animation
 const tilesEl = document.getElementById('tiles');
 
 // ── Tile sizing helpers ───────────────────────────────────────────────────────
+let cachedTileSize = 0;
 function tileSize() {
-  const w = tilesEl.offsetWidth;
-  return w > 0 ? (w - (SIZE - 1) * GAP) / SIZE : 80;
+  if (!cachedTileSize) {
+    const w = tilesEl.offsetWidth;
+    cachedTileSize = w > 0 ? (w - (SIZE - 1) * GAP) / SIZE : 80;
+  }
+  return cachedTileSize;
 }
 function tileLeft(c) { return c * (tileSize() + GAP); }
 function tileTop(r)  { return r * (tileSize() + GAP); }
@@ -122,23 +126,41 @@ function tileClass(value) { return 't' + Math.min(value, 8192); }
 
 // Create element and set initial position BEFORE appending to DOM
 // (so the CSS left/top transition doesn't fire on first placement)
+// Each illustration is shown as an <img>, so the browser rasterises it once
+// and reuses the bitmap while tiles slide (live SVG was re-drawn every frame).
+const artSrc = {};
+function artNode(value) {
+  if (!artSrc[value]) {
+    artSrc[value] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(TILE_ART[value] || '');
+  }
+  const img = new Image();
+  img.src = artSrc[value];
+  img.alt = '';
+  img.draggable = false;
+  return img;
+}
+// Warm the image cache so tiles never pop in blank
+Object.keys(TILE_ART).forEach(v => { const i = artNode(v); i.decode && i.decode().catch(() => {}); });
+
 function makeTileEl(value, r, c) {
   const el = document.createElement('div');
   el.className = `tile ${tileClass(value)}`;
-  el.innerHTML = TILE_ART[value] || '';
+  el.dataset.v = value;
+  el.appendChild(artNode(value));
   const sz = tileSize();
-  el.style.cssText = `width:${sz}px;height:${sz}px;left:${tileLeft(c)}px;top:${tileTop(r)}px`;
+  el.style.cssText = `width:${sz}px;height:${sz}px;translate:${tileLeft(c)}px ${tileTop(r)}px`;
   return el;
 }
 
 function applyTileDisplay(tile) {
   tile.el.className = `tile ${tileClass(tile.value)}`;
-  tile.el.innerHTML = TILE_ART[tile.value] || '';
+  tile.el.dataset.v = tile.value;
+  tile.el.replaceChildren(artNode(tile.value));
 }
 
+// Position with the compositor-friendly `translate`, not left/top (no layout)
 function placeTile(el, r, c) {
-  el.style.left = tileLeft(c) + 'px';
-  el.style.top  = tileTop(r)  + 'px';
+  el.style.translate = `${tileLeft(c)}px ${tileTop(r)}px`;
 }
 
 function sizeTile(el) {
@@ -219,8 +241,9 @@ function computeMove(dir) {
 }
 
 // ── Move execution ────────────────────────────────────────────────────────────
+let queuedDir = null;
 async function doMove(dir) {
-  if (busy) return;
+  if (busy) { queuedDir = dir; return; }
   const { newPos, merges, moved, scoreAdd } = computeMove(dir);
   if (!moved) return;
 
@@ -239,7 +262,7 @@ async function doMove(dir) {
   });
 
   // ② Wait for slide to finish
-  await pause(SLIDE_MS + 20);
+  await pause(SLIDE_MS + 5);
 
   // ③ Apply merges: remove consumed tiles, update survivors, play pop
   merges.forEach(m => {
@@ -273,6 +296,7 @@ async function doMove(dir) {
     await pause(280);
     showCelebration();
     busy = false;
+    queuedDir = null;
     return;
   }
   if (!canMove()) {
@@ -282,6 +306,7 @@ async function doMove(dir) {
   }
 
   busy = false;
+  if (queuedDir) { const d = queuedDir; queuedDir = null; doMove(d); }
 }
 
 // ── Game helpers ──────────────────────────────────────────────────────────────
@@ -322,6 +347,7 @@ function spawnTile() {
 
 // Re-layout all tiles without animation (used on resize)
 function relayout() {
+  cachedTileSize = 0;
   liveTiles.forEach(t => {
     t.el.classList.add('no-anim');
     sizeTile(t.el);
@@ -363,7 +389,7 @@ function newGame() {
   hideCelebration(); hideGameOver();
   liveTiles.forEach(t => t.el.remove());
   liveTiles = [];
-  score = 0; celebrationShown = false; busy = false;
+  score = 0; celebrationShown = false; busy = false; queuedDir = null;
   document.getElementById('score').textContent = '0';
   document.getElementById('best').textContent = best;
   spawnTile(); spawnTile();
@@ -379,12 +405,18 @@ document.addEventListener('keydown', e => {
   if (dir) { e.preventDefault(); doMove(dir); }
 });
 
-let tx = 0, ty = 0;
-document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
-document.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - tx;
-  const dy = e.changedTouches[0].clientY - ty;
-  if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+// Swipe fires as soon as the finger has travelled far enough (not on release)
+const SWIPE_PX = 24;
+let tx = 0, ty = 0, swiped = false;
+document.addEventListener('touchstart', e => {
+  tx = e.touches[0].clientX; ty = e.touches[0].clientY; swiped = false;
+}, { passive: true });
+document.addEventListener('touchmove', e => {
+  if (swiped) return;
+  const dx = e.touches[0].clientX - tx;
+  const dy = e.touches[0].clientY - ty;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < SWIPE_PX) return;
+  swiped = true;
   if (Math.abs(dx) > Math.abs(dy)) doMove(dx > 0 ? 'right' : 'left');
   else                             doMove(dy > 0 ? 'down'  : 'up');
 }, { passive: true });

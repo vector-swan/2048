@@ -16,6 +16,7 @@
 html, body {
   height: 100%;
   overflow: hidden;
+  touch-action: none;   /* swipes belong to the game, not page scroll */
 }
 
 body {
@@ -173,12 +174,28 @@ h1 {
   user-select: none;
   z-index: 1;
   background: #FFD0E8;
-  /* left/top transitions power the slide animation */
-  transition: left 0.09s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              top  0.09s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  left: 0; top: 0;
+  will-change: translate;
+  /* translate (GPU-composited) powers the slide animation */
+  transition: translate 0.085s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.tile svg { width: 100%; height: 100%; display: block; }
+.tile img { width: 100%; height: 100%; display: block; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+
+/* Value badge is plain HTML so it uses the page font and costs nothing to move */
+.tile::before {
+  content: attr(data-v);
+  position: absolute;
+  top: 4%; left: 4%;
+  z-index: 1;
+  padding: 0.12em 0.55em;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.92);
+  color: #8A4C8C;
+  font-weight: 900;
+  font-size: calc(var(--tile-size) * 0.105);
+  line-height: 1.25;
+}
 
 /* Tile spawns with a springy pop */
 .tile-new {
