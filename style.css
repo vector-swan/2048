@@ -368,7 +368,6 @@ html[data-skin="halloween"] {
 html[data-skin="halloween"] body {
   background-color: #1E1533;
   background-image:
-    radial-gradient(circle at 84% 90%, #FFF3B0 0 26px, rgba(255, 243, 176, 0.2) 27px 46px, transparent 47px),
     radial-gradient(1.6px 1.6px at 12% 18%, #fff 60%, transparent),
     radial-gradient(1.4px 1.4px at 38% 8%, #fff 60%, transparent),
     radial-gradient(1.2px 1.2px at 64% 22%, #fff 60%, transparent),
