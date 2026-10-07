@@ -498,13 +498,224 @@ const FRUIT_ART = {
 
 };
 
+// ── Halloween theme (Spooky Picnic) ───────────────────────────────────────────
+// Candy (2–16) → spider, potion, witch hat, cauldron (32–256) → friendly ghost,
+// glowing jack-o'-lantern (512–1024) → haunted house (2048), golden beyond.
+const HALLOWEEN_BG = {
+  2: '#DDD3F5', 4: '#D3D8F5', 8: '#CFE0F5', 16: '#CDE9E6', 32: '#D6EEC9',
+  64: '#E4EDB8', 128: '#F3EDB5', 256: '#F6DDB0', 512: '#F7CDA8',
+  1024: '#F5BE9E', 2048: '#3E2C66', 4096: '#33245A', 8192: '#2A1D4E',
+};
+const hwTile = (v, build) => tile(v, build, HALLOWEEN_BG, 'hw');
+const outline = d => `<path d="${d}" fill="none" ${LN}/>`;
+
+// Cute face with golden cat eyes (dark dot eyes vanish on black fur)
+function catFace(cx, cy, s) {
+  let f = '';
+  for (const sg of [-1, 1]) {
+    const x = cx + sg * s * 0.36;
+    f += `<ellipse cx="${x}" cy="${cy}" rx="${s * 0.16}" ry="${s * 0.18}" fill="#F7E36A" stroke="${INK}" stroke-width="1"/>`
+      + `<ellipse cx="${x}" cy="${cy}" rx="${s * 0.05}" ry="${s * 0.13}" fill="${FEAT}"/><circle cx="${x - s * 0.06}" cy="${cy - s * 0.08}" r="${s * 0.04}" fill="white"/>`;
+  }
+  f += `<path d="M ${cx - s * 0.05},${cy + s * 0.18} l ${s * 0.05},${s * 0.05} l ${s * 0.05},${-s * 0.05} Z" fill="#FF9DBB"/>`
+    + `<path d="M ${cx - s * 0.13},${cy + s * 0.26} q ${s * 0.065},${s * 0.08} ${s * 0.13},0 q ${s * 0.065},${s * 0.08} ${s * 0.13},0" fill="none" stroke="#EDE3F7" stroke-width="1.4" stroke-linecap="round"/>`;
+  for (const sg of [-1, 1]) f += `<ellipse cx="${cx + sg * s * 0.56}" cy="${cy + s * 0.2}" rx="${s * 0.14}" ry="${s * 0.08}" fill="#FF9DBB" opacity="0.7"/>`;
+  return f;
+}
+
+function pumpkin(c, opts = {}) {
+  const g = rgrad(c, 'p', '#FFC27A', '#EE7418'), lf = grad(c, 'l', '#B6F08E', '#5FC055');
+  let s = stem('M 50,34 Q 49,26 54,21') + leafAt(53, 28, -25, 15, lf)
+    + `<path d="M 57,24 q 8,-5 11,1 q 1,5 -4,5" fill="none" stroke="#5FC055" stroke-width="1.6" stroke-linecap="round"/>`
+    + `<ellipse cx="31" cy="61" rx="17" ry="23" fill="${g}" ${LN}/><ellipse cx="69" cy="61" rx="17" ry="23" fill="${g}" ${LN}/><ellipse cx="50" cy="61" rx="20" ry="26" fill="${g}" ${LN}/>`
+    + shine(41, 45, 3.6, 2);
+  if (opts.carved) {
+    const glow = rgrad(c, 'gl', '#FFF6C0', '#FFB830');
+    s += `<path d="M 35,55 L 41,46 L 46,56 Z M 65,55 L 59,46 L 54,56 Z" fill="${opts.lit ? glow : '#6B3A1E'}" ${LN}/>`
+      + `<path d="M 34,66 Q 50,79 66,66 L 61,68 L 58.5,64 L 54.5,69 L 50,65 L 45.5,69 L 41.5,64 L 39,68 Z" fill="${opts.lit ? glow : '#6B3A1E'}" ${LN}/>`
+      + `<ellipse cx="31" cy="63" rx="3.8" ry="2.3" fill="#FF8FB8" opacity="0.7"/><ellipse cx="69" cy="63" rx="3.8" ry="2.3" fill="#FF8FB8" opacity="0.7"/>`;
+  } else {
+    s += kface(50, 63, 21);
+  }
+  return s;
+}
+
+// Haunted house (2048), and golden-framed versions for 4096 / 8192
+function hauntedHouse(c, v, o = {}) {
+    const wall = grad(c, 'hw', '#9C86D0', '#5E4A90'), roof = grad(c, 'rf', '#6E50B0', '#3F2C70'), win = rgrad(c, 'wn', '#FFF6C0', '#FFB830');
+  let s = backdrop(c, v, { hy: 56, hr: 48, color: '#FFD27A', op: 0.45 })
+    + `<path d="M 80,16 a 9,9 0 1 0 8,13 a 7,7 0 1 1 -8,-13 Z" fill="#FFF3B0" ${LN}/>`
+    + star(14, 16, 2.4, '#FFF6C4') + star(30, 8, 1.6, '#FFF6C4') + star(92, 44, 1.8, '#FFF6C4')
+    + `<path d="M 16,28 q 3,-3 6,0 q 3,-3 6,0 q -3,1 -6,4 q -3,-3 -6,-4 Z M 60,14 q 2,-2 4,0 q 2,-2 4,0 q -2,1 -4,3 q -2,-2 -4,-3 Z" fill="#2A1D4E"/>`
+    + ground(c, 50, 92, 36)
+    + `<rect x="26" y="46" width="48" height="44" rx="3" fill="${wall}" ${LN}/>`
+    + `<path d="M 18,50 L 50,20 L 82,50 Z" fill="${roof}" ${LN}/>`
+    + `<rect x="58" y="22" width="7" height="16" fill="${roof}" ${LN}/>`
+    + `<rect x="31" y="53" width="12" height="12" rx="6" fill="${win}" ${LN}/><rect x="57" y="53" width="12" height="12" rx="6" fill="${win}" ${LN}/>`
+    + `<circle cx="37" cy="59" r="2.4" fill="${INK}"/><circle cx="63" cy="59" r="2.4" fill="${INK}"/><circle cx="36" cy="58" r="0.9" fill="white"/><circle cx="62" cy="58" r="0.9" fill="white"/>`
+    + `<path d="M 43,90 L 43,74 Q 50,66 57,74 L 57,90 Z" fill="#3F2C70" ${LN}/><path d="M 46,72 q 4,3 8,0" fill="none" stroke="${win}" stroke-width="1.6" stroke-linecap="round"/>`
+    + `<circle cx="50" cy="40" r="5" fill="${win}" ${LN}/>`
+    + `<ellipse cx="30" cy="70" rx="3.6" ry="2.2" fill="#FF8FB8" opacity="0.7"/><ellipse cx="70" cy="70" rx="3.6" ry="2.2" fill="#FF8FB8" opacity="0.7"/>`;
+  if (o.frame) {
+    const g = grad(c, 'gold', '#FFF08A', '#FFB82E');
+    s += `<rect x="1.8" y="1.8" width="96.4" height="96.4" rx="9" fill="none" stroke="${g}" stroke-width="3.2"/>` + star(8, 92, 3.4, '#FFF6C4');
+  }
+  if (o.extra) s += star(12, 50, 3, '#FFF6C4') + star(90, 74, 2.6, '#FFF6C4') + star(70, 8, 2.2, '#FFF6C4');
+  return s;
+}
+
+const HALLOWEEN_ART = {
+  // ── Candy ──
+  // Candy corn
+  2: hwTile(2, c => {
+    const shape = 'M 50,26 C 56,26 74,70 74,78 C 74,88 26,88 26,78 C 26,70 44,26 50,26 Z';
+    c.defs += `<clipPath id="${c.p}cc"><path d="${shape}"/></clipPath>`;
+    return backdrop(c, 2, { hy: 58 }) + ground(c, 50, 89, 24)
+      + `<g clip-path="url(#${c.p}cc)"><rect x="20" y="20" width="60" height="24" fill="#FFFDF6"/><rect x="20" y="44" width="60" height="25" fill="#FF8A2A"/><rect x="20" y="69" width="60" height="25" fill="#FFD23F"/></g>`
+      + outline(shape) + shine(44, 38, 2.4, 5.5, 22) + kface(50, 60, 19);
+  }),
+  // Hard candy: orange and white swirl in a clear twisted wrapper
+  4: hwTile(4, c => {
+    const g = rgrad(c, 'hc', '#FFC27A', '#FF8A2A');
+    const end = sx => `<path d="M ${50 + sx * 17},58 L ${50 + sx * 39},43 Q ${50 + sx * 33},58 ${50 + sx * 39},73 Z" fill="#FFFFFF" fill-opacity="0.75" ${LN}/><path d="M ${50 + sx * 24},56 L ${50 + sx * 35},49 M ${50 + sx * 24},60 L ${50 + sx * 35},67" stroke="#B8A8D8" stroke-width="1.1" stroke-linecap="round"/>`;
+    let swirl = '';
+    for (let a = 0; a < 360; a += 60) swirl += `<path d="M 50,58 Q ${50 + 14 * Math.cos((a + 25) * Math.PI / 180)},${58 + 14 * Math.sin((a + 25) * Math.PI / 180)} ${50 + 21 * Math.cos(a * Math.PI / 180)},${58 + 21 * Math.sin(a * Math.PI / 180)}" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>`;
+    c.defs += `<clipPath id="${c.p}hcc"><circle cx="50" cy="58" r="20"/></clipPath>`;
+    return backdrop(c, 4, { hy: 58 }) + ground(c, 50, 86, 24) + end(-1) + end(1)
+      + `<circle cx="50" cy="58" r="20" fill="${g}" ${LN}/><g clip-path="url(#${c.p}hcc)" opacity="0.85">${swirl}</g><circle cx="50" cy="58" r="20" fill="none" ${LN}/>`
+      + shine(42, 47, 4, 2) + kface(50, 60, 18);
+  }),
+  // Lollipop
+  8: hwTile(8, c => {
+    const g = rgrad(c, 'l', '#FFC2DD', '#FF6FA5');
+    return backdrop(c, 8, { hy: 52 }) + ground(c, 50, 92, 14)
+      + `<rect x="47" y="62" width="6" height="30" rx="3" fill="#FFF4E0" ${LN}/>`
+      + `<circle cx="50" cy="44" r="22" fill="${g}" ${LN}/>`
+      + `<path d="M 50,44 m -2,0 a 2,2 0 1 1 4,0 a 6,6 0 1 1 -10,0 a 10,10 0 1 1 18,0 a 14,14 0 1 1 -26,0 a 17,17 0 1 1 32,0" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round" opacity="0.7"/>`
+      + `<path d="M 50,66 l -7,-4 l 0,8 Z M 50,66 l 7,-4 l 0,8 Z" fill="#7ED3C8" ${LN}/><circle cx="50" cy="66" r="2" fill="#3FA99A" ${LN}/>`
+      + shine(41, 32, 4, 2) + kface(50, 47, 18);
+  }),
+  // Candy bucket: teal pail with a few big sweets
+  16: hwTile(16, c => {
+    const pail = grad(c, 'bk', '#8EE3D6', '#33A898'), pop = rgrad(c, 'lp', '#FFC2DD', '#FF6FA5');
+    const corn = (x, y, r) => `<g transform="translate(${x},${y}) rotate(${r}) scale(1.35)"><path d="M 0,-9 C 2,-9 7,5 7,7 C 7,10 -7,10 -7,7 C -7,5 -2,-9 0,-9 Z" fill="#FF8A2A" ${LN}/><path d="M -2.6,-4 L 2.6,-4" stroke="#FFFDF6" stroke-width="3"/><path d="M -6,6 L 6,6" stroke="#FFD23F" stroke-width="3.4"/></g>`;
+    return backdrop(c, 16, { hy: 58 }) + ground(c, 50, 90, 28)
+      + `<path d="M 25,52 Q 50,14 75,52" fill="none" stroke="${INK}" stroke-width="4.4" stroke-linecap="round"/><path d="M 25,52 Q 50,14 75,52" fill="none" stroke="#D8D2E4" stroke-width="2" stroke-linecap="round"/>`
+      + `<rect x="58" y="22" width="4" height="28" rx="2" fill="#FFF4E0" ${LN}/><circle cx="60" cy="22" r="9" fill="${pop}" ${LN}/><path d="M 60,22 m -1.5,0 a 1.5,1.5 0 1 1 3,0 a 4.5,4.5 0 1 1 -7.5,0 a 7,7 0 1 1 12,0" fill="none" stroke="white" stroke-width="1.6" opacity="0.7"/>`
+      + corn(38, 44, -18) + corn(48, 46, 12)
+      + `<path d="M 22,50 L 78,50 L 72,86 Q 50,90 28,86 Z" fill="${pail}" ${LN}/><rect x="20" y="47" width="60" height="7" rx="3.5" fill="#B5F0E6" ${LN}/>`
+      + shine(29, 62, 2.4, 6, 10) + kface(50, 69, 18);
+  }),
+
+  // ── Witchy ──
+  // Spider: dark, chunky legs, golden eyes, little bow
+  32: hwTile(32, c => {
+    const g = rgrad(c, 's', '#6A5E86', '#2E2742');
+    let legs = '';
+    for (const sx of [-1, 1]) for (const [a, b] of [[-14, -8], [-6, 0], [2, 8], [10, 14]])
+      legs += `<path d="M ${50 + sx * 14},${60 + a * 0.5} Q ${50 + sx * 28},${50 + a} ${50 + sx * 35},${62 + b}" fill="none" stroke="${INK}" stroke-width="4.2" stroke-linecap="round"/>`
+        + `<path d="M ${50 + sx * 14},${60 + a * 0.5} Q ${50 + sx * 28},${50 + a} ${50 + sx * 35},${62 + b}" fill="none" stroke="#4A4166" stroke-width="2" stroke-linecap="round"/>`;
+    return backdrop(c, 32, { hy: 58 }) + ground(c, 50, 90, 22)
+      + `<path d="M 50,6 L 50,40" stroke="#FFFFFF" stroke-width="1.6"/><path d="M 50,6 L 50,40" stroke="${INK}" stroke-width="0.6" opacity="0.4"/>`
+      + legs + `<circle cx="50" cy="60" r="20" fill="${g}" ${LN}/>` + shine(42, 50, 3.6, 1.9)
+      + `<path d="M 58,42 l -5,-3.6 l 0,7.2 Z M 58,42 l 5,-3.6 l 0,7.2 Z" fill="#FF7FB8" ${LN}/><circle cx="58" cy="42" r="1.8" fill="#FF5FA5" ${LN}/>`
+      + catFace(50, 60, 19);
+  }),
+  // Potion bottle
+  64: hwTile(64, c => {
+    const glass = rgrad(c, 'gb', '#F4FBFF', '#C9E2F0'), brew = rgrad(c, 'pb', '#C8F59A', '#4FB848');
+    c.defs += `<clipPath id="${c.p}bc"><circle cx="50" cy="63" r="22"/></clipPath>`;
+    return backdrop(c, 64, { hy: 58 }) + ground(c, 50, 90, 22)
+      + `<rect x="43" y="22" width="14" height="11" rx="3" fill="#C98F5F" ${LN}/>`
+      + `<path d="M 44,32 L 44,43 L 56,43 L 56,32 Z" fill="${glass}" ${LN}/>`
+      + `<circle cx="50" cy="63" r="22" fill="${glass}" ${LN}/>`
+      + `<g clip-path="url(#${c.p}bc)"><rect x="20" y="58" width="60" height="30" fill="${brew}"/><path d="M 26,58 Q 38,54 50,58 Q 62,62 74,58" fill="none" stroke="#E6FFD0" stroke-width="1.6"/></g>`
+      + `<circle cx="50" cy="63" r="22" fill="none" ${LN}/>`
+      + `<circle cx="58" cy="70" r="2" fill="white" opacity="0.7"/><circle cx="42" cy="76" r="1.4" fill="white" opacity="0.7"/>`
+      + `<path d="M 44,36 Q 56,38 58,33" fill="none" stroke="#FF8FB8" stroke-width="2.2" stroke-linecap="round"/>`
+      + shine(39, 52, 3, 6, 25) + kface(50, 65, 19);
+  }),
+  // Witch hat
+  128: hwTile(128, c => {
+    const g = grad(c, 'h', '#A98AE0', '#5A3F94');
+    return backdrop(c, 128, { hy: 58 }) + ground(c, 50, 90, 32)
+      + `<ellipse cx="50" cy="77" rx="36" ry="9" fill="${g}" ${LN}/>`
+      + `<path d="M 30,76 Q 38,54 45,34 Q 50,18 68,16 Q 59,25 60,40 Q 64,60 70,76 Z" fill="${g}" ${LN}/>`
+      + `<path d="M 32,68 Q 50,72 68,68 L 69,75 Q 50,79 31,75 Z" fill="#FF8A2A" ${LN}/><rect x="45.5" y="67.5" width="9" height="8.5" rx="1.6" fill="none" stroke="#FFD23F" stroke-width="2.2"/>`
+      + `<path d="M 66,18 l 2,-4 l 2,4 l 4,1 l -3,3 l 1,4 l -4,-2 l -4,2 l 1,-4 l -3,-3 Z" fill="#FFD23F" ${LN}/>`
+      + shine(43, 48, 2.4, 6, 18) + kface(50, 57, 16);
+  }),
+  // Cauldron (no face)
+  256: hwTile(256, c => {
+    const pot = rgrad(c, 'ct', '#5E5378', '#2A2440'), brew = rgrad(c, 'br', '#C8F59A', '#4FB848');
+    return backdrop(c, 256, { hy: 58 }) + ground(c, 50, 92, 32)
+      + `<circle cx="38" cy="31" r="4" fill="#B8F08A" ${LN}/><circle cx="56" cy="24" r="5.5" fill="#B8F08A" ${LN}/><circle cx="65" cy="35" r="3" fill="#B8F08A" ${LN}/>`
+      + `<ellipse cx="50" cy="45" rx="30" ry="8" fill="${brew}" ${LN}/>`
+      + `<path d="M 20,47 Q 18,86 50,88 Q 82,86 80,47 Z" fill="${pot}" ${LN}/>`
+      + `<rect x="17" y="43" width="66" height="8" rx="4" fill="#4A4166" ${LN}/>`
+      + `<path d="M 30,87 l -3,6 M 70,87 l 3,6" stroke="${INK}" stroke-width="3.4" stroke-linecap="round"/>`
+      + `<path d="M 34,45 Q 40,41 46,45 Q 52,49 58,44 Q 63,41 67,46" fill="none" stroke="#E6FFD0" stroke-width="1.6" stroke-linecap="round" opacity="0.8"/>`
+      + shine(30, 59, 2.4, 6, 15);
+  }),
+
+  // ── Ghost, jack-o'-lantern, then the spooky house ──
+  // Friendly ghost
+  512: hwTile(512, c => {
+    const g = rgrad(c, 'g', '#FFFFFF', '#DCD3F0');
+    const body = 'M 24,88 L 24,49 C 24,22 76,22 76,49 L 76,88 Q 69.5,81 63,88 Q 56.5,81 50,88 Q 43.5,81 37,88 Q 30.5,81 24,88 Z';
+    return backdrop(c, 512, { hy: 56, hr: 48 }) + ground(c, 50, 94, 26)
+      + `<path d="M 25,58 Q 12,60 14,70 Q 20,65 26,68 Z M 75,58 Q 88,60 86,70 Q 80,65 74,68 Z" fill="${g}" ${LN}/>`
+      + `<path d="${body}" fill="${g}" ${LN}/>` + shine(35, 35, 6, 3) + kface(50, 53, 25);
+  }),
+  1024: hwTile(1024, c => backdrop(c, 1024, { hy: 58, hr: 46, color: '#FFE08A', op: 0.65 }) + ground(c, 50, 90, 32) + pumpkin(c, { carved: true, lit: true })),
+  // Haunted house, the finale; golden frame beyond 2048
+  2048: hwTile(2048, c => hauntedHouse(c, 2048)),
+  4096: hwTile(4096, c => hauntedHouse(c, 4096, { frame: true })),
+  8192: hwTile(8192, c => hauntedHouse(c, 8192, { frame: true, extra: true })),
+};
+
+// Candy bucket for the win / lose cards (twin of the fruit picnic basket)
+function candyBucketSVG(opts = {}) {
+  const c = { p: 'cb' + (opts.empty ? 'e' : 'f'), n: 0, defs: '', bg: {} };
+  const P = c.p;
+  const pail = grad(c, 'bk', '#8EE3D6', '#33A898'), pop = rgrad(c, 'lp', '#FFC2DD', '#FF6FA5'), pop2 = rgrad(c, 'lp2', '#D9B8FF', '#7E4FD0');
+  const hard = rgrad(c, 'hc', '#FFC27A', '#FF8A2A');
+  c.defs += `<pattern id="${P}bl" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#FFF4E6"/><rect width="4" height="8" fill="#FF8A2A" opacity="0.4"/><rect width="8" height="4" fill="#8E6CD8" opacity="0.4"/></pattern>`;
+  const corn = (x, y, r) => `<g transform="translate(${x},${y}) rotate(${r}) scale(1.35)"><path d="M 0,-9 C 2,-9 7,5 7,7 C 7,10 -7,10 -7,7 C -7,5 -2,-9 0,-9 Z" fill="#FF8A2A" ${LN}/><path d="M -2.6,-4 L 2.6,-4" stroke="#FFFDF6" stroke-width="3"/><path d="M -6,6 L 6,6" stroke="#FFD23F" stroke-width="3.4"/></g>`;
+  let s = `<rect x="6" y="64" width="88" height="34" rx="2" fill="url(#${P}bl)" ${LN}/>`;
+  let b = `<ellipse cx="50" cy="91" rx="30" ry="3.6" fill="#3A2440" opacity="0.25"/>`;
+  b += `<path d="M 25,48 Q 50,6 75,48" fill="none" stroke="${INK}" stroke-width="4.6" stroke-linecap="round"/><path d="M 25,48 Q 50,6 75,48" fill="none" stroke="#D8D2E4" stroke-width="2.2" stroke-linecap="round"/>`;
+  if (!opts.empty) {
+    // a generous heap of big sweets
+    b += `<rect x="61" y="12" width="4.4" height="36" rx="2.2" fill="#FFF4E0" ${LN}/><circle cx="63.2" cy="13" r="12" fill="${pop}" ${LN}/><path d="M 63.2,13 m -2,0 a 2,2 0 1 1 4,0 a 6,6 0 1 1 -10,0 a 9.5,9.5 0 1 1 16,0" fill="none" stroke="white" stroke-width="2" opacity="0.7"/>`;
+    b += `<rect x="33" y="18" width="4" height="30" rx="2" fill="#FFF4E0" ${LN}/><circle cx="35" cy="19" r="9.5" fill="${pop2}" ${LN}/><path d="M 35,19 m -1.5,0 a 1.5,1.5 0 1 1 3,0 a 5,5 0 1 1 -8,0" fill="none" stroke="white" stroke-width="1.8" opacity="0.6"/>`;
+    b += `<g transform="translate(0 -4) scale(1)">` + corn(48, 36, -8) + `</g>` + corn(26, 40, -30) + corn(76, 38, 26);
+    b += `<circle cx="50" cy="42" r="8" fill="${hard}" ${LN}/><path d="M 58,42 l 7,-4.5 l 0,9 Z M 42,42 l -7,-4.5 l 0,9 Z" fill="white" fill-opacity="0.85" ${LN}/>`;
+    b += `<ellipse cx="46.5" cy="38.5" rx="2.4" ry="1.3" fill="white" opacity="0.7"/>`;
+  }
+  b += `<path d="M 22,46 L 78,46 L 72,88 Q 50,92 28,88 Z" fill="${pail}" ${LN}/><rect x="20" y="43" width="60" height="7" rx="3.5" fill="#B5F0E6" ${LN}/>`;
+  b += shine(29, 60, 2.4, 7, 10);
+  s += `<g transform="translate(50 92) scale(0.78) translate(-50 -92)">${b}</g>`;
+  if (opts.spider) {
+    const sp = rgrad(c, 'sp', '#6A5E86', '#2E2742');
+    let legs = '';
+    for (const sx of [-1, 1]) for (const [a, d] of [[-3, -2], [-1, 0], [1, 2], [3, 3]])
+      legs += `<path d="M ${84 + sx * 3},${40 + a} q ${sx * 3},-3 ${sx * 6},${d}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-linecap="round"/>`;
+    s += `<path d="M 84,0 L 84,34" stroke="${INK}" stroke-width="0.7" opacity="0.6"/>` + legs
+      + `<circle cx="84" cy="40" r="5.4" fill="${sp}" ${LN.replace('stroke-width="1.5"', 'stroke-width="1.1"')}/>`
+      + `<circle cx="82.2" cy="39.5" r="1.1" fill="#F7E36A"/><circle cx="85.8" cy="39.5" r="1.1" fill="#F7E36A"/><circle cx="82.2" cy="39.5" r="0.45" fill="${FEAT}"/><circle cx="85.8" cy="39.5" r="0.45" fill="${FEAT}"/>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>${c.defs}</defs>${s}</svg>`;
+}
+
 // ── Themes ────────────────────────────────────────────────────────────────────
 const THEMES = {
-  fruit: { name: 'Fruit', art: FRUIT_ART },
+  fruit: { name: 'Fruit Picnic', art: FRUIT_ART },
+  halloween: { name: 'Spooky Picnic', art: HALLOWEEN_ART },
   bears: { name: 'Bear family', art: BEAR_ART },
 };
-const ACTIVE_THEME = 'fruit';
-const TILE_ART = THEMES[ACTIVE_THEME].art;
+// The game swaps this when the player changes theme (see applyTheme in game.js)
+let TILE_ART = THEMES.fruit.art;
 
 // ── Picnic basket (app icon and game-over card) ───────────────────────────────
 // A round wicker fruit basket with a tall arched handle,

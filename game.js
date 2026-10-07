@@ -9,6 +9,11 @@ const pause = ms => new Promise(r => setTimeout(r, ms));
 let soundOn = true;
 try { soundOn = localStorage.getItem('2048sound') !== 'off'; } catch (_) {}
 
+// Theme: 'fruit' (Fruit Picnic) or 'halloween' (Spooky Picnic), remembered per phone
+let themeId = 'fruit';
+try { const saved = localStorage.getItem('2048theme'); if (saved === 'halloween') themeId = saved; } catch (_) {}
+TILE_ART = THEMES[themeId].art;
+
 let audioCtx = null, audioBus = null, audioVerb = null, noiseBuf = null;
 
 function getAudio() {
@@ -95,8 +100,9 @@ function withAudio(fn) {
   try { const t = getAudio().currentTime + 0.01; fn(t); } catch (_) {}
 }
 
+// ── Fruit Picnic sounds ──
 // Every merge: a soft, muted woody thump
-function soundMerge() {
+function kalimbaMerge() {
   withAudio(t => {
     tone(t, { f: 170 * (0.97 + Math.random() * 0.06), type: 'triangle', vol: 0.06, a: 0.002, d: 0.06, lp: 500 });
     tap(t, 0.016);
@@ -106,7 +112,7 @@ function soundMerge() {
 // New fruit: the climbing phrase. L = -3 for strawberry (4), 0 for orange (32)
 // … 6 for watermelon (2048). Strawberry, grapes and lemon continue the climb
 // downward, so orange and up are unchanged.
-function soundNewFruit(value) {
+function kalimbaNewFruit(value) {
   const L = Math.min(Math.max(Math.log2(value) - 5, -3), 6);
   withAudio(t => {
     const b = 2 + L;
@@ -118,6 +124,44 @@ function soundNewFruit(value) {
     if (L >= 6) [b - 5, b - 3, b - 2, b].forEach((i, k) => kalimba(lastAt + 0.02 + k * 0.03, note(i), 0.045, 0.4));
   });
 }
+
+// ── Spooky Picnic sounds ──
+// A music box in a minor key: a soft bell note on every merge, and the same
+// climbing phrase as Fruit Picnic for each new tile, played on bells.
+const MINOR = [0, 3, 5, 7, 10];                      // A minor pentatonic
+function mnote(i) {                                   // i = 0 is A3; 5 steps per octave
+  const o = Math.floor(i / 5), s = MINOR[((i % 5) + 5) % 5];
+  return 220 * Math.pow(2, o + s / 12);
+}
+function bell(t, f, vol, d = 0.7, send = 0.2) {
+  tone(t, { f, vol, a: 0.003, d, send });
+  tone(t, { f: f * 2.76, vol: vol * 0.22, a: 0.002, d: d * 0.45, send });
+  tone(t, { f: f * 5.4, vol: vol * 0.07, a: 0.002, d: d * 0.25, send });
+}
+function musicBoxMerge() {
+  withAudio(t => bell(t, mnote([5, 7, 8][Math.floor(Math.random() * 3)]), 0.036, 0.35, 0.3));
+}
+function musicBoxNewTile(value) {
+  const L = Math.min(Math.max(Math.log2(value) - 5, -3), 6);
+  withAudio(t => {
+    const b = 2 + L, beat = 0.17;
+    const phrase = L >= 6
+      ? [[b, 1], [b + 2, 1], [b + 1, 1], [b + 3, 1], [b + 5, 3]]
+      : [[b, 1], [b + 2, 1], [b + 1, 1], [b + 3, 2]];
+    let at = t;
+    phrase.forEach(([i, beats], k) => {
+      const last = k === phrase.length - 1;
+      bell(at, mnote(i), last ? 0.0805 : 0.07, 0.9, 0.4);
+      if (!last) at += beats * beat;
+    });
+    const top = phrase[phrase.length - 1][0];
+    if (L >= 5) bell(at, mnote(top - 5), 0.035, 1.2, 0.5);
+    if (L >= 6) [b - 5, b - 3, b - 2, b].forEach((i, k) => bell(at + 0.03 + k * 0.05, mnote(i), 0.03, 1.4, 0.6));
+  });
+}
+
+function soundMerge() { themeId === 'halloween' ? musicBoxMerge() : kalimbaMerge(); }
+function soundNewFruit(value) { themeId === 'halloween' ? musicBoxNewTile(value) : kalimbaNewFruit(value); }
 
 // iOS only lets audio start from a tap/click/key (not a finger moving), and
 // swipes fire on touchmove, so wake the audio on the first real tap or key.
@@ -158,7 +202,11 @@ function soundVictory() { soundNewFruit(2048); }
 
 // Game over: a gentle phrase stepping down
 function soundGameOver() {
-  withAudio(t => playPhrase(t, [[7, 1], [5, 1], [4, 1], [2, 1], [0, 3]], 0.07, 0.25));
+  if (themeId === 'halloween') {
+    withAudio(t => [7, 5, 4, 2, 0].forEach((i, k) => bell(t + k * 0.2, mnote(i), 0.06, k === 4 ? 1.4 : 0.8, 0.4)));
+  } else {
+    withAudio(t => playPhrase(t, [[7, 1], [5, 1], [4, 1], [2, 1], [0, 3]], 0.07, 0.25));
+  }
 }
 
 // ── Confetti ──────────────────────────────────────────────────────────────────
@@ -592,12 +640,68 @@ document.addEventListener('touchstart', e => {
   if (!e.target.closest('button, a')) e.preventDefault();
 }, { passive: false });
 
+// ── Themes ────────────────────────────────────────────────────────────────────
+// Everything that changes with the theme. The board, score and game carry on
+// when you switch: the same tiles just show the other theme's art.
+const svgURL = svg => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+const THEME_UI = {
+  fruit: {
+    title: 'Fruit Picnic', win: 'Sweet victory!', lose: 'Picnic’s over!',
+    winArt: () => picnicBasketSVG(false, { blanket: true }), winAlt: 'A picnic basket full of fruit',
+    loseArt: () => picnicBasketSVG(false, { empty: true, blanket: true, ants: true }), loseAlt: 'An empty picnic basket',
+    confetti: ['#FF85C2', '#CF91F0', '#80D5E0', '#FFE05A', '#B5E48C', '#FF99C8', '#A8DADC'],
+    color: '#FFF8EC', next: 'halloween',
+  },
+  halloween: {
+    title: 'Spooky Picnic', win: 'Spooktacular!', lose: 'Out of treats!',
+    winArt: () => candyBucketSVG({}), winAlt: 'A candy bucket full of sweets',
+    loseArt: () => candyBucketSVG({ empty: true, spider: true }), loseAlt: 'An empty candy bucket with a little spider',
+    confetti: ['#FF8A2A', '#FFB870', '#8E6CD8', '#B9A2E8', '#7ED36E', '#C8F59A', '#FFF3B0'],
+    color: '#1E1533', next: 'fruit',
+  },
+};
+// The theme button shows the theme you'll switch to: a pumpkin, or cherries
+const THEME_ICONS = {
+  halloween: '<svg viewBox="0 0 24 24" stroke="#5A2E14" stroke-width="1.3" stroke-linejoin="round">'
+    + '<path d="M12 7.5 Q12 4.5 14.5 3.5" fill="none" stroke="#3E7A2E" stroke-width="2" stroke-linecap="round"/>'
+    + '<ellipse cx="7.6" cy="14" rx="4.6" ry="6" fill="#FF8A2A"/><ellipse cx="16.4" cy="14" rx="4.6" ry="6" fill="#FF8A2A"/>'
+    + '<ellipse cx="12" cy="14" rx="5.4" ry="6.8" fill="#FFA24A"/></svg>',
+  fruit: '<svg viewBox="0 0 24 24" stroke="#5A1E2A" stroke-width="1.3">'
+    + '<path d="M13 3 Q10 9 7.5 14 M13 3 Q15 9 16.5 13" fill="none" stroke="#7A5A2E" stroke-width="1.5" stroke-linecap="round"/>'
+    + '<path d="M13 3 q4 -1 6 2 q-4 1 -6 -2 Z" fill="#7ED36E"/>'
+    + '<circle cx="7.5" cy="16.5" r="4" fill="#E8365D"/><circle cx="16.5" cy="15.5" r="4" fill="#E8365D"/></svg>',
+};
+
+function applyTheme(id) {
+  themeId = id;
+  const ui = THEME_UI[id];
+  TILE_ART = THEMES[id].art;
+  document.documentElement.dataset.skin = id;
+  document.querySelector('h1').textContent = ui.title;
+  document.title = ui.title;
+  document.querySelector('#celebration h2').textContent = ui.win;
+  document.querySelector('#gameover h2').textContent = ui.lose;
+  const winArt = document.getElementById('winArt'), loseArt = document.getElementById('gameoverArt');
+  winArt.src = svgURL(ui.winArt()); winArt.alt = ui.winAlt;
+  loseArt.src = svgURL(ui.loseArt()); loseArt.alt = ui.loseAlt;
+  CC.splice(0, CC.length, ...ui.confetti);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', ui.color);
+  // swap tile art: forget the old pictures, pre-load the new ones, redraw the board
+  Object.keys(artSrc).forEach(k => delete artSrc[k]);
+  Object.keys(TILE_ART).forEach(v => { const i = artNode(v); i.decode && i.decode().catch(() => {}); });
+  liveTiles.forEach(t => applyTileDisplay(t));
+  const btn = document.getElementById('themeBtn');
+  btn.innerHTML = THEME_ICONS[ui.next];
+  btn.setAttribute('aria-label', 'Switch to ' + THEME_UI[ui.next].title);
+  btn.title = 'Switch to ' + THEME_UI[ui.next].title;
+  try { localStorage.setItem('2048theme', id); } catch (_) {}
+}
+document.getElementById('themeBtn').addEventListener('click', () => applyTheme(THEME_UI[themeId].next));
+
 // ── Start ─────────────────────────────────────────────────────────────────────
 document.getElementById('best').textContent = best;
-document.getElementById('winArt').src =
-  'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(picnicBasketSVG(false, { blanket: true }));
-document.getElementById('gameoverArt').src =
-  'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(picnicBasketSVG(false, { empty: true, blanket: true, ants: true }));
+applyTheme(themeId);
 showSoundIcon();
 newGame();
 

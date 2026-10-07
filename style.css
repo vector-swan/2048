@@ -103,8 +103,8 @@ h1 {
 }
 
 /* Sound button shows a drawn music-note icon (set in game.js) */
-#soundBtn { display: flex; align-items: center; justify-content: center; }
-#soundBtn svg { width: 22px; height: 22px; display: block; }
+#soundBtn, #themeBtn { display: flex; align-items: center; justify-content: center; }
+#soundBtn svg, #themeBtn svg { width: 22px; height: 22px; display: block; }
 
 .scores { display: flex; gap: 8px; }
 
@@ -352,3 +352,48 @@ h1 {
   45%  { transform: scale(1.45); color: var(--accent); }
   100% { transform: scale(1); }
 }
+
+/* ── Spooky Picnic: moonlit night ─────────────────────────────────────────── */
+html[data-skin="halloween"] {
+  --text-dark: #F3E8FF;
+  --accent: #FF8A2A;
+  --accent-dark: #B8520C;
+  --mustard: #8E6CD8;
+  --mustard-dark: #5A3F94;
+  --tray: #3A2D55;
+  --tray-edge: #22183A;
+  --muted: #BFA8E0;
+  --stitch: #8E6CD8;
+}
+html[data-skin="halloween"] body {
+  background-color: #1E1533;
+  background-image:
+    radial-gradient(circle at 84% 90%, #FFF3B0 0 26px, rgba(255, 243, 176, 0.2) 27px 46px, transparent 47px),
+    radial-gradient(1.6px 1.6px at 12% 18%, #fff 60%, transparent),
+    radial-gradient(1.4px 1.4px at 38% 8%, #fff 60%, transparent),
+    radial-gradient(1.2px 1.2px at 64% 22%, #fff 60%, transparent),
+    radial-gradient(1.3px 1.3px at 90% 12%, #fff 60%, transparent),
+    radial-gradient(1.2px 1.2px at 6% 62%, #fff 60%, transparent),
+    linear-gradient(170deg, #2E2052 0%, #171028 100%);
+  background-size: auto;
+}
+html[data-skin="halloween"] h1 { font-size: clamp(1.6rem, 8.2vw, 2.1rem); }
+html[data-skin="halloween"] .tile::before { color: #4A2A4C; }
+html[data-skin="halloween"] .score-box { background: rgba(255, 255, 255, 0.08); }
+html[data-skin="halloween"] .score-label { color: #FFB870; }
+html[data-skin="halloween"] .score-value { color: #fff; }
+html[data-skin="halloween"] .cell { background: rgba(255, 255, 255, 0.07); }
+html[data-skin="halloween"] #soundBtn svg { stroke: #FFFFFF; }
+html[data-skin="halloween"] #soundBtn svg circle { fill: #8E6CD8; }
+html[data-skin="halloween"] .celebration,
+html[data-skin="halloween"] .gameover { background: rgba(20, 12, 40, 0.55); }
+html[data-skin="halloween"] .celebration-content,
+html[data-skin="halloween"] .gameover-content {
+  background: #2C2148;
+  border-color: #FF8A2A;
+  box-shadow: 0 6px 0 #170F2A, 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+html[data-skin="halloween"] .celebration-content p,
+html[data-skin="halloween"] .gameover-content p,
+html[data-skin="halloween"] .gameover-content .final-score { color: #F3E8FF; }
+html[data-skin="halloween"] .btn-secondary { color: #fff; }
