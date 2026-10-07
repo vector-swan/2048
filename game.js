@@ -224,7 +224,7 @@ function stopConfetti() {
 // ── Constants & live state ────────────────────────────────────────────────────
 const SIZE = 4;
 const GAP  = 10;
-const SLIDE_MS = 85;    // must match CSS transition duration
+const SLIDE_MS = 130;   // must match CSS transition duration
 
 // liveTiles: the single source of truth — array of { id, value, r, c, el }
 let liveTiles = [];
@@ -484,7 +484,12 @@ function spawnTile() {
 
 // Re-layout all tiles without animation (used on resize)
 function relayout() {
+  // Phones fire resize events for toolbar changes even when the board stays
+  // the same size; only snap tiles into place when the size really changed,
+  // otherwise it would cut slide animations short.
+  const old = cachedTileSize;
   cachedTileSize = 0;
+  if (old && Math.abs(tileSize() - old) < 0.5) return;
   liveTiles.forEach(t => {
     t.el.classList.add('no-anim');
     sizeTile(t.el);

@@ -219,7 +219,7 @@ h1 {
   left: 0; top: 0;
   will-change: translate;
   /* translate (GPU-composited) powers the slide animation */
-  transition: translate 0.085s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: translate 0.13s cubic-bezier(0.4, 0, 0.2, 1);   /* = SLIDE_MS in game.js */
 }
 
 .tile img { width: 100%; height: 100%; display: block; pointer-events: none; user-select: none; -webkit-user-drag: none; }
