@@ -1,0 +1,17 @@
+{
+  "appId": "io.github.vectorswan.fruitpicnic",
+  "appName": "Fruit Picnic",
+  "webDir": "www",
+  "backgroundColor": "#FFF8EC",
+  "ios": {
+    "contentInset": "never",
+    "scrollEnabled": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "backgroundColor": "#FFF8EC",
+      "showSpinner": false
+    }
+  }
+}

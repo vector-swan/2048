@@ -1,0 +1,21 @@
+{
+  "name": "fruit-picnic",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fruit Picnic, a 2048 game",
+  "scripts": {
+    "build": "node scripts/build-www.mjs",
+    "ios": "npm run build && cap sync ios && cap open ios",
+    "sync": "npm run build && cap sync ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.5.3",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  }
+}

@@ -66,7 +66,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 12px 8px;
+  /* keep clear of the iPhone notch and home bar when the app fills the screen */
+  padding: calc(16px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right))
+    calc(8px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
   max-width: 520px;
   margin: 0 auto;
 }
@@ -103,8 +105,8 @@ h1 {
 }
 
 /* Sound button shows a drawn music-note icon (set in game.js) */
-#soundBtn, #themeBtn { display: flex; align-items: center; justify-content: center; }
-#soundBtn svg, #themeBtn svg { width: 22px; height: 22px; display: block; }
+#soundBtn, #themeBtn, #hapticsBtn { display: flex; align-items: center; justify-content: center; }
+#soundBtn svg, #themeBtn svg, #hapticsBtn svg { width: 22px; height: 22px; display: block; }
 
 .scores { display: flex; gap: 8px; }
 
@@ -150,6 +152,7 @@ h1 {
   box-shadow: 0 1px 0 var(--accent-dark);
 }
 .btn:focus-visible { outline: 3px solid var(--text-dark); outline-offset: 2px; }
+[hidden] { display: none !important; }
 .btn-icon  {
   padding: 8px 14px; font-size: 1.1rem;
   background: var(--mustard);
@@ -382,8 +385,10 @@ html[data-skin="halloween"] .score-box { background: rgba(255, 255, 255, 0.08); 
 html[data-skin="halloween"] .score-label { color: #FFB870; }
 html[data-skin="halloween"] .score-value { color: #fff; }
 html[data-skin="halloween"] .cell { background: rgba(255, 255, 255, 0.07); }
-html[data-skin="halloween"] #soundBtn svg { stroke: #FFFFFF; }
-html[data-skin="halloween"] #soundBtn svg circle { fill: #8E6CD8; }
+html[data-skin="halloween"] #soundBtn svg,
+html[data-skin="halloween"] #hapticsBtn svg { stroke: #FFFFFF; }
+html[data-skin="halloween"] #soundBtn svg circle,
+html[data-skin="halloween"] #hapticsBtn svg rect { fill: #8E6CD8; }
 html[data-skin="halloween"] .celebration,
 html[data-skin="halloween"] .gameover { background: rgba(20, 12, 40, 0.55); }
 html[data-skin="halloween"] .celebration-content,

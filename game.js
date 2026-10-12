@@ -197,6 +197,33 @@ function showSoundIcon() {
   btn.setAttribute('aria-label', soundOn ? 'Sound on' : 'Sound off');
 }
 
+// ── Haptics (iPhone app only) ─────────────────────────────────────────────────
+// In the App Store version the phone gives little taps and bumps. On the
+// website there's no vibration on iPhone, so these do nothing there.
+const native = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+const nativePlugin = name => native ? (window.Capacitor.Plugins[name] || window.Capacitor.registerPlugin(name)) : null;
+const Haptics = nativePlugin('Haptics');
+let hapticsOn = true;
+try { hapticsOn = localStorage.getItem('2048haptics') !== 'off'; } catch (_) {}
+function haptic(kind) {
+  if (!Haptics || !hapticsOn) return;
+  try {
+    const p = kind === 'win' ? Haptics.notification({ type: 'SUCCESS' })
+      : kind === 'lose' ? Haptics.notification({ type: 'WARNING' })
+      : Haptics.impact({ style: kind === 'new' ? 'MEDIUM' : 'LIGHT' });
+    if (p && p.catch) p.catch(() => {});
+  } catch (_) {}
+}
+function showHapticsIcon() {
+  const btn = document.getElementById('hapticsBtn');
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#7A3B2E" stroke-width="1.9" '
+    + 'stroke-linecap="round" stroke-linejoin="round">'
+    + '<rect x="8" y="3.5" width="8" height="17" rx="2.2" fill="#FFF8EC"/>'
+    + '<path d="M4.5 8.5v7M19.5 8.5v7M2 10.5v3M22 10.5v3"/>'
+    + (hapticsOn ? '' : '<path d="M4 4l16 16" stroke-width="2.2"/>') + '</svg>';
+  btn.setAttribute('aria-label', hapticsOn ? 'Vibration on' : 'Vibration off');
+}
+
 // Reaching 2048: the watermelon phrase is the finale
 function soundVictory() { soundNewFruit(2048); }
 
@@ -463,8 +490,8 @@ async function doMove(dir) {
     const top = Math.max(...merges.map(m => m.newValue));
     const victoryNext = !celebrationShown && top >= 2048;   // fanfare plays instead
     if (!victoryNext) {
-      if (top > highestThisGame && top >= 4) soundNewFruit(top);
-      else soundMerge(top);
+      if (top > highestThisGame && top >= 4) { soundNewFruit(top); haptic('new'); }
+      else { soundMerge(top); haptic('merge'); }
     }
     highestThisGame = Math.max(highestThisGame, top);
   }
@@ -486,6 +513,7 @@ async function doMove(dir) {
   }
   if (!canMove()) {
     soundGameOver();
+    haptic('lose');
     await pause(400);
     showGameOver();
   }
@@ -564,7 +592,7 @@ function updateScore(add) {
 
 // ── Overlays ──────────────────────────────────────────────────────────────────
 function showCelebration() {
-  soundVictory(); startConfetti();
+  soundVictory(); haptic('win'); startConfetti();
   document.getElementById('celebration').classList.add('show');
 }
 function hideCelebration() {
@@ -622,6 +650,12 @@ document.getElementById('soundBtn').addEventListener('click', () => {
   if (soundOn) unlockAudio();
   showSoundIcon();
   try { localStorage.setItem('2048sound', soundOn ? 'on' : 'off'); } catch (_) {}
+});
+document.getElementById('hapticsBtn').addEventListener('click', () => {
+  hapticsOn = !hapticsOn;
+  showHapticsIcon();
+  haptic('merge');
+  try { localStorage.setItem('2048haptics', hapticsOn ? 'on' : 'off'); } catch (_) {}
 });
 document.getElementById('keepGoingBtn').addEventListener('click', hideCelebration);
 document.getElementById('celebNewGameBtn').addEventListener('click', newGame);
@@ -687,6 +721,8 @@ function applyTheme(id) {
   CC.splice(0, CC.length, ...ui.confetti);
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', ui.color);
+  const bar = nativePlugin('StatusBar');
+  if (bar) bar.setStyle({ style: id === 'halloween' ? 'DARK' : 'LIGHT' }).catch(() => {});
   // swap tile art: forget the old pictures, pre-load the new ones, redraw the board
   Object.keys(artSrc).forEach(k => delete artSrc[k]);
   Object.keys(TILE_ART).forEach(v => { const i = artNode(v); i.decode && i.decode().catch(() => {}); });
@@ -703,6 +739,7 @@ document.getElementById('themeBtn').addEventListener('click', () => applyTheme(T
 document.getElementById('best').textContent = best;
 applyTheme(themeId);
 showSoundIcon();
+if (native) { document.getElementById('hapticsBtn').hidden = false; showHapticsIcon(); }
 newGame();
 
 // Test shortcut: open the game with #almost-win at the end of the link to
@@ -722,6 +759,7 @@ if (location.hash === '#almost-win') setUpAlmostWin();
 window.addEventListener('hashchange', () => { if (location.hash === '#almost-win') setUpAlmostWin(); });
 
 // Installable app: keep a copy on the phone so it works offline
-if ('serviceWorker' in navigator && window.isSecureContext) {
+// (not needed in the iPhone app, which already has everything built in)
+if (!native && 'serviceWorker' in navigator && window.isSecureContext) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
