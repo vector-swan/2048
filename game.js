@@ -47,10 +47,11 @@ function route(node, send) {
   if (send) { const s = audioCtx.createGain(); s.gain.value = send; node.connect(s); s.connect(audioVerb); }
 }
 
-function tone(t, { f, type = 'sine', vol = 0.1, a = 0.005, d = 0.3, lp = null, send = 0 }) {
+function tone(t, { f, type = 'sine', vol = 0.1, a = 0.005, d = 0.3, lp = null, send = 0, from = null, glide = 0.05 }) {
   const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
   osc.type = type;
-  osc.frequency.setValueAtTime(f, t);
+  if (from) { osc.frequency.setValueAtTime(from, t); osc.frequency.exponentialRampToValueAtTime(f, t + glide); }
+  else osc.frequency.setValueAtTime(f, t);
   let last = osc;
   if (lp) { const fl = audioCtx.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = lp; osc.connect(fl); last = fl; }
   last.connect(g);
@@ -126,20 +127,41 @@ function kalimbaNewFruit(value) {
 }
 
 // ── Spooky Picnic sounds ──
-// A music box in a minor key: a soft bell note on every merge, and the same
-// climbing phrase as Fruit Picnic for each new tile, played on bells.
-const MINOR = [0, 3, 5, 7, 10];                      // A minor pentatonic
-function mnote(i) {                                   // i = 0 is A3; 5 steps per octave
+// A creamy keyboard "thock" on every merge, and the same climbing phrase as
+// Fruit Picnic for each new tile, played on music-box bells in a minor key.
+const MINOR = [0, 3, 5, 7, 10];                      // minor pentatonic
+// Tuned to the keyboard sound below: the home note is 170 Hz, so the bells and
+// the merge "thock" share a note (darker than standard A3 = 220 Hz)
+const KEY = 170;
+function mnote(i) {                                   // i = 0 is the home note; 5 steps per octave
   const o = Math.floor(i / 5), s = MINOR[((i % 5) + 5) % 5];
-  return 220 * Math.pow(2, o + s / 12);
+  return KEY * Math.pow(2, o + s / 12);
 }
 function bell(t, f, vol, d = 0.7, send = 0.2) {
   tone(t, { f, vol, a: 0.003, d, send });
   tone(t, { f: f * 2.76, vol: vol * 0.22, a: 0.002, d: d * 0.45, send });
   tone(t, { f: f * 5.4, vol: vol * 0.07, a: 0.002, d: d * 0.25, send });
 }
-function musicBoxMerge() {
-  withAudio(t => bell(t, mnote([5, 7, 8][Math.floor(Math.random() * 3)]), 0.036, 0.35, 0.3));
+// Every merge: a creamy mechanical-keyboard "thock", a lubed key bottoming
+// out. A low muted body on the home note, a soft dark click, a whisper of echo.
+function thock(t, vol) {
+  const src = audioCtx.createBufferSource(), fl = audioCtx.createBiquadFilter(), g = audioCtx.createGain();
+  src.buffer = noiseBuf;
+  fl.type = 'lowpass'; fl.frequency.value = 900; fl.Q.value = 0.7;
+  src.connect(fl); fl.connect(g);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + 0.001);
+  g.gain.exponentialRampToValueAtTime(0.0005, t + 0.021);
+  route(g, 0);
+  src.start(t); src.stop(t + 0.07);
+}
+function keyboardMerge() {
+  withAudio(t => {
+    const w = 0.995 + Math.random() * 0.01;   // a tiny wobble so presses aren't identical
+    tone(t, { f: KEY * w, from: KEY * 1.24 * w, glide: 0.025, type: 'triangle', vol: 0.08, a: 0.001, d: 0.06, lp: 500, send: 0.08 });
+    tone(t, { f: KEY / 2 * w, vol: 0.045, a: 0.001, d: 0.05 });
+    thock(t, 0.035);
+  });
 }
 function musicBoxNewTile(value) {
   const L = Math.min(Math.max(Math.log2(value) - 5, -3), 6);
@@ -160,7 +182,7 @@ function musicBoxNewTile(value) {
   });
 }
 
-function soundMerge() { themeId === 'halloween' ? musicBoxMerge() : kalimbaMerge(); }
+function soundMerge() { themeId === 'halloween' ? keyboardMerge() : kalimbaMerge(); }
 function soundNewFruit(value) { themeId === 'halloween' ? musicBoxNewTile(value) : kalimbaNewFruit(value); }
 
 // iOS only lets audio start from a tap/click/key (not a finger moving), and
