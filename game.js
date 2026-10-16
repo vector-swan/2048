@@ -619,6 +619,7 @@ function updateScore(add) {
 
 // ── Overlays ──────────────────────────────────────────────────────────────────
 function showCelebration() {
+  showStats(document.getElementById('celebration'));
   soundVictory(); haptic('win'); startConfetti();
   document.getElementById('celebration').classList.add('show');
 }
@@ -631,11 +632,16 @@ function tileName(value) {
   const names = THEME_UI[themeId].tiles, i = Math.log2(value) - 1;
   return i < names.length ? names[i] : 'Golden ' + names[names.length - 1].toLowerCase();
 }
-function showGameOver() {
+// Fill a card's "top tile" and "score" boxes
+function showStats(card) {
   const top = Math.max(...liveTiles.map(t => t.value));
-  document.getElementById('finalTileArt').src = svgURL(TILE_ART[top] || TILE_ART[8192]);
-  document.getElementById('finalTile').textContent = tileName(top);
-  document.getElementById('finalScore').textContent = score.toLocaleString();
+  const $ = k => card.querySelector(`[data-stat="${k}"]`);
+  $('tile-art').src = svgURL(TILE_ART[top] || TILE_ART[8192]);
+  $('tile').textContent = tileName(top);
+  $('score').textContent = score.toLocaleString();
+}
+function showGameOver() {
+  showStats(document.getElementById('gameover'));
   document.getElementById('gameover').classList.add('show');
 }
 function hideGameOver() { document.getElementById('gameover').classList.remove('show'); }

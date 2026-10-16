@@ -323,33 +323,40 @@ h1 {
 
 .basket-art { width: 150px; height: 150px; display: block; }
 
-.gameover-content .final-stats {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px 10px;
-  margin: 2px 0 4px;
+.final-stats {
+  display: grid;
+  gap: 8px;
+  width: min(100%, 250px);
+  margin: 4px auto 6px;
 }
-.gameover-content .stat {
+.stat {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 14px 6px 6px;
+  gap: 10px;
+  padding: 6px 12px 6px 6px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.6);
   border: 2px dashed var(--stitch);
   text-align: left;
 }
-.gameover-content .stat:not(.stat-tile) { padding-left: 14px; }
-.gameover-content .stat img { width: 46px; height: 46px; border-radius: 10px; display: block; }
-.gameover-content .stat-label {
+.stat-icon { width: 46px; height: 46px; flex: none; border-radius: 10px; display: block; }
+.stat-star {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mustard);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+}
+.stat-label {
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
 }
-.gameover-content .stat-value {
+.stat-value {
   font-family: var(--display);
   font-size: 1.25rem;
   line-height: 1.15;
@@ -421,6 +428,6 @@ html[data-skin="halloween"] .gameover-content {
 }
 html[data-skin="halloween"] .celebration-content p,
 html[data-skin="halloween"] .gameover-content p { color: #F3E8FF; }
-html[data-skin="halloween"] .gameover-content .stat { background: rgba(255, 255, 255, 0.08); }
-html[data-skin="halloween"] .gameover-content .stat-label { color: #FFB870; }
+html[data-skin="halloween"] .stat { background: rgba(255, 255, 255, 0.08); }
+html[data-skin="halloween"] .stat-label { color: #FFB870; }
 html[data-skin="halloween"] .btn-secondary { color: #fff; }
