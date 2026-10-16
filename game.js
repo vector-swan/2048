@@ -476,6 +476,7 @@ function computeMove(dir) {
 let queuedDir = null;
 async function doMove(dir) {
   if (typeof lbIsOpen !== 'undefined' && lbIsOpen) return;   // leaderboard panel is open
+  if (typeof howtoOpen !== 'undefined' && howtoOpen) return; // how-to card is open
   if (busy) { queuedDir = dir; return; }
   const { newPos, merges, moved, scoreAdd } = computeMove(dir);
   if (!moved) return;
@@ -524,6 +525,7 @@ async function doMove(dir) {
       else { soundMerge(top); haptic('merge'); }
     }
     highestThisGame = Math.max(highestThisGame, top);
+    if (typeof tutorialMerged === 'function') tutorialMerged();
   }
 
   // ④ Update score
@@ -654,6 +656,7 @@ function hideGameOver() { document.getElementById('gameover').classList.remove('
 // ── New game ──────────────────────────────────────────────────────────────────
 function newGame() {
   hideCelebration(); hideGameOver();
+  if (typeof tutorialHide === 'function') tutorialHide();
   liveTiles.forEach(t => t.el.remove());
   liveTiles = [];
   score = 0; celebrationShown = false; busy = false; queuedDir = null; highestThisGame = 0;
@@ -718,7 +721,7 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 // double-tap. Telling the browser to ignore the touch itself stops that; swipes
 // are still read from touchmove, and buttons are left alone so taps work.
 document.addEventListener('touchstart', e => {
-  if (!e.target.closest('button, a, input, .lb-list')) e.preventDefault();
+  if (!e.target.closest('button, a, input, .lb-list, .steps')) e.preventDefault();
 }, { passive: false });
 
 // ── Themes ────────────────────────────────────────────────────────────────────
@@ -787,6 +790,7 @@ function applyTheme(id) {
   btn.setAttribute('aria-label', 'Switch to ' + THEME_UI[ui.next].title);
   btn.title = 'Switch to ' + THEME_UI[ui.next].title;
   try { localStorage.setItem('2048theme', id); } catch (_) {}
+  if (typeof tutorialRefresh === 'function') tutorialRefresh();
 }
 document.getElementById('themeBtn').addEventListener('click', () => applyTheme(THEME_UI[themeId].next));
 

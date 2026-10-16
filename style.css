@@ -269,7 +269,7 @@ h1 {
 .t4096, .t8192 { box-shadow: 0 0 18px rgba(255,200,60,0.7), 0 2px 0 rgba(160,110,60,0.22); }
 
 /* ── Overlays ── */
-.celebration, .gameover, .leaderboard {
+.celebration, .gameover, .leaderboard, .howto {
   position: fixed;
   inset: 0;
   display: flex;
@@ -282,9 +282,9 @@ h1 {
   background: rgba(255, 248, 236, 0.6);
   backdrop-filter: blur(6px);
 }
-.celebration.show, .gameover.show, .leaderboard.show { opacity: 1; pointer-events: all; }
+.celebration.show, .gameover.show, .leaderboard.show, .howto.show { opacity: 1; pointer-events: all; }
 
-.celebration-content, .gameover-content, .leaderboard-content {
+.celebration-content, .gameover-content, .leaderboard-content, .howto-content {
   background: #fff;
   border: 3px dashed var(--stitch);
   border-radius: 26px;
@@ -308,7 +308,7 @@ h1 {
   to   { transform: translateY(-12px) scale(1.06); }
 }
 
-.celebration-content h2, .gameover-content h2, .leaderboard-content h2 {
+.celebration-content h2, .gameover-content h2, .leaderboard-content h2, .howto-content h2 {
   font-family: var(--display);
   font-size: 1.8rem;
   font-weight: 800;
@@ -424,10 +424,12 @@ html[data-skin="halloween"] .cell { background: rgba(255, 255, 255, 0.07); }
 html[data-skin="halloween"] #themeBtn { --b: #FF9AAE; --bd: #DD6A82; }
 html[data-skin="halloween"] .celebration,
 html[data-skin="halloween"] .gameover,
-html[data-skin="halloween"] .leaderboard { background: rgba(20, 12, 40, 0.55); }
+html[data-skin="halloween"] .leaderboard,
+html[data-skin="halloween"] .howto { background: rgba(20, 12, 40, 0.55); }
 html[data-skin="halloween"] .celebration-content,
 html[data-skin="halloween"] .gameover-content,
-html[data-skin="halloween"] .leaderboard-content {
+html[data-skin="halloween"] .leaderboard-content,
+html[data-skin="halloween"] .howto-content {
   background: #2C2148;
   border-color: #FF8A2A;
   box-shadow: 0 6px 0 #170F2A, 0 16px 40px rgba(0, 0, 0, 0.4);
@@ -478,3 +480,60 @@ html[data-skin="halloween"] .lb-input { background: rgba(255, 255, 255, 0.1); co
   .controls .btn-icon { padding: 8px 11px; }
   #newGameBtn { padding: 8px 14px; }
 }
+
+/* ── How to play ── */
+.hint-link {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font: inherit; font-weight: 800; color: var(--accent); text-decoration: underline;
+}
+.howto-content { width: min(330px, calc(100vw - 32px)); max-width: none; padding: 26px 20px; gap: 12px; }
+.steps { display: grid; gap: 10px; width: 100%; text-align: left; max-height: 62vh; overflow-y: auto; }
+.step { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: rgba(0, 0, 0, 0.035); }
+.step .num {
+  flex: none; width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--accent); color: #fff; font: 800 14px var(--display);
+}
+.step .txt { font-weight: 700; font-size: 0.92rem; line-height: 1.3; color: var(--text-dark); }
+.step .txt b { font-family: var(--display); font-weight: 800; }
+.pics { display: flex; align-items: center; gap: 4px; margin-top: 5px; font: 800 15px var(--display); color: var(--muted); }
+.pics img { width: 34px; height: 34px; border-radius: 8px; }
+.swipe-pic { margin-top: 4px; font: 900 18px var(--display); letter-spacing: 3px; color: var(--accent); }
+
+/* First-game coach: a bubble and a little hand showing the swipe */
+.coach { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.coach-bubble {
+  position: absolute; left: 50%; top: 4%; transform: translateX(-50%);
+  white-space: nowrap; padding: 8px 14px; border-radius: 16px;
+  background: #fff; border: 2.5px dashed var(--stitch); box-shadow: 0 4px 0 var(--tray-edge);
+  font: 800 clamp(13px, 3.9vw, 15px) var(--display); color: var(--text-dark);
+}
+.coach-bubble b { color: var(--accent); }
+.coach-trail {
+  position: absolute; left: 22%; width: 52%; top: 36%; height: 6px; border-radius: 3px;
+  background: repeating-linear-gradient(90deg, var(--accent) 0 8px, transparent 8px 14px); opacity: 0.7;
+}
+.coach-hand { position: absolute; left: 50%; top: 34%; width: 15%; animation: coachSwipe 1.8s ease-in-out infinite; }
+.coach-hand svg { width: 100%; display: block; }
+@keyframes coachSwipe {
+  0%   { transform: translateX(80%); opacity: 0; }
+  15%  { opacity: 1; }
+  70%  { transform: translateX(-160%); opacity: 1; }
+  100% { transform: translateX(-160%); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .coach-hand { animation: none; } }
+.board-wrapper { position: relative; }
+.coach-toast {
+  position: absolute; left: 50%; top: calc(100% + 10px); z-index: 6;
+  transform: translate(-50%, 8px); opacity: 0; transition: opacity 0.3s, transform 0.3s;
+  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  padding: 6px 14px 6px 6px; border-radius: 18px;
+  background: #fff; border: 2.5px dashed var(--stitch); box-shadow: 0 4px 0 var(--tray-edge);
+  font: 800 15px var(--display); color: var(--text-dark);
+}
+.coach-toast.show { opacity: 1; transform: translate(-50%, 0); }
+.coach-toast img { width: 38px; height: 38px; border-radius: 9px; }
+html[data-skin="halloween"] .coach-bubble,
+html[data-skin="halloween"] .coach-toast { background: #2C2148; border-color: #FF8A2A; color: #F3E8FF; box-shadow: 0 4px 0 #170F2A; }
+html[data-skin="halloween"] .step { background: rgba(255, 255, 255, 0.06); }
+html[data-skin="halloween"] .step .txt { color: #F3E8FF; }
