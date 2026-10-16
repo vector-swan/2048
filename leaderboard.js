@@ -8,8 +8,8 @@
 // reading the board and saving scores through submit_score (supabase/leaderboard.sql).
 
 const LEADERBOARD = {
-  url: '',   // e.g. 'https://abcdefgh.supabase.co'
-  key: '',   // the anon / publishable key
+  url: 'https://pjdtvgvmatpqbfefjqgw.supabase.co',
+  key: 'sb_publishable_s9KpoAR__MoJhkbz8sCM8g_Cwma0nS_',
 };
 const LB_SIZE = 15;
 
