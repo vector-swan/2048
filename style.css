@@ -421,7 +421,13 @@ html[data-skin="halloween"] .cell { background: rgba(255, 255, 255, 0.07); }
 #hapticsBtn { --b: #AEE8D2; --bd: #6FC3A3; }
 #boardBtn   { --b: #FFE07A; --bd: #E3B547; }
 #themeBtn   { --b: #FFC08A; --bd: #E8955A; }
-html[data-skin="halloween"] #themeBtn { --b: #FF9AAE; --bd: #DD6A82; }
+/* Spooky Picnic: richer Halloween-candy colours that suit the night sky */
+html[data-skin="halloween"] #soundBtn   { --b: #B48CF0; --bd: #7A55C0; }
+html[data-skin="halloween"] #hapticsBtn { --b: #6FD3C2; --bd: #3E9E8E; }
+html[data-skin="halloween"] #boardBtn   { --b: #FFA24A; --bd: #C9701E; }
+html[data-skin="halloween"] #themeBtn   { --b: #8ED870; --bd: #5AA544; }
+html[data-skin="halloween"] .controls .btn-icon svg { stroke: #3A2550; }
+html[data-skin="halloween"] .controls .btn-icon svg [fill="#FFFDF8"] { fill: #FFF6E8; }
 html[data-skin="halloween"] .celebration,
 html[data-skin="halloween"] .gameover,
 html[data-skin="halloween"] .leaderboard,
