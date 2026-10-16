@@ -76,7 +76,15 @@
       <img class="big-emoji basket-art" id="gameoverArt" alt="An empty picnic basket">
       <h2>Picnic’s over!</h2>
       <p>No more moves left.</p>
-      <p class="final-score">Score <span id="finalScore">0</span></p>
+      <div class="final-stats">
+        <div class="stat stat-tile">
+          <img id="finalTileArt" alt="">
+          <div><div class="stat-label">Top tile</div><div class="stat-value" id="finalTile"></div></div>
+        </div>
+        <div class="stat">
+          <div><div class="stat-label">Score</div><div class="stat-value" id="finalScore">0</div></div>
+        </div>
+      </div>
       <button class="btn btn-big" id="gameoverNewGameBtn">Try again!</button>
     </div>
   </div>

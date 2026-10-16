@@ -323,17 +323,39 @@ h1 {
 
 .basket-art { width: 150px; height: 150px; display: block; }
 
-.gameover-content .final-score {
-  font-family: var(--display);
-  font-size: 1.15rem;
-  color: var(--text-dark);
-  margin-top: -4px;
+.gameover-content .final-stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin: 2px 0 4px;
 }
-.gameover-content .final-score span {
-  font-size: 1.6rem;
+.gameover-content .stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 6px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px dashed var(--stitch);
+  text-align: left;
+}
+.gameover-content .stat:not(.stat-tile) { padding-left: 14px; }
+.gameover-content .stat img { width: 46px; height: 46px; border-radius: 10px; display: block; }
+.gameover-content .stat-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.gameover-content .stat-value {
+  font-family: var(--display);
+  font-size: 1.25rem;
+  line-height: 1.15;
   color: var(--accent);
-  margin-left: 4px;
   font-variant-numeric: tabular-nums;
+  max-width: 9.5em;
 }
 
 #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
@@ -398,6 +420,7 @@ html[data-skin="halloween"] .gameover-content {
   box-shadow: 0 6px 0 #170F2A, 0 16px 40px rgba(0, 0, 0, 0.4);
 }
 html[data-skin="halloween"] .celebration-content p,
-html[data-skin="halloween"] .gameover-content p,
-html[data-skin="halloween"] .gameover-content .final-score { color: #F3E8FF; }
+html[data-skin="halloween"] .gameover-content p { color: #F3E8FF; }
+html[data-skin="halloween"] .gameover-content .stat { background: rgba(255, 255, 255, 0.08); }
+html[data-skin="halloween"] .gameover-content .stat-label { color: #FFB870; }
 html[data-skin="halloween"] .btn-secondary { color: #fff; }
