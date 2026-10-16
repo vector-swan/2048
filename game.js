@@ -361,7 +361,7 @@ function tileClass(value) { return 't' + Math.min(value, 8192); }
 const artSrc = {};
 function artNode(value) {
   if (!artSrc[value]) {
-    artSrc[value] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(TILE_ART[value] || '');
+    artSrc[value] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(TILE_ART[value] || TILE_ART[Math.max(...Object.keys(TILE_ART).map(Number))]);
   }
   const img = new Image();
   img.src = artSrc[value];
@@ -636,7 +636,7 @@ function tileName(value) {
 function showStats(card) {
   const top = Math.max(...liveTiles.map(t => t.value));
   const $ = k => card.querySelector(`[data-stat="${k}"]`);
-  $('tile-art').src = svgURL(TILE_ART[top] || TILE_ART[8192]);
+  $('tile-art').src = svgURL(TILE_ART[top] || TILE_ART[Math.max(...Object.keys(TILE_ART).map(Number))]);
   $('tile').textContent = tileName(top);
   $('score').textContent = score.toLocaleString();
 }
@@ -725,7 +725,8 @@ const THEME_UI = {
     winArt: () => picnicBasketSVG(false, { blanket: true }), winAlt: 'A picnic basket full of fruit',
     loseArt: () => picnicBasketSVG(false, { empty: true, blanket: true, ants: true }), loseAlt: 'An empty picnic basket',
     confetti: ['#FF85C2', '#CF91F0', '#80D5E0', '#FFE05A', '#B5E48C', '#FF99C8', '#A8DADC'],
-    tiles: ['Cherries', 'Strawberry', 'Grapes', 'Lemon', 'Orange', 'Apple', 'Peach', 'Pear', 'Pineapple', 'Melon', 'Watermelon'],
+    tiles: ['Cherries', 'Strawberry', 'Grapes', 'Lemon', 'Orange', 'Apple', 'Peach', 'Pear', 'Pineapple', 'Melon', 'Watermelon',
+      'Picnic basket', 'Fruit tart', 'Celebration cake'],
     color: '#FFF8EC', next: 'halloween',
   },
   halloween: {
@@ -733,7 +734,8 @@ const THEME_UI = {
     winArt: () => candyBucketSVG({}), winAlt: 'A candy bucket full of sweets',
     loseArt: () => candyBucketSVG({ empty: true, spider: true }), loseAlt: 'An empty candy bucket with a little spider',
     confetti: ['#FF8A2A', '#FFB870', '#8E6CD8', '#B9A2E8', '#7ED36E', '#C8F59A', '#FFF3B0'],
-    tiles: ['Candy corn', 'Hard candy', 'Lollipop', 'Candy bucket', 'Spider', 'Potion', 'Witch hat', 'Cauldron', 'Ghost', 'Jack-o’-lantern', 'Haunted house'],
+    tiles: ['Candy corn', 'Hard candy', 'Lollipop', 'Candy bucket', 'Spider', 'Potion', 'Witch hat', 'Cauldron', 'Ghost', 'Jack-o’-lantern', 'Haunted house',
+      'Witchy cat', 'Sleepy moon', 'Haunted house'],
     color: '#1E1533', next: 'fruit',
   },
 };

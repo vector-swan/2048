@@ -281,7 +281,7 @@ const BEAR_ART = {
 const FRUIT_BG = {
   2: '#E3D4FA', 4: '#D6DBFB', 8: '#CFE3FB', 16: '#CDEFF2', 32: '#D3F2D6',
   64: '#E6F4C6', 128: '#FFF3BC', 256: '#FFE3B8', 512: '#FFD4B4',
-  1024: '#FFCFCB', 2048: '#FFC2DE', 4096: '#FFB4D6', 8192: '#FFA6CC',
+  1024: '#FFCFCB', 2048: '#FFC2DE', 4096: '#FFB4D6', 8192: '#FFA6CC', 16384: '#FF9AC4',
 };
 
 // Kawaii face: s is roughly the fruit's radius
@@ -389,6 +389,108 @@ const FRUIT_BODY = {
   },
 };
 
+// ── Fruit Picnic bonus round (past the 2048 watermelon) ───────────────────────
+// 4096 picnic basket · 8192 slice of fruit tart · 16384 celebration cake, each in
+// the golden frame of the golden watermelon.
+// Golden frame + sparkles (same look as watermelon(..., { frame: true }))
+function fb_frame(c) {
+  const g = grad(c, 'gold', '#FFF08A', '#FFB82E');
+  return `<rect x="1.8" y="1.8" width="96.4" height="96.4" rx="9" fill="none" stroke="${g}" stroke-width="3.2"/>`
+    + star(92, 8, 4) + star(8, 92, 3.4);
+}
+
+// Happy closed-eye face (^ ^) with an open smile; s is roughly the object's radius
+function fb_hface(cx, cy, s) {
+  const ex = s * 0.36, er = Math.max(2, s * 0.115);
+  let f = '';
+  for (const sg of [-1, 1]) {
+    const x = cx + sg * ex;
+    f += `<path d="M ${x - er * 1.2},${cy + er * 0.4} q ${er * 1.2},${-er * 1.7} ${er * 2.4},0" stroke="${FEAT}" stroke-width="${er * 0.8}" fill="none" stroke-linecap="round"/>`;
+  }
+  const mw = s * 0.15, my = cy + s * 0.12;
+  f += `<path d="M ${cx - mw},${my} Q ${cx},${my + mw * 1.5} ${cx + mw},${my} Z" fill="${FEAT}" stroke="${FEAT}" stroke-width="${Math.max(1, s * 0.04)}" stroke-linejoin="round"/>`;
+  f += `<ellipse cx="${cx}" cy="${my + mw * 0.75}" rx="${mw * 0.45}" ry="${mw * 0.3}" fill="#FF8FA8"/>`;
+  for (const sg of [-1, 1]) f += `<ellipse cx="${cx + sg * s * 0.58}" cy="${cy + s * 0.15}" rx="${s * 0.15}" ry="${s * 0.09}" fill="#FFB0C8" opacity="0.9"/>`;
+  return f;
+}
+
+// A FRUIT_BODY drawing placed smaller (same as the picnic basket's place()),
+// optionally with its kawaii face [fx, fy, fs] in the fruit's own coordinates
+function fb_place(c, draw, x, y, k, tilt = 0, fc) {
+  const part = draw(c)
+    .split(LN).join(`stroke="${INK}" stroke-width="${(LW / k).toFixed(2)}" stroke-linejoin="round" stroke-linecap="round"`)
+    .replace(/stroke-width="4\.4"/g, `stroke-width="${(2.6 + LW * 2 / k).toFixed(2)}"`)
+    .replace(/stroke-width="2\.2"/g, 'stroke-width="2.6"');
+  const f = fc ? kface(fc[0], fc[1], fc[2], fc[3] || {}) : '';
+  return `<g transform="translate(${(x - 50 * k).toFixed(2)},${(y - 58 * k).toFixed(2)}) scale(${k}) rotate(${tilt} 50 58)">${part}${f}</g>`;
+}
+
+// The app-icon picnic basket, drawn with this tile's ids
+function fb_basket(c, o = {}) {
+  const P = c.p;
+  const wood = grad(c, 'bw', '#E2A866', '#B9783F'), rimG = grad(c, 'br', '#EDBB7A', '#C98A4E');
+  const handleG = grad(c, 'bh', '#E8B474', '#C48546');
+  const body = 'M 12,67 L 15,86 Q 16,91 22,91 L 78,91 Q 84,91 85,86 L 88,67 Z';
+  c.defs += `<clipPath id="${P}bc"><path d="${body}"/></clipPath>`;
+  let s = '';
+  const arch = 'M 16,66 C 14,4 86,4 84,66';
+  s += `<path d="${arch}" fill="none" stroke="${INK}" stroke-width="7.4" stroke-linecap="round"/><path d="${arch}" fill="none" stroke="${handleG}" stroke-width="4.4" stroke-linecap="round"/>`;
+  s += o.fruit || '';
+  let weave = '';
+  const rows = o.face ? [[87, 0]] : [[74, 0], [80, 4], [86, 0]];
+  rows.forEach(([y, off]) => { for (let x = 10 + off; x < 92; x += 8) weave += `<path d="M ${x},${y} q 3,2.6 6,0" fill="none" stroke="#8E5A2E" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>`; });
+  if (o.face) for (const x of [20, 80]) for (const y of [74, 80]) weave += `<path d="M ${x - 3},${y} q 3,2.6 6,0" fill="none" stroke="#8E5A2E" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>`;
+  s += `<path d="${body}" fill="${wood}" ${LN}/><g clip-path="url(#${P}bc)">${weave}</g><path d="${body}" fill="none" ${LN}/>`;
+  s += o.front || '';
+  s += `<rect x="9" y="62" width="82" height="9" rx="4.5" fill="${rimG}" ${LN}/>`;
+  for (let x = 13; x < 88; x += 5) s += `<path d="M ${x},63.5 q 3.4,3 1.6,6" fill="none" stroke="#9A6233" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>`;
+  s += `<path d="M 13,64 L 87,64" stroke="white" stroke-width="1.1" stroke-linecap="round" opacity="0.4"/>`;
+  s += o.over || '';
+  return s;
+}
+
+// A little ribbon bow
+function fb_bow(x, y, k = 1, fill = '#FF7FB8') {
+  return `<g transform="translate(${x},${y}) scale(${k})"><g fill="${fill}" ${LN}>`
+    + `<path d="M 0,0 C -4,-6 -11,-5 -10,0 C -11,5 -4,6 0,0 Z"/><path d="M 0,0 C 4,-6 11,-5 10,0 C 11,5 4,6 0,0 Z"/>`
+    + `<path d="M -1.5,1.5 L -5,9 L -2,8 Z"/><path d="M 1.5,1.5 L 5,9 L 2,8 Z"/></g>`
+    + `<circle cx="0" cy="0" r="2.6" fill="#FF5FA5" ${LN}/><ellipse cx="-6" cy="-1.5" rx="2" ry="1" fill="white" opacity="0.6"/></g>`;
+}
+
+// Fruit toppings (tile coordinates)
+function fb_strawberry(c, x, y, k = 1, rot = 0) {
+  const red = rgrad(c, 'sb', '#FF8A9C', '#E02A4E'), lf = grad(c, 'sl', '#B6F08E', '#5FC055');
+  return `<g transform="translate(${x},${y}) rotate(${rot}) scale(${k})">`
+    + `<path d="M 0,9 C -7,5 -8,-3 -6,-5 C -4,-7 4,-7 6,-5 C 8,-3 7,5 0,9 Z" fill="${red}" ${LN}/>`
+    + [[-2.5, -2], [2.5, -2], [0, 1.5], [-3, 3], [3, 3], [0, 5.5]].map(([a, b]) => `<ellipse cx="${a}" cy="${b}" rx="0.6" ry="0.9" fill="#FFE27A"/>`).join('')
+    + `<path d="M -5,-5.5 L -2,-4 L 0,-7 L 2,-4 L 5,-5.5 L 3,-8 L 0,-9 L -3,-8 Z" fill="${lf}" ${LN}/>`
+    + shine(-3, -2.5, 1.6, 0.9) + '</g>';
+}
+function fb_kiwi(c, x, y, r, rot = 0) {
+  return `<g transform="translate(${x},${y}) rotate(${rot})"><ellipse cx="0" cy="0" rx="${r}" ry="${r * 0.62}" fill="#8BC94A" ${LN}/>`
+    + `<ellipse cx="0" cy="0" rx="${r * 0.8}" ry="${r * 0.48}" fill="#B9E36A"/>`
+    + `<ellipse cx="0" cy="0" rx="${r * 0.3}" ry="${r * 0.18}" fill="#F4F7D2"/>`
+    + [0, 60, 120, 180, 240, 300].map(a => { const t = a * Math.PI / 180; return `<circle cx="${(Math.cos(t) * r * 0.5).toFixed(2)}" cy="${(Math.sin(t) * r * 0.31).toFixed(2)}" r="0.6" fill="${FEAT}"/>`; }).join('')
+    + '</g>';
+}
+const fb_berry = (x, y, r = 3, fill = '#7E7BEA') =>
+  `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" ${LN}/><circle cx="${x - r * 0.35}" cy="${y - r * 0.4}" r="${r * 0.3}" fill="white" opacity="0.6"/>`;
+function fb_cherry(c, x, y, r = 6) {
+  const red = rgrad(c, 'ch', '#FF8A9C', '#D61F4A');
+  return stem(`M ${x},${y - r * 0.8} Q ${x + 1},${y - r * 2} ${x + r * 0.9},${y - r * 2.5}`)
+    + `<circle cx="${x}" cy="${y}" r="${r}" fill="${red}" ${LN}/>` + shine(x - r * 0.4, y - r * 0.4, r * 0.3, r * 0.17);
+}
+function fb_peach(c, x, y, k = 1, rot = 0) {
+  const g = grad(c, 'pc', '#FFD49A', '#FF9E6E');
+  return `<g transform="translate(${x},${y}) rotate(${rot}) scale(${k})"><path d="M -7,2 Q 0,-8 7,2 Q 0,-2 -7,2 Z" fill="${g}" ${LN}/></g>`;
+}
+const fb_sprinkles = (pts) => pts.map(([x, y, r, col]) => `<rect x="${x - 1.6}" y="${y - 0.6}" width="3.2" height="1.2" rx="0.6" fill="${col}" transform="rotate(${r} ${x} ${y})"/>`).join('');
+
+function fb_flame(c, x, y) {
+  const g = grad(c, 'fl', '#FFF6B0', '#FFA43A');
+  return `<circle cx="${x}" cy="${y}" r="5.5" fill="#FFF3A0" opacity="0.45"/><path d="M ${x},${y - 5} C ${x + 3.2},${y - 1} ${x + 2.8},${y + 3} ${x},${y + 3} C ${x - 2.8},${y + 3} ${x - 3.2},${y - 1} ${x},${y - 5} Z" fill="${g}" ${LN}/>`;
+}
+
 const FRUIT_ART = {
 
   // Cherries
@@ -493,8 +595,63 @@ const FRUIT_ART = {
 
   // Watermelon, then golden watermelons beyond 2048
   2048: fruitTile(2048, c => watermelon(c, 2048)),
-  4096: fruitTile(4096, c => watermelon(c, 4096, { gold: true, frame: true })),
-  8192: fruitTile(8192, c => watermelon(c, 8192, { gold: true, frame: true, hearts: true })),
+  // Bonus round: basket buddy, slice of tart, rainbow tier cake
+  4096: fruitTile(4096, c => {
+        const fruit = fb_place(c, FRUIT_BODY.watermelon, 50, 52, 0.5, -10)
+          + fb_place(c, FRUIT_BODY.apple, 29, 59, 0.44, -16)
+          + fb_place(c, FRUIT_BODY.grape, 71, 59, 0.42, 18);
+        return backdrop(c, 4096, { hy: 56, hr: 48 }) + ground(c, 50, 92, 36)
+          + fb_basket(c, { fruit, face: true, front: kface(50, 79, 22) })
+          + fb_frame(c) + star(86, 22, 3);
+      }),
+  8192: fruitTile(8192, c => {
+        const crust = grad(c, 'cr', '#FFDB8E', '#E9A14C'), cream = grad(c, 'cm', '#FFF8DA', '#FFE59C');
+        const glaze = grad(c, 'gl', '#FFD0DC', '#FF9FB8');
+        let s = backdrop(c, 8192, { hy: 58, hr: 46 });
+        // plate
+        s += `<ellipse cx="50" cy="83" rx="40" ry="9" fill="#FFFFFF" ${LN}/><ellipse cx="50" cy="82" rx="30" ry="5.5" fill="#F4ECF7"/>`;
+        const arc = 'M 76,58 Q 85,53 83,45';
+        // outer crust side (right) and top surface
+        s += `<path d="${arc} L 83,67 Q 85,75 76,80 Z" fill="${crust}" ${LN}/>`;
+        s += `<path d="M 16,58 ${arc.slice(1)} Z" fill="${glaze}" ${LN}/>`;
+        // front cut face: fruit layer, custard, crust base and back wall
+        s += `<path d="M 16,58 L 76,58 L 76,80 L 16,80 Z" fill="${cream}" ${LN}/>`;
+        s += `<path d="M 16,58 L 76,58 L 76,63 L 16,63 Z" fill="#FFB3C6" ${LN}/>`;
+        s += `<path d="M 16,74 L 76,74 L 76,80 L 16,80 Z M 70,58 L 76,58 L 76,74 L 70,74 Z" fill="${crust}" ${LN}/>`;
+        // thick crust rim along the back arc
+        s += `<path d="${arc}" fill="none" stroke="${INK}" stroke-width="7.6" stroke-linecap="round"/><path d="${arc}" fill="none" stroke="#F2B866" stroke-width="4.6" stroke-linecap="round"/>`;
+        // toppings
+        s += fb_kiwi(c, 33, 55, 5.5, -4) + fb_peach(c, 58, 54, 1, 6);
+        s += fb_berry(24, 56, 2.4) + fb_berry(64, 55, 2.4, '#9B6BE0');
+        s += fb_strawberry(c, 46, 48, 1.15, -8);
+        // whipped cream swirl with a mint leaf
+        s += `<path d="M 67,53 Q 65,47 71,46 Q 69,41 75,40 Q 81,41 79,46 Q 84,47 82,53 Z" fill="#FFFFFF" ${LN}/>`;
+        s += leafAt(75, 41, -60, 7, grad(c, 'mt', '#B6F08E', '#5FC055'));
+        s += kface(43, 68.5, 20, { wink: true });
+        return s + fb_frame(c) + heart(14, 26, 1.2) + star(86, 22, 3);
+      }),
+  16384: fruitTile(16384, c => {
+        const pk = grad(c, 't1', '#FFD6E6', '#FFA9C8'), mn = grad(c, 't2', '#DDF7E6', '#A9E6C2'), lv = grad(c, 't3', '#ECDDFF', '#C7AEF5');
+        const drip = (x0, x1, y, col) => {
+          let d = `M ${x0},${y} L ${x1},${y} L ${x1},${y + 3}`;
+          const n = Math.round((x1 - x0) / 7), w = (x1 - x0) / n;
+          for (let i = n - 1; i >= 0; i--) {
+            const a = x0 + i * w, l = (i % 2 ? 3 : 6);
+            d += ` Q ${a + w * 0.75},${y + 3} ${a + w * 0.5},${y + 3 + l * 0.5} Q ${a + w * 0.25},${y + 3 + l} ${a},${y + 3}`;
+          }
+          return `<path d="${d} Z" fill="${col}" ${LN}/>`;
+        };
+        let s = backdrop(c, 16384, { hy: 56, hr: 48 });
+        s += `<ellipse cx="50" cy="89" rx="38" ry="5" fill="#FFFFFF" ${LN}/>`;
+        s += `<rect x="18" y="64" width="64" height="24" rx="4" fill="${pk}" ${LN}/>` + drip(18, 82, 64, '#FFFFFF');
+        s += `<rect x="27" y="46" width="46" height="18" rx="4" fill="${mn}" ${LN}/>` + drip(27, 73, 46, '#FFF6FA');
+        s += `<rect x="35" y="31" width="30" height="15" rx="4" fill="${lv}" ${LN}/>` + drip(35, 65, 31, '#FFFFFF');
+        s += fb_sprinkles([[31, 57, 30, '#FF7FB8'], [40, 59, -20, '#FFC94A'], [60, 58, 40, '#7FB8FF'], [68, 56, -30, '#FF7FB8'], [42, 41, 10, '#FFC94A'], [57, 42, -40, '#FF7FB8'], [24, 84, 20, '#7FB8FF'], [76, 84, -30, '#FFC94A']]);
+        s += `<rect x="20" y="66" width="3" height="18" rx="1.5" fill="white" opacity="0.35"/>`;
+        s += kface(50, 77, 22);
+        s += fb_cherry(c, 50, 25, 6);
+        return s + fb_frame(c) + heart(14, 30, 1.2) + heart(86, 30, 1.1, '#FFB3D1') + star(18, 14, 2.6);
+      }),
 
 };
 
@@ -504,7 +661,7 @@ const FRUIT_ART = {
 const HALLOWEEN_BG = {
   2: '#DDD3F5', 4: '#D3D8F5', 8: '#CFE0F5', 16: '#CDE9E6', 32: '#D6EEC9',
   64: '#E4EDB8', 128: '#F3EDB5', 256: '#F6DDB0', 512: '#F7CDA8',
-  1024: '#F5BE9E', 2048: '#3E2C66', 4096: '#33245A', 8192: '#2A1D4E',
+  1024: '#F5BE9E', 2048: '#3E2C66', 4096: '#33245A', 8192: '#2A1D4E', 16384: '#24184A',
 };
 const hwTile = (v, build) => tile(v, build, HALLOWEEN_BG, 'hw');
 const outline = d => `<path d="${d}" fill="none" ${LN}/>`;
@@ -564,6 +721,125 @@ function hauntedHouse(c, v, o = {}) {
   if (o.extra) s += star(12, 50, 3, '#FFF6C4') + star(90, 74, 2.6, '#FFF6C4') + star(70, 8, 2.2, '#FFF6C4');
   return s;
 }
+
+// ── Spooky Picnic bonus round (past the 2048 haunted house) ───────────────────
+// 4096 cat on a broomstick · 8192 sleepy moon with bats, in a gold frame.
+// ── Shared bits ──
+// Same gold frame + corner sparkle as hauntedHouse({frame}); `extra` adds sparkles
+function sb_frame(c, extra = []) {
+  const g = grad(c, 'sbgold', '#FFF08A', '#FFB82E');
+  let s = `<rect x="1.8" y="1.8" width="96.4" height="96.4" rx="9" fill="none" stroke="${g}" stroke-width="3.2"/>` + star(8, 92, 3.4, '#FFF6C4');
+  for (const [x, y, r] of extra) s += star(x, y, r, '#FFF6C4');
+  return s;
+}
+// Re-scale outline widths inside a scaled group so lines stay 1.5 wide on screen
+const sb_fix = (str, k) => str.replace(/stroke-width="1\.5"/g, `stroke-width="${(1.5 / k).toFixed(2)}"`);
+const sb_glow = (c, id, cx, cy, r, color, op) => {
+  c.defs += `<radialGradient id="${c.p}${id}"><stop offset="0" stop-color="${color}" stop-opacity="${op}"/><stop offset="0.55" stop-color="${color}" stop-opacity="${op * 0.45}"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient>`;
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#${c.p}${id})"/>`;
+};
+
+// Black cat head (radius s) with golden eyes and a lilac rim light
+function sb_catHead(c, cx, cy, s) {
+  const fur = rgrad(c, `sbfur${c.n++}`, '#5E5086', '#2A2140');
+  let h = '';
+  for (const sg of [-1, 1]) {
+    h += `<path d="M ${cx + sg * s * 0.92},${cy - s * 0.12} L ${cx + sg * s * 0.82},${cy - s * 1.12} L ${cx + sg * s * 0.18},${cy - s * 0.8} Z" fill="${fur}" ${LN}/>`
+      + `<path d="M ${cx + sg * s * 0.74},${cy - s * 0.38} L ${cx + sg * s * 0.74},${cy - s * 0.9} L ${cx + sg * s * 0.4},${cy - s * 0.72} Z" fill="#FF9DBB" opacity="0.85"/>`;
+  }
+  h += `<ellipse cx="${cx}" cy="${cy}" rx="${s}" ry="${s * 0.86}" fill="${fur}" ${LN}/>`
+    + `<path d="M ${cx - s * 0.78},${cy - s * 0.32} Q ${cx - s * 0.5},${cy - s * 0.76} ${cx},${cy - s * 0.8}" fill="none" stroke="#B9A6E8" stroke-width="1.3" stroke-linecap="round" opacity="0.8"/>`
+    + catFace(cx, cy + s * 0.02, s);
+  // whiskers
+  for (const sg of [-1, 1]) h += `<path d="M ${cx + sg * s * 0.78},${cy + s * 0.26} l ${sg * s * 0.36},${-s * 0.06} M ${cx + sg * s * 0.78},${cy + s * 0.36} l ${sg * s * 0.34},${s * 0.08}" stroke="#D9CCF2" stroke-width="0.9" stroke-linecap="round" opacity="0.8"/>`;
+  return h;
+}
+
+// A broom in local coords: bristles at the origin end, handle along +x for `len`
+function sb_broom(c, x, y, rot, len) {
+  const straw = grad(c, `sbst${c.n++}`, '#FFE08A', '#E3A23C');
+  return `<g transform="translate(${x},${y}) rotate(${rot})">`
+    + `<path d="M 0,0 L ${len},0" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M 0,0 L ${len},0" stroke="#B9824E" stroke-width="2.6" stroke-linecap="round"/>`
+    + `<path d="M 4,-3.4 L 4,3.4 L -15,10 Q -19,5 -18,0 Q -19,-5 -15,-10 Z" fill="${straw}" ${LN}/>`
+    + `<path d="M -3,-2 L -14,-5 M -3,2 L -14,5 M -2,0 L -15,0" stroke="#C98A30" stroke-width="0.9" stroke-linecap="round"/>`
+    + `<rect x="1" y="-4.4" width="4.4" height="8.8" rx="1.6" fill="#9C6ADE" ${LN}/></g>`;
+}
+
+// Bat in local coords (s=1 → ~34 wide), constant-width outline
+function sb_bat(c, cx, cy, s, rot = 0, body = '#4A3A78') {
+  const w = (1.5 / s).toFixed(2);
+  const ln = `stroke="${INK}" stroke-width="${w}" stroke-linejoin="round"`;
+  let b = `<g transform="translate(${cx},${cy}) rotate(${rot}) scale(${s})">`;
+  for (const sg of [-1, 1]) {
+    b += `<path d="M ${sg * 3},-2 Q ${sg * 9},-10 ${sg * 17},-7 Q ${sg * 16},-3 ${sg * 14.5},-1 Q ${sg * 12},-2.6 ${sg * 10.5},0.6 Q ${sg * 8},-1 ${sg * 6.5},2.6 Q ${sg * 5},1.6 ${sg * 3},3 Z" fill="${body}" ${ln}/>`;
+    b += `<path d="M ${sg * 5},-1.5 Q ${sg * 10},-6.5 ${sg * 15},-6" fill="none" stroke="#9C86D0" stroke-width="${(0.9 / s).toFixed(2)}" stroke-linecap="round" opacity="0.8"/>`;
+    b += `<path d="M ${sg * 1.6},-4.5 L ${sg * 3.6},-9.5 L ${sg * 4.6},-3.5 Z" fill="${body}" ${ln}/>`;
+  }
+  b += `<ellipse cx="0" cy="0" rx="5.6" ry="5.4" fill="${body}" ${ln}/>`
+    + `<path d="M -3.6,-2.6 Q -1.5,-4.6 1,-4.6" fill="none" stroke="#B9A6E8" stroke-width="${(1 / s).toFixed(2)}" stroke-linecap="round" opacity="0.8"/>`
+    + `<circle cx="-2" cy="-0.6" r="1.35" fill="#F7E36A"/><circle cx="2" cy="-0.6" r="1.35" fill="#F7E36A"/>`
+    + `<circle cx="-2" cy="-0.5" r="0.6" fill="${FEAT}"/><circle cx="2" cy="-0.5" r="0.6" fill="${FEAT}"/>`
+    + `<path d="M -0.9,2 L -0.5,3.2 L -0.1,2 M 0.3,2 L 0.7,3.2 L 1.1,2" fill="white"/>`
+    + `<ellipse cx="-3.6" cy="1.6" rx="1.1" ry="0.7" fill="#FF9DBB" opacity="0.8"/><ellipse cx="3.6" cy="1.6" rx="1.1" ry="0.7" fill="#FF9DBB" opacity="0.8"/></g>`;
+  return b;
+}
+
+// Full moon with a face: 'sleepy' (closed eyes) or 'happy' (open eyes)
+function sb_moon(c, cx, cy, r, mood) {
+  const g = rgrad(c, `sbmn${c.n++}`, '#FFFCE6', '#FFD45E');
+  let m = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${g}" ${LN}/>`
+    + `<circle cx="${cx + r * 0.5}" cy="${cy - r * 0.45}" r="${r * 0.14}" fill="#F2C24E" opacity="0.45"/>`
+    + `<circle cx="${cx - r * 0.55}" cy="${cy - r * 0.38}" r="${r * 0.09}" fill="#F2C24E" opacity="0.45"/>`
+    + `<circle cx="${cx + r * 0.62}" cy="${cy + r * 0.5}" r="${r * 0.1}" fill="#F2C24E" opacity="0.4"/>`
+    + shine(cx - r * 0.42, cy - r * 0.62, r * 0.22, r * 0.1);
+  const ey = cy + r * 0.02, ex = r * 0.34, sw = Math.max(1.5, r * 0.07);
+  if (mood === 'sleepy') {
+    for (const sg of [-1, 1]) m += `<path d="M ${cx + sg * ex - r * 0.13},${ey} q ${r * 0.13},${r * 0.14} ${r * 0.26},0" fill="none" stroke="${FEAT}" stroke-width="${sw}" stroke-linecap="round"/>`;
+  } else {
+    m += kface(cx, ey, r).replace(/<path[^>]*q[^>]*\/>/, '').replace(/<ellipse[^>]*\/>/g, '');
+  }
+  m += `<path d="M ${cx - r * 0.12},${cy + r * 0.24} q ${r * 0.12},${r * 0.13} ${r * 0.24},0" stroke="${FEAT}" stroke-width="${sw * 0.9}" fill="none" stroke-linecap="round"/>`;
+  for (const sg of [-1, 1]) m += `<ellipse cx="${cx + sg * r * 0.56}" cy="${cy + r * 0.2}" rx="${r * 0.15}" ry="${r * 0.09}" fill="#FF9DBB" opacity="0.75"/>`;
+  return m;
+}
+
+// The 512 ghost, scaled; (cx, cy) is its face centre
+function sb_ghost(c, cx, cy, k) {
+  const g = rgrad(c, `sbgh${c.n++}`, '#FFFFFF', '#DCD3F0');
+  const body = `<ellipse cx="25" cy="55" rx="7.5" ry="4.6" transform="rotate(35 25 55)" fill="${g}" ${LN}/>`
+    + `<ellipse cx="75" cy="52" rx="7.5" ry="4.6" transform="rotate(-40 75 52)" fill="${g}" ${LN}/>`
+    + `<path d="M 26,46 C 26,20 74,20 74,46 C 74,62 70,70 74,78 C 77,85 70,90 64,85 C 60,81 57,84 52,83 C 40,81 26,70 26,46 Z" fill="${g}" ${LN}/>`
+    + shine(37, 32, 5.5, 2.8) + kface(50, 47, 24);
+  return `<g transform="translate(${cx},${cy}) scale(${k}) translate(-50,-47)">${sb_fix(body, k)}</g>`;
+}
+
+// The 1024 jack-o'-lantern, scaled; (cx, cy) is its body centre
+function sb_pumpkin(c, cx, cy, k) {
+  return `<g transform="translate(${cx},${cy}) scale(${k}) translate(-50,-61)">${sb_fix(pumpkin(c, { carved: true, lit: true }), k)}</g>`;
+}
+
+// Tiny party hat on a point, tilted
+function sb_hat(c, x, y, h, rot, color, dot) {
+  return `<g transform="translate(${x},${y}) rotate(${rot})"><path d="M ${-h * 0.4},0 L 0,${-h} L ${h * 0.4},0 Z" fill="${color}" ${LN}/>`
+    + `<path d="M ${-h * 0.22},${-h * 0.45} L ${h * 0.22},${-h * 0.45}" stroke="white" stroke-width="1.4" opacity="0.7"/>`
+    + `<circle cx="0" cy="${-h}" r="${h * 0.16}" fill="${dot}" ${LN}/></g>`;
+}
+
+// Bunting: a sagging string of triangle flags between x0 and x1
+function sb_bunting(x0, x1, y, sag, n, colors) {
+  let s = `<path d="M ${x0},${y} Q ${(x0 + x1) / 2},${y + sag * 2} ${x1},${y}" fill="none" stroke="#D9CCF2" stroke-width="1.1"/>`;
+  for (let i = 0; i < n; i++) {
+    const t0 = (i + 0.15) / n, t1 = (i + 0.85) / n, tm = (t0 + t1) / 2;
+    const pt = t => [x0 + (x1 - x0) * t, y + sag * 4 * t * (1 - t)];
+    const [ax, ay] = pt(t0), [bx, by] = pt(t1), [mx, my] = pt(tm);
+    s += `<path d="M ${ax},${ay} L ${bx},${by} L ${mx},${my + 9} Z" fill="${colors[i % colors.length]}" ${LN}/>`;
+  }
+  return s;
+}
+
+const sb_confetti = pts => pts.map(([x, y, col, r]) => r === undefined
+  ? `<circle cx="${x}" cy="${y}" r="1.4" fill="${col}"/>`
+  : `<rect x="${x - 1.6}" y="${y - 0.8}" width="3.2" height="1.6" rx="0.6" fill="${col}" transform="rotate(${r} ${x} ${y})"/>`).join('');
 
 const HALLOWEEN_ART = {
   // ── Candy ──
@@ -674,8 +950,33 @@ const HALLOWEEN_ART = {
   1024: hwTile(1024, c => backdrop(c, 1024, { hy: 58, hr: 46, color: '#FFE08A', op: 0.65 }) + ground(c, 50, 90, 32) + pumpkin(c, { carved: true, lit: true })),
   // Haunted house, the finale; golden frame beyond 2048
   2048: hwTile(2048, c => hauntedHouse(c, 2048)),
-  4096: hwTile(4096, c => hauntedHouse(c, 4096, { frame: true })),
-  8192: hwTile(8192, c => hauntedHouse(c, 8192, { frame: true, extra: true })),
+  // Bonus round: witchy cat on a broom, sleepy moon (16384 is a placeholder for now)
+  4096: hwTile(4096, c => {
+        const fur = rgrad(c, 'sbbody', '#5E5086', '#2A2140'), hat = grad(c, 'sbhat', '#A98AE0', '#5A3F94');
+        return backdrop(c, 4096, { hx: 54, hy: 50, hr: 46, color: '#C9B4FF', op: 0.45 })
+          // sparkle trail curving up from bottom-left
+          + `<path d="M 22,84 Q 10,82 9,66" fill="none" stroke="#FFE08A" stroke-width="1.4" stroke-dasharray="0.5 4" stroke-linecap="round" opacity="0.9"/>`
+          + star(12, 76, 2.8, '#FFF6C4', 0.9) + star(10, 62, 2, '#FFF6C4', 0.75)
+          // tail
+          + `<path d="M 40,68 Q 30,72 26,62 Q 24,54 30,54" fill="none" stroke="${INK}" stroke-width="7" stroke-linecap="round"/><path d="M 40,68 Q 30,72 26,62 Q 24,54 30,54" fill="none" stroke="#3A2F58" stroke-width="4" stroke-linecap="round"/>`
+          + sb_broom(c, 39, 80, -32, 54)
+          + `<ellipse cx="52" cy="64" rx="12" ry="9.5" transform="rotate(-25 52 64)" fill="${fur}" ${LN}/>`
+          + `<ellipse cx="63" cy="62" rx="3.8" ry="3" fill="#3A2F58" ${LN}/>`
+          + sb_catHead(c, 52, 44, 14.5)
+          // witch hat
+          + `<g transform="rotate(-14 52 30)"><ellipse cx="52" cy="31" rx="15" ry="3.6" fill="${hat}" ${LN}/>`
+          + `<path d="M 42,30.5 Q 46,20 50,12 Q 54,6 62,6 Q 57,11 57,18 Q 58,25 62,30.5 Z" fill="${hat}" ${LN}/>`
+          + `<path d="M 43.5,27 Q 52,29.5 60.5,27 L 61.5,30.5 Q 52,33 42.5,30.5 Z" fill="#FF8A2A" ${LN}/></g>`
+          + sb_frame(c, [[90, 14, 2.4]]);
+      }),
+  8192: hwTile(8192, c => backdrop(c, 8192, { hy: 48, hr: 50, color: '#FFE08A', op: 0.55 })
+        + sb_moon(c, 50, 48, 28, 'sleepy')
+        + `<path d="M 74,22 h 5 l -5,5 h 5 M 81,13 h 3.6 l -3.6,3.6 h 3.6" fill="none" stroke="#FFF6C4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`
+        + sb_bat(c, 20, 28, 0.78, -12, '#5A4890')
+        + sb_bat(c, 76, 77, 0.9, 10, '#4A3A78')
+        + sb_bat(c, 38, 86, 0.6, -6, '#5A4890')
+        + sb_frame(c, [[12, 52, 3], [90, 52, 2.6], [70, 6, 2.2]])),
+  16384: hwTile(16384, c => hauntedHouse(c, 16384, { frame: true, extra: true })),
 };
 
 // Candy bucket for the win / lose cards (twin of the fruit picnic basket)
