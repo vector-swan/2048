@@ -1,9 +1,9 @@
 // Offline support: keep a copy of the game on the phone so it opens without
 // internet. Serves the saved copy instantly and quietly fetches any update in
 // the background, which is used the next time the app is opened.
-const CACHE = 'fruit-picnic-v29';
+const CACHE = 'fruit-picnic-v30';
 const FILES = [
-  './', 'index.html', 'style.css', 'game.js', 'tiles.js', 'manifest.webmanifest',
+  './', 'index.html', 'style.css', 'game.js', 'tiles.js', 'leaderboard.js', 'manifest.webmanifest',
   'fonts/nunito-latin.woff2', 'fonts/baloo2-800-latin.woff2',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
 ];

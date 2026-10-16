@@ -473,6 +473,7 @@ function computeMove(dir) {
 // ── Move execution ────────────────────────────────────────────────────────────
 let queuedDir = null;
 async function doMove(dir) {
+  if (typeof lbIsOpen !== 'undefined' && lbIsOpen) return;   // leaderboard panel is open
   if (busy) { queuedDir = dir; return; }
   const { newPos, merges, moved, scoreAdd } = computeMove(dir);
   if (!moved) return;
@@ -620,6 +621,7 @@ function updateScore(add) {
 // ── Overlays ──────────────────────────────────────────────────────────────────
 function showCelebration() {
   showStats(document.getElementById('celebration'));
+  if (typeof lbShowPost === 'function') lbShowPost(document.getElementById('celebration'));
   soundVictory(); haptic('win'); startConfetti();
   document.getElementById('celebration').classList.add('show');
 }
@@ -642,6 +644,7 @@ function showStats(card) {
 }
 function showGameOver() {
   showStats(document.getElementById('gameover'));
+  if (typeof lbShowPost === 'function') lbShowPost(document.getElementById('gameover'));
   document.getElementById('gameover').classList.add('show');
 }
 function hideGameOver() { document.getElementById('gameover').classList.remove('show'); }
@@ -663,6 +666,7 @@ const KEY_MAP = {
   a:'left', d:'right', w:'up', s:'down',
 };
 document.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input, textarea')) return;   // typing a name
   const dir = KEY_MAP[e.key];
   if (dir) { e.preventDefault(); doMove(dir); }
 });
@@ -712,7 +716,7 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 // double-tap. Telling the browser to ignore the touch itself stops that; swipes
 // are still read from touchmove, and buttons are left alone so taps work.
 document.addEventListener('touchstart', e => {
-  if (!e.target.closest('button, a')) e.preventDefault();
+  if (!e.target.closest('button, a, input, .lb-list')) e.preventDefault();
 }, { passive: false });
 
 // ── Themes ────────────────────────────────────────────────────────────────────

@@ -269,7 +269,7 @@ h1 {
 .t4096, .t8192 { box-shadow: 0 0 18px rgba(255,200,60,0.7), 0 2px 0 rgba(160,110,60,0.22); }
 
 /* ── Overlays ── */
-.celebration, .gameover {
+.celebration, .gameover, .leaderboard {
   position: fixed;
   inset: 0;
   display: flex;
@@ -282,9 +282,9 @@ h1 {
   background: rgba(255, 248, 236, 0.6);
   backdrop-filter: blur(6px);
 }
-.celebration.show, .gameover.show { opacity: 1; pointer-events: all; }
+.celebration.show, .gameover.show, .leaderboard.show { opacity: 1; pointer-events: all; }
 
-.celebration-content, .gameover-content {
+.celebration-content, .gameover-content, .leaderboard-content {
   background: #fff;
   border: 3px dashed var(--stitch);
   border-radius: 26px;
@@ -308,7 +308,7 @@ h1 {
   to   { transform: translateY(-12px) scale(1.06); }
 }
 
-.celebration-content h2, .gameover-content h2 {
+.celebration-content h2, .gameover-content h2, .leaderboard-content h2 {
   font-family: var(--display);
   font-size: 1.8rem;
   font-weight: 800;
@@ -419,9 +419,11 @@ html[data-skin="halloween"] #hapticsBtn svg { stroke: #FFFFFF; }
 html[data-skin="halloween"] #soundBtn svg circle,
 html[data-skin="halloween"] #hapticsBtn svg rect { fill: #8E6CD8; }
 html[data-skin="halloween"] .celebration,
-html[data-skin="halloween"] .gameover { background: rgba(20, 12, 40, 0.55); }
+html[data-skin="halloween"] .gameover,
+html[data-skin="halloween"] .leaderboard { background: rgba(20, 12, 40, 0.55); }
 html[data-skin="halloween"] .celebration-content,
-html[data-skin="halloween"] .gameover-content {
+html[data-skin="halloween"] .gameover-content,
+html[data-skin="halloween"] .leaderboard-content {
   background: #2C2148;
   border-color: #FF8A2A;
   box-shadow: 0 6px 0 #170F2A, 0 16px 40px rgba(0, 0, 0, 0.4);
@@ -431,3 +433,39 @@ html[data-skin="halloween"] .gameover-content p { color: #F3E8FF; }
 html[data-skin="halloween"] .stat { background: rgba(255, 255, 255, 0.08); }
 html[data-skin="halloween"] .stat-label { color: #FFB870; }
 html[data-skin="halloween"] .btn-secondary { color: #fff; }
+
+/* ── Friends leaderboard ── */
+#boardBtn { display: flex; align-items: center; justify-content: center; font-size: 1.05rem; line-height: 1; }
+.leaderboard-content { width: min(340px, calc(100vw - 32px)); max-width: none; padding: 26px 18px; gap: 12px; }
+.lb-list { list-style: none; width: 100%; max-height: min(52vh, 460px); overflow-y: auto; display: grid; gap: 6px; padding: 2px; }
+.lb-list li {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 10px 5px 6px; border-radius: 12px;
+  background: rgba(0, 0, 0, 0.035);
+  font-weight: 800; color: var(--text-dark);
+}
+.lb-list li.me { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.lb-rank { width: 1.6em; text-align: center; font-family: var(--display); color: var(--muted); }
+.lb-list li:nth-child(1) .lb-rank, .lb-list li:nth-child(2) .lb-rank, .lb-list li:nth-child(3) .lb-rank { color: var(--accent); }
+.lb-list img { width: 34px; height: 34px; border-radius: 8px; flex: none; }
+.lb-name { flex: 1; min-width: 0; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-score { font-family: var(--display); font-variant-numeric: tabular-nums; color: var(--accent); }
+.lb-note { font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+.lb-link {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font: inherit; font-weight: 800; color: var(--accent); text-decoration: underline;
+}
+.lb-post { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; justify-items: center; width: min(100%, 250px); }
+.lb-form { display: flex; gap: 6px; width: 100%; }
+.lb-input {
+  flex: 1; min-width: 0;
+  -webkit-user-select: text; user-select: text;
+  font: 700 16px var(--display, sans-serif);   /* 16px stops iPhone zooming in */
+  padding: 8px 12px; border-radius: 14px;
+  border: 2px dashed var(--stitch); background: rgba(255, 255, 255, 0.8); color: var(--text-dark);
+}
+.lb-save { padding: 8px 14px; white-space: nowrap; }
+html[data-skin="halloween"] .lb-list li { background: rgba(255, 255, 255, 0.06); color: #F3E8FF; }
+html[data-skin="halloween"] .lb-list li.me { background: rgba(255, 138, 42, 0.22); }
+html[data-skin="halloween"] .lb-note { color: #BFA8E0; }
+html[data-skin="halloween"] .lb-input { background: rgba(255, 255, 255, 0.1); color: #fff; }

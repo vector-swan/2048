@@ -37,6 +37,7 @@
         <button class="btn" id="newGameBtn">✿ New game</button>
         <button class="btn btn-icon" id="soundBtn" title="Sound on/off" aria-label="Sound on"></button>
         <button class="btn btn-icon" id="hapticsBtn" type="button" title="Vibration on/off" aria-label="Vibration on" hidden></button>
+        <button class="btn btn-icon" id="boardBtn" type="button" title="Leaderboard" aria-label="Leaderboard" hidden>🏆</button>
         <button class="btn btn-icon" id="themeBtn" type="button" title="Switch theme" aria-label="Switch theme"></button>
       </div>
     </header>
@@ -72,6 +73,7 @@
           <div><div class="stat-label">Score</div><div class="stat-value" data-stat="score">0</div></div>
         </div>
       </div>
+      <div class="lb-post" hidden></div>
       <div class="btn-row">
         <button class="btn btn-big" id="keepGoingBtn">Keep going!</button>
         <button class="btn btn-big btn-secondary" id="celebNewGameBtn">New game</button>
@@ -96,11 +98,24 @@
           <div><div class="stat-label">Score</div><div class="stat-value" data-stat="score">0</div></div>
         </div>
       </div>
+      <div class="lb-post" hidden></div>
       <button class="btn btn-big" id="gameoverNewGameBtn">Try again!</button>
+    </div>
+  </div>
+
+  <!-- Friends leaderboard -->
+  <div class="leaderboard" id="leaderboard">
+    <div class="leaderboard-content">
+      <h2>🏆 Leaderboard</h2>
+      <ol class="lb-list" id="lbList"></ol>
+      <p class="lb-note" id="lbStatus"></p>
+      <p class="lb-note" id="lbMe" hidden>Playing as <b id="lbMeName"></b> · <button class="lb-link" id="lbRename" type="button">change name</button></p>
+      <button class="btn btn-big" id="lbClose" type="button">Back to the game</button>
     </div>
   </div>
 
   <script src="tiles.js"></script>
   <script src="game.js"></script>
+  <script src="leaderboard.js"></script>
 </body>
 </html>
