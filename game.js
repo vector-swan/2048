@@ -627,12 +627,10 @@ function hideCelebration() {
   stopConfetti();
   document.getElementById('celebration').classList.remove('show');
 }
-// Name of a tile in the current theme. Past 2048, Fruit Picnic says "Golden
-// watermelon"; Spooky Picnic keeps it short as "Haunted house".
+// Name of a tile in the current theme; anything past 2048 keeps the finale's name
 function tileName(value) {
-  const names = THEME_UI[themeId].tiles, i = Math.log2(value) - 1, last = names[names.length - 1];
-  if (i < names.length) return names[i];
-  return themeId === 'halloween' ? last : 'Golden ' + last.toLowerCase();
+  const names = THEME_UI[themeId].tiles;
+  return names[Math.min(Math.log2(value) - 1, names.length - 1)];
 }
 // Fill a card's "top tile" and "score" boxes
 function showStats(card) {
