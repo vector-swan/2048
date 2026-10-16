@@ -105,8 +105,8 @@ h1 {
 }
 
 /* Sound button shows a drawn music-note icon (set in game.js) */
-#soundBtn, #themeBtn, #hapticsBtn { display: flex; align-items: center; justify-content: center; }
-#soundBtn svg, #themeBtn svg, #hapticsBtn svg { width: 22px; height: 22px; display: block; }
+#soundBtn, #themeBtn, #hapticsBtn, #boardBtn { display: flex; align-items: center; justify-content: center; }
+#soundBtn svg, #themeBtn svg, #hapticsBtn svg, #boardBtn svg { width: 22px; height: 22px; display: block; }
 
 .scores { display: flex; gap: 8px; }
 
@@ -414,10 +414,10 @@ html[data-skin="halloween"] .score-box { background: rgba(255, 255, 255, 0.08); 
 html[data-skin="halloween"] .score-label { color: #FFB870; }
 html[data-skin="halloween"] .score-value { color: #fff; }
 html[data-skin="halloween"] .cell { background: rgba(255, 255, 255, 0.07); }
-html[data-skin="halloween"] #soundBtn svg,
-html[data-skin="halloween"] #hapticsBtn svg { stroke: #FFFFFF; }
+html[data-skin="halloween"] .btn-icon svg { stroke: #FFFFFF; }
 html[data-skin="halloween"] #soundBtn svg circle,
-html[data-skin="halloween"] #hapticsBtn svg rect { fill: #8E6CD8; }
+html[data-skin="halloween"] #hapticsBtn svg rect,
+html[data-skin="halloween"] .btn-icon svg .fill { fill: #8E6CD8; }
 html[data-skin="halloween"] .celebration,
 html[data-skin="halloween"] .gameover,
 html[data-skin="halloween"] .leaderboard { background: rgba(20, 12, 40, 0.55); }
@@ -435,7 +435,6 @@ html[data-skin="halloween"] .stat-label { color: #FFB870; }
 html[data-skin="halloween"] .btn-secondary { color: #fff; }
 
 /* ── Friends leaderboard ── */
-#boardBtn { display: flex; align-items: center; justify-content: center; font-size: 1.05rem; line-height: 1; }
 .leaderboard-content { width: min(340px, calc(100vw - 32px)); max-width: none; padding: 26px 18px; gap: 12px; }
 .lb-list { list-style: none; width: 100%; max-height: min(52vh, 460px); overflow-y: auto; display: grid; gap: 6px; padding: 2px; }
 .lb-list li {
@@ -469,3 +468,9 @@ html[data-skin="halloween"] .lb-list li { background: rgba(255, 255, 255, 0.06);
 html[data-skin="halloween"] .lb-list li.me { background: rgba(255, 138, 42, 0.22); }
 html[data-skin="halloween"] .lb-note { color: #BFA8E0; }
 html[data-skin="halloween"] .lb-input { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+/* Very narrow phones: tighten the button row so all the buttons fit */
+@media (max-width: 359px) {
+  .controls .btn-icon { padding: 8px 11px; }
+  #newGameBtn { padding: 8px 14px; }
+}
