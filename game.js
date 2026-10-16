@@ -735,7 +735,7 @@ const THEME_UI = {
     loseArt: () => candyBucketSVG({ empty: true, spider: true }), loseAlt: 'An empty candy bucket with a little spider',
     confetti: ['#FF8A2A', '#FFB870', '#8E6CD8', '#B9A2E8', '#7ED36E', '#C8F59A', '#FFF3B0'],
     tiles: ['Candy corn', 'Hard candy', 'Lollipop', 'Candy bucket', 'Spider', 'Potion', 'Witch hat', 'Cauldron', 'Ghost', 'Jack-o’-lantern', 'Haunted house',
-      'Witchy cat', 'Sleepy moon', 'Haunted house'],
+      'Witchy cat', 'Sleepy moon', 'Wise owl'],
     color: '#1E1533', next: 'fruit',
   },
 };

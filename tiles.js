@@ -723,7 +723,8 @@ function hauntedHouse(c, v, o = {}) {
 }
 
 // ── Spooky Picnic bonus round (past the 2048 haunted house) ───────────────────
-// 4096 cat on a broomstick · 8192 sleepy moon with bats, in a gold frame.
+// 4096 cat on a broomstick · 8192 sleepy moon with bats · 16384 owl on a
+// crescent moon, in a gold frame.
 // ── Shared bits ──
 // Same gold frame + corner sparkle as hauntedHouse({frame}); `extra` adds sparkles
 function sb_frame(c, extra = []) {
@@ -950,7 +951,7 @@ const HALLOWEEN_ART = {
   1024: hwTile(1024, c => backdrop(c, 1024, { hy: 58, hr: 46, color: '#FFE08A', op: 0.65 }) + ground(c, 50, 90, 32) + pumpkin(c, { carved: true, lit: true })),
   // Haunted house, the finale; golden frame beyond 2048
   2048: hwTile(2048, c => hauntedHouse(c, 2048)),
-  // Bonus round: witchy cat on a broom, sleepy moon (16384 is a placeholder for now)
+  // Bonus round: witchy cat on a broom, sleepy moon, wise owl on the moon
   4096: hwTile(4096, c => {
         const fur = rgrad(c, 'sbbody', '#5E5086', '#2A2140'), hat = grad(c, 'sbhat', '#A98AE0', '#5A3F94');
         return backdrop(c, 4096, { hx: 54, hy: 50, hr: 46, color: '#C9B4FF', op: 0.45 })
@@ -976,7 +977,34 @@ const HALLOWEEN_ART = {
         + sb_bat(c, 76, 77, 0.9, 10, '#4A3A78')
         + sb_bat(c, 38, 86, 0.6, -6, '#5A4890')
         + sb_frame(c, [[12, 52, 3], [90, 52, 2.6], [70, 6, 2.2]])),
-  16384: hwTile(16384, c => hauntedHouse(c, 16384, { frame: true, extra: true })),
+  16384: hwTile(16384, c => {
+        const moon = rgrad(c, 'sb2mn', '#FFFCE6', '#FFD45E'), owl = rgrad(c, 'sb2ow', '#D9AE82', '#93603E'),
+          belly = grad(c, 'sb2bl', '#FFF1DA', '#F2D2A8'), hat = grad(c, 'sb2hat', '#A98AE0', '#5A3F94');
+        let s = backdrop(c, 16384, { hy: 56, hr: 48, color: '#FFE08A', op: 0.5 });
+        // crescent moon lying like a cradle
+        s += `<path d="M 14,66 A 36,30 0 0 0 86,66 A 38,22 0 0 1 14,66 Z" fill="${moon}" ${LN}/>`
+          + `<circle cx="30" cy="82" r="2" fill="#F2C24E" opacity="0.5"/><circle cx="70" cy="83" r="2.6" fill="#F2C24E" opacity="0.5"/>`;
+        // owl
+        s += `<ellipse cx="34" cy="62" rx="5" ry="9" transform="rotate(18 34 62)" fill="#8A5A3A" ${LN}/><ellipse cx="66" cy="62" rx="5" ry="9" transform="rotate(-18 66 62)" fill="#8A5A3A" ${LN}/>`
+          + `<ellipse cx="50" cy="58" rx="17" ry="19" fill="${owl}" ${LN}/>`
+          + `<ellipse cx="50" cy="66" rx="10" ry="10" fill="${belly}"/>`
+          + `<path d="M 45,63 q 2.5,2 5,0 q 2.5,2 5,0 M 43,68 q 2.5,2 5,0 q 2.5,2 5,0 q 2.5,2 5,0" fill="none" stroke="#C99A6E" stroke-width="1" stroke-linecap="round"/>`
+          + `<path d="M 36,46 Q 43,44 50,50 Q 57,44 64,46" fill="none" stroke="#6E4428" stroke-width="1.3" stroke-linecap="round"/>`;
+        for (const sg of [-1, 1]) {
+          const x = 50 + sg * 7.4;
+          s += `<circle cx="${x}" cy="53" r="6.4" fill="#FFF6E0" ${LN}/><circle cx="${x}" cy="53" r="4.4" fill="#F7C83A"/><circle cx="${x}" cy="53" r="2.5" fill="${FEAT}"/><circle cx="${x - 1.1}" cy="51.8" r="1.1" fill="white"/>`;
+        }
+        s += `<path d="M 47.6,58 L 52.4,58 L 50,62.4 Z" fill="#FF9A3C" ${LN}/>`
+          + `<ellipse cx="38.5" cy="60.5" rx="2.6" ry="1.5" fill="#FF8FB8" opacity="0.75"/><ellipse cx="61.5" cy="60.5" rx="2.6" ry="1.5" fill="#FF8FB8" opacity="0.75"/>`
+          // feet gripping the moon
+          + `<path d="M 43,75.5 l 0,3 M 45.5,75.5 l 0,3 M 54.5,75.5 l 0,3 M 57,75.5 l 0,3" stroke="#FF9A3C" stroke-width="2.2" stroke-linecap="round"/>`;
+        // witch hat
+        s += `<g transform="rotate(-10 50 40)"><ellipse cx="50" cy="40" rx="17" ry="3.8" fill="${hat}" ${LN}/>`
+          + `<path d="M 39,39.5 Q 43,28 47,20 Q 51,13 60,12 Q 54,18 55,26 Q 56,33 61,39.5 Z" fill="${hat}" ${LN}/>`
+          + `<path d="M 40.5,35.8 Q 50,38.4 59.5,35.8 L 60.6,39.6 Q 50,42.2 39.4,39.6 Z" fill="#FF8A2A" ${LN}/>`
+          + `<path d="M 58,11 l 1.2,-2.4 l 1.2,2.4 l 2.4,0.6 l -1.8,1.8 l 0.6,2.4 l -2.4,-1.2 l -2.4,1.2 l 0.6,-2.4 l -1.8,-1.8 Z" fill="#FFD23F" ${LN}/></g>`;
+        return s + sb_frame(c, [[14, 22, 2.6], [86, 26, 2.4], [90, 56, 2]]);
+      }),
 };
 
 // Candy bucket for the win / lose cards (twin of the fruit picnic basket)
