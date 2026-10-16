@@ -414,10 +414,14 @@ html[data-skin="halloween"] .score-box { background: rgba(255, 255, 255, 0.08); 
 html[data-skin="halloween"] .score-label { color: #FFB870; }
 html[data-skin="halloween"] .score-value { color: #fff; }
 html[data-skin="halloween"] .cell { background: rgba(255, 255, 255, 0.07); }
-html[data-skin="halloween"] .btn-icon svg { stroke: #FFFFFF; }
-html[data-skin="halloween"] #soundBtn svg circle,
-html[data-skin="halloween"] #hapticsBtn svg rect,
-html[data-skin="halloween"] .btn-icon svg .fill { fill: #8E6CD8; }
+/* Header buttons: a pastel colour each, the same in both themes */
+.controls .btn-icon { background: var(--b); box-shadow: 0 4px 0 var(--bd); }
+.controls .btn-icon:active { box-shadow: 0 1px 0 var(--bd); }
+#soundBtn   { --b: #FFB3CF; --bd: #E7859F; }
+#hapticsBtn { --b: #AEE8D2; --bd: #6FC3A3; }
+#boardBtn   { --b: #FFE07A; --bd: #E3B547; }
+#themeBtn   { --b: #FFC08A; --bd: #E8955A; }
+html[data-skin="halloween"] #themeBtn { --b: #FF9AAE; --bd: #DD6A82; }
 html[data-skin="halloween"] .celebration,
 html[data-skin="halloween"] .gameover,
 html[data-skin="halloween"] .leaderboard { background: rgba(20, 12, 40, 0.55); }

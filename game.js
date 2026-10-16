@@ -214,12 +214,15 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // Sound button icon: music notes, with a slash when sound is off
+// Header icons share one style: the tiles' ink outline with cream fills, each on
+// its own pastel button (colours in style.css)
+const ICON_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="#6B3F6E" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">';
+const CREAM = '#FFFDF8';
 const NOTES = '<path d="M10 17V6.5l9-2V15"/><path d="M10 9l9-2"/>'
-  + '<circle cx="7.6" cy="17" r="2.5" fill="#FFF8EC"/><circle cx="16.6" cy="15" r="2.5" fill="#FFF8EC"/>';
+  + `<circle cx="7.6" cy="17" r="2.6" fill="${CREAM}"/><circle cx="16.6" cy="15" r="2.6" fill="${CREAM}"/>`;
 function showSoundIcon() {
   const btn = document.getElementById('soundBtn');
-  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#7A3B2E" stroke-width="1.9" '
-    + 'stroke-linecap="round" stroke-linejoin="round">' + NOTES
+  btn.innerHTML = ICON_OPEN + NOTES
     + (soundOn ? '' : '<path d="M4 4l16 16" stroke-width="2.2"/>') + '</svg>';
   btn.setAttribute('aria-label', soundOn ? 'Sound on' : 'Sound off');
 }
@@ -243,9 +246,8 @@ function haptic(kind) {
 }
 function showHapticsIcon() {
   const btn = document.getElementById('hapticsBtn');
-  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#7A3B2E" stroke-width="1.9" '
-    + 'stroke-linecap="round" stroke-linejoin="round">'
-    + '<rect x="8" y="3.5" width="8" height="17" rx="2.2" fill="#FFF8EC"/>'
+  btn.innerHTML = ICON_OPEN
+    + `<rect x="8" y="3.5" width="8" height="17" rx="2.2" fill="${CREAM}"/>`
     + '<path d="M4.5 8.5v7M19.5 8.5v7M2 10.5v3M22 10.5v3"/>'
     + (hapticsOn ? '' : '<path d="M4 4l16 16" stroke-width="2.2"/>') + '</svg>';
   btn.setAttribute('aria-label', hapticsOn ? 'Vibration on' : 'Vibration off');
@@ -743,23 +745,20 @@ const THEME_UI = {
     color: '#1E1533', next: 'fruit',
   },
 };
-// Header icons share one line-drawn style: cocoa outlines with cream fills on the
-// picnic blanket (Spooky Picnic recolours them in style.css). `.fill` marks the
-// filled shapes. The theme button shows the theme you'll switch to.
-const ICON_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="#7A3B2E" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">';
+// The theme button shows the theme you'll switch to: a pumpkin, or cherries
 const THEME_ICONS = {
   halloween: ICON_OPEN   // pumpkin
-    + '<path class="fill" fill="#FFF8EC" d="M12 7.6c-2.4-1.2-5.8-.5-7.1 2.4-1.5 3.3-.2 8.1 3.5 8.7 1.3.2 2.5-.1 3.6-.6 1.1.5 2.3.8 3.6.6 3.7-.6 5-5.4 3.5-8.7-1.3-2.9-4.7-3.6-7.1-2.4z"/>'
+    + '<path fill="#FFFDF8" d="M12 7.6c-2.4-1.2-5.8-.5-7.1 2.4-1.5 3.3-.2 8.1 3.5 8.7 1.3.2 2.5-.1 3.6-.6 1.1.5 2.3.8 3.6.6 3.7-.6 5-5.4 3.5-8.7-1.3-2.9-4.7-3.6-7.1-2.4z"/>'
     + '<path d="M9.4 8.3c-1.3 2.7-1.3 7 0 9.8M14.6 8.3c1.3 2.7 1.3 7 0 9.8M12 7.6V5.4c0-.9.6-1.6 1.6-1.8"/></svg>',
   fruit: ICON_OPEN   // cherries
     + '<path d="M8 13.4c1.3-3.9 3.2-7 5.8-9.3M16.4 12.3c-.4-3.3-1.2-6-2.6-8.2"/>'
-    + '<path class="fill" fill="#FFF8EC" d="M13.8 4.1c1.7-1.3 4.1-1.2 5.4.3-1.7 1.1-3.8 1-5.4-.3z"/>'
-    + '<circle class="fill" fill="#FFF8EC" cx="8" cy="16.6" r="3.2"/><circle class="fill" fill="#FFF8EC" cx="16.4" cy="15.5" r="3.2"/></svg>',
+    + '<path fill="#7ED36E" d="M13.8 4.1c1.7-1.3 4.1-1.2 5.4.3-1.7 1.1-3.8 1-5.4-.3z"/>'
+    + '<circle fill="#FFFDF8" cx="8" cy="16.6" r="3.2"/><circle fill="#FFFDF8" cx="16.4" cy="15.5" r="3.2"/></svg>',
 };
 const TROPHY_ICON = ICON_OPEN
-  + '<path class="fill" fill="#FFF8EC" d="M7.5 4.5h9v4.3a4.5 4.5 0 0 1-9 0z"/>'
+  + '<path fill="#FFFDF8" d="M7.5 4.5h9v4.3a4.5 4.5 0 0 1-9 0z"/>'
   + '<path d="M7.5 6.2H5.1c0 2.4 1.1 3.8 3 4.1M16.5 6.2h2.4c0 2.4-1.1 3.8-3 4.1M12 13.3v3"/>'
-  + '<path class="fill" fill="#FFF8EC" d="M8.8 16.3h6.4v3.4H8.8z"/></svg>';
+  + '<path fill="#FFFDF8" d="M8.8 16.3h6.4v3.4H8.8z"/></svg>';
 document.getElementById('boardBtn').innerHTML = TROPHY_ICON;
 
 function applyTheme(id) {
