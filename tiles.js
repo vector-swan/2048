@@ -499,7 +499,7 @@ const FRUIT_ART = {
 };
 
 // ── Halloween theme (Spooky Picnic) ───────────────────────────────────────────
-// Candy (2–16) → spider, potion, witch hat, cauldron (32–256) → floaty ghost,
+// Candy (2–16) → spider, potion, witch hat, cauldron (32–256) → friendly ghost,
 // glowing jack-o'-lantern (512–1024) → haunted house (2048), golden beyond.
 const HALLOWEEN_BG = {
   2: '#DDD3F5', 4: '#D3D8F5', 8: '#CFE0F5', 16: '#CDE9E6', 32: '#D6EEC9',
@@ -662,14 +662,18 @@ const HALLOWEEN_ART = {
   }),
 
   // ── Ghost, jack-o'-lantern, then the spooky house ──
-  // Friendly ghost: a floaty wisp with a curly tail and little waving arms
+  // Friendly ghost: a chubby "boo!" with both arms up and a wispy tail
   512: hwTile(512, c => {
     const g = rgrad(c, 'g', '#FFFFFF', '#DCD3F0');
-    return backdrop(c, 512, { hy: 54, hr: 46 }) + ground(c, 50, 93, 16)
-      + `<ellipse cx="25" cy="55" rx="7.5" ry="4.6" transform="rotate(35 25 55)" fill="${g}" ${LN}/>`
-      + `<ellipse cx="75" cy="52" rx="7.5" ry="4.6" transform="rotate(-40 75 52)" fill="${g}" ${LN}/>`
-      + `<path d="M 26,46 C 26,20 74,20 74,46 C 74,62 70,70 74,78 C 77,85 70,90 64,85 C 60,81 57,84 52,83 C 40,81 26,70 26,46 Z" fill="${g}" ${LN}/>`
-      + shine(37, 32, 5.5, 2.8) + kface(50, 47, 24);
+    return backdrop(c, 512, { hy: 54, hr: 46 }) + ground(c, 50, 93, 18)
+      + `<ellipse cx="23" cy="42" rx="7.5" ry="4.6" transform="rotate(55 23 42)" fill="${g}" ${LN}/>`
+      + `<ellipse cx="77" cy="42" rx="7.5" ry="4.6" transform="rotate(-55 77 42)" fill="${g}" ${LN}/>`
+      + `<path d="M 25,52 C 25,22 75,22 75,52 C 75,72 64,80 56,82 Q 58,88 52,90 Q 54,85 48,83 C 34,80 25,70 25,52 Z" fill="${g}" ${LN}/>`
+      + shine(36, 36, 6, 3)
+      + `<circle cx="41" cy="50" r="2.9" fill="${FEAT}"/><circle cx="40" cy="49" r="1.2" fill="white"/><circle cx="59" cy="50" r="2.9" fill="${FEAT}"/><circle cx="58" cy="49" r="1.2" fill="white"/>`
+      + `<ellipse cx="50" cy="60" rx="3.2" ry="3.8" fill="${FEAT}"/><ellipse cx="50" cy="61.4" rx="1.8" ry="1.6" fill="#FF8FB8"/>`
+      + `<ellipse cx="35" cy="57" rx="3.8" ry="2.3" fill="#FFB0C8" opacity="0.85"/><ellipse cx="65" cy="57" rx="3.8" ry="2.3" fill="#FFB0C8" opacity="0.85"/>`
+      + star(86, 18, 3, '#FFFFFF', 0.95) + star(14, 20, 2.4, '#FFFFFF', 0.95);
   }),
   1024: hwTile(1024, c => backdrop(c, 1024, { hy: 58, hr: 46, color: '#FFE08A', op: 0.65 }) + ground(c, 50, 90, 32) + pumpkin(c, { carved: true, lit: true })),
   // Haunted house, the finale; golden frame beyond 2048
