@@ -192,6 +192,11 @@ function soundNewFruit(value) { themeId === 'halloween' ? musicBoxNewTile(value)
 function unlockAudio() {
   if (!soundOn) return;
   try {
+    // Ask iPhone to treat the game's sound like music/video: it then plays with
+    // the silent switch on and follows the normal media volume (Safari 16.4+)
+    if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback';
+  } catch (_) {}
+  try {
     const ctx = getAudio();
     if (ctx.state !== 'running') {
       // Starting a silent sound inside the tap is what fully unlocks iOS audio
