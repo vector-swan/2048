@@ -499,7 +499,7 @@ const FRUIT_ART = {
 };
 
 // ── Halloween theme (Spooky Picnic) ───────────────────────────────────────────
-// Candy (2–16) → spider, potion, witch hat, cauldron (32–256) → friendly ghost,
+// Candy (2–16) → spider, potion, witch hat, cauldron (32–256) → floaty ghost,
 // glowing jack-o'-lantern (512–1024) → haunted house (2048), golden beyond.
 const HALLOWEEN_BG = {
   2: '#DDD3F5', 4: '#D3D8F5', 8: '#CFE0F5', 16: '#CDE9E6', 32: '#D6EEC9',
@@ -508,6 +508,7 @@ const HALLOWEEN_BG = {
 };
 const hwTile = (v, build) => tile(v, build, HALLOWEEN_BG, 'hw');
 const outline = d => `<path d="${d}" fill="none" ${LN}/>`;
+const heartAt = (x, y, s, fill) => `<path transform="translate(${x},${y}) scale(${s})" d="M 0,3 C -6,-1 -5,-6 -2.5,-6 C -1,-6 0,-5 0,-4 C 0,-5 1,-6 2.5,-6 C 5,-6 6,-1 0,3 Z" fill="${fill}" ${LN}/>`;
 
 // Cute face with golden cat eyes (dark dot eyes vanish on black fur)
 function catFace(cx, cy, s) {
@@ -645,27 +646,30 @@ const HALLOWEEN_ART = {
       + `<path d="M 66,18 l 2,-4 l 2,4 l 4,1 l -3,3 l 1,4 l -4,-2 l -4,2 l 1,-4 l -3,-3 Z" fill="#FFD23F" ${LN}/>`
       + shine(43, 48, 2.4, 6, 18) + kface(50, 57, 16);
   }),
-  // Cauldron (no face)
+  // Cauldron: a soft purple pot with pink brew and heart bubbles, over a little fire
   256: hwTile(256, c => {
-    const pot = rgrad(c, 'ct', '#5E5378', '#2A2440'), brew = rgrad(c, 'br', '#C8F59A', '#4FB848');
-    return backdrop(c, 256, { hy: 58 }) + ground(c, 50, 92, 32)
-      + `<circle cx="38" cy="31" r="4" fill="#B8F08A" ${LN}/><circle cx="56" cy="24" r="5.5" fill="#B8F08A" ${LN}/><circle cx="65" cy="35" r="3" fill="#B8F08A" ${LN}/>`
-      + `<ellipse cx="50" cy="45" rx="30" ry="8" fill="${brew}" ${LN}/>`
-      + `<path d="M 20,47 Q 18,86 50,88 Q 82,86 80,47 Z" fill="${pot}" ${LN}/>`
-      + `<rect x="17" y="43" width="66" height="8" rx="4" fill="#4A4166" ${LN}/>`
-      + `<path d="M 30,87 l -3,6 M 70,87 l 3,6" stroke="${INK}" stroke-width="3.4" stroke-linecap="round"/>`
-      + `<path d="M 34,45 Q 40,41 46,45 Q 52,49 58,44 Q 63,41 67,46" fill="none" stroke="#E6FFD0" stroke-width="1.6" stroke-linecap="round" opacity="0.8"/>`
-      + shine(30, 59, 2.4, 6, 15);
+    const pot = rgrad(c, 'pt', '#8A78B8', '#3B2F5E'), brew = rgrad(c, 'br', '#FFD0E6', '#FF7FB4'), fire = grad(c, 'fl', '#FFE07A', '#FF8A2A');
+    return backdrop(c, 256, { hy: 54 }) + ground(c, 50, 96, 30)
+      + `<path d="M 34,94 Q 30,88 34,82 Q 36,86 39,86 Q 38,80 43,76 Q 44,83 47,85 Q 49,80 52,78 Q 54,84 56,86 Q 58,82 61,80 Q 64,86 62,89 Q 66,88 66,84 Q 70,90 66,94 Z" fill="${fire}" ${LN}/>`
+      + `<rect x="28" y="91" width="44" height="5" rx="2.5" fill="#B07A4E" ${LN}/><circle cx="30" cy="93.5" r="2" fill="#E8C49A" ${LN}/><circle cx="70" cy="93.5" r="2" fill="#E8C49A" ${LN}/>`
+      + heartAt(38, 27, 0.9, '#FF9DC6') + heartAt(62, 16, 0.6, '#FFC2DD')
+      + `<circle cx="54" cy="25" r="4" fill="#FFC2DD" ${LN}/><circle cx="66" cy="30" r="2.4" fill="#FFC2DD" ${LN}/>`
+      + `<path d="M 19,42 Q 15,84 50,84 Q 85,84 81,42 Z" fill="${pot}" ${LN}/>`
+      + `<ellipse cx="50" cy="41" rx="29" ry="7" fill="${brew}" ${LN}/>`
+      + `<rect x="16" y="39" width="68" height="8" rx="4" fill="#5A4A86" ${LN}/>`
+      + `<circle cx="42" cy="40" r="2.2" fill="#FFE4F0" ${LN}/><circle cx="58" cy="41" r="1.6" fill="#FFE4F0"/>`
+      + shine(27, 56, 2.6, 7, 12) + kface(50, 62, 22);
   }),
 
   // ── Ghost, jack-o'-lantern, then the spooky house ──
-  // Friendly ghost
+  // Friendly ghost: a floaty wisp with a curly tail and little waving arms
   512: hwTile(512, c => {
     const g = rgrad(c, 'g', '#FFFFFF', '#DCD3F0');
-    const body = 'M 24,88 L 24,49 C 24,22 76,22 76,49 L 76,88 Q 69.5,81 63,88 Q 56.5,81 50,88 Q 43.5,81 37,88 Q 30.5,81 24,88 Z';
-    return backdrop(c, 512, { hy: 56, hr: 48 }) + ground(c, 50, 94, 26)
-      + `<path d="M 25,58 Q 12,60 14,70 Q 20,65 26,68 Z M 75,58 Q 88,60 86,70 Q 80,65 74,68 Z" fill="${g}" ${LN}/>`
-      + `<path d="${body}" fill="${g}" ${LN}/>` + shine(35, 35, 6, 3) + kface(50, 53, 25);
+    return backdrop(c, 512, { hy: 54, hr: 46 }) + ground(c, 50, 93, 16)
+      + `<ellipse cx="25" cy="55" rx="7.5" ry="4.6" transform="rotate(35 25 55)" fill="${g}" ${LN}/>`
+      + `<ellipse cx="75" cy="52" rx="7.5" ry="4.6" transform="rotate(-40 75 52)" fill="${g}" ${LN}/>`
+      + `<path d="M 26,46 C 26,20 74,20 74,46 C 74,62 70,70 74,78 C 77,85 70,90 64,85 C 60,81 57,84 52,83 C 40,81 26,70 26,46 Z" fill="${g}" ${LN}/>`
+      + shine(37, 32, 5.5, 2.8) + kface(50, 47, 24);
   }),
   1024: hwTile(1024, c => backdrop(c, 1024, { hy: 58, hr: 46, color: '#FFE08A', op: 0.65 }) + ground(c, 50, 90, 32) + pumpkin(c, { carved: true, lit: true })),
   // Haunted house, the finale; golden frame beyond 2048
