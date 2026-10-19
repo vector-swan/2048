@@ -134,12 +134,20 @@ function withAudio(fn) {
   try { const t = getAudio().currentTime + 0.01; fn(t); } catch (_) {}
 }
 
+// Merges step up the scale as tiles grow: 0 for the smallest merges, up to 4
+// for 1024 and above (one step every two tile sizes)
+const mergeStep = value => Math.min(Math.max(Math.floor((Math.log2(value || 4) - 2) / 2), 0), 4);
+
 // ── Fruit Picnic sounds ──
-// Every merge: a soft, muted woody thump
-function kalimbaMerge() {
+// Every merge: a soft, muted woody thump on a note of the scale (E3 up to D4),
+// with a quiet octave on top so it still comes through a phone's small speaker
+const MERGE_VOL = { fruit: 1, halloween: 0.75 };   // evens out the two themes
+function kalimbaMerge(value) {
   withAudio(t => {
-    tone(t, { f: 170 * (0.97 + Math.random() * 0.06), type: 'triangle', vol: 0.06, a: 0.002, d: 0.06, lp: 500 });
-    tap(t, 0.016);
+    const f = note(-3 + mergeStep(value)) * (0.99 + Math.random() * 0.02), v = MERGE_VOL.fruit;
+    tone(t, { f, type: 'triangle', vol: 0.06 * v, a: 0.002, d: 0.06, lp: Math.max(500, f * 3) });
+    tone(t, { f: f * 2, vol: 0.042 * v, a: 0.002, d: 0.045, lp: 1600 });
+    tap(t, 0.016 * v);
   });
 }
 
@@ -188,12 +196,15 @@ function thock(t, vol) {
   route(g, 0);
   src.start(t); src.stop(t + 0.07);
 }
-function keyboardMerge() {
+// Like Fruit Picnic, the note steps up the scale as tiles grow, with a quiet
+// octave on top for small speakers
+function keyboardMerge(value) {
   withAudio(t => {
-    const w = 0.995 + Math.random() * 0.01;   // a tiny wobble so presses aren't identical
-    tone(t, { f: KEY * w, from: KEY * 1.24 * w, glide: 0.025, type: 'triangle', vol: 0.08, a: 0.001, d: 0.06, lp: 500, send: 0.08 });
-    tone(t, { f: KEY / 2 * w, vol: 0.045, a: 0.001, d: 0.05 });
-    thock(t, 0.035);
+    const f = mnote(mergeStep(value)) * (0.995 + Math.random() * 0.01), v = MERGE_VOL.halloween;
+    tone(t, { f, from: f * 1.24, glide: 0.025, type: 'triangle', vol: 0.08 * v, a: 0.001, d: 0.06, lp: Math.max(500, f * 3), send: 0.08 });
+    tone(t, { f: f / 2, vol: 0.045 * v, a: 0.001, d: 0.05 });
+    tone(t, { f: f * 2, vol: 0.034 * v, a: 0.001, d: 0.04, lp: 1600 });
+    thock(t, 0.035 * v);
   });
 }
 function musicBoxNewTile(value) {
@@ -206,7 +217,8 @@ function musicBoxNewTile(value) {
     let at = t;
     phrase.forEach(([i, beats], k) => {
       const last = k === phrase.length - 1;
-      bell(at, mnote(i), last ? 0.0805 : 0.07, 0.9, 0.4);
+      // shorter rings than they used to be, so fast play doesn't pile them up
+      bell(at, mnote(i), last ? 0.0805 : 0.07, last ? 0.75 : 0.55, 0.3);
       if (!last) at += beats * beat;
     });
     const top = phrase[phrase.length - 1][0];
@@ -215,8 +227,18 @@ function musicBoxNewTile(value) {
   });
 }
 
-function soundMerge() { themeId === 'halloween' ? keyboardMerge() : kalimbaMerge(); }
+function soundMerge(value) { themeId === 'halloween' ? keyboardMerge(value) : kalimbaMerge(value); }
 function soundNewFruit(value) { themeId === 'halloween' ? musicBoxNewTile(value) : kalimbaNewFruit(value); }
+
+// Game sound effects, not music: on iPhone they mix with whatever the player is
+// listening to (no pausing their music or podcast) and go quiet when the silent
+// switch is on (Safari 16.4+ and the app; older versions ignore this)
+function useAmbientAudio() {
+  try {
+    if (navigator.audioSession && navigator.audioSession.type !== 'ambient') navigator.audioSession.type = 'ambient';
+  } catch (_) {}
+}
+useAmbientAudio();
 
 // iOS only lets audio start from a tap/click/key (not a finger moving), and
 // swipes fire on touchmove, so wake the audio on the first real tap or key.
@@ -224,11 +246,7 @@ function soundNewFruit(value) { themeId === 'halloween' ? musicBoxNewTile(value)
 // recovers after the phone was locked or the app was in the background.
 function unlockAudio() {
   if (!soundOn) return;
-  try {
-    // Ask iPhone to treat the game's sound like music/video: it then plays with
-    // the silent switch on and follows the normal media volume (Safari 16.4+)
-    if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback';
-  } catch (_) {}
+  useAmbientAudio();
   try {
     const ctx = getAudio();
     if (ctx.state !== 'running') {
@@ -290,7 +308,7 @@ function soundVictory() { soundNewFruit(2048); }
 // Game over: a gentle phrase stepping down
 function soundGameOver() {
   if (themeId === 'halloween') {
-    withAudio(t => [7, 5, 4, 2, 0].forEach((i, k) => bell(t + k * 0.2, mnote(i), 0.06, k === 4 ? 1.4 : 0.8, 0.4)));
+    withAudio(t => [7, 5, 4, 2, 0].forEach((i, k) => bell(t + k * 0.2, mnote(i), 0.06, k === 4 ? 1.0 : 0.6, 0.3)));
   } else {
     withAudio(t => playPhrase(t, [[7, 1], [5, 1], [4, 1], [2, 1], [0, 3]], 0.07, 0.25));
   }
@@ -514,7 +532,9 @@ async function doMove(dir) {
   if (!moved) return;
 
   busy = true;
-  paperSwipe();
+  // One sound per swipe: a plain slide gets the paper swish; a swipe that
+  // merges gets its merge sound (below) instead
+  if (!merges.length) paperSwipe();
 
   // ① Slide every tile to its new position (CSS transition animates this)
   const removedIds = new Set(merges.map(m => m.removedId));
