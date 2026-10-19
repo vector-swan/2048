@@ -73,7 +73,10 @@ function tap(t, vol) {
   src.start(t); src.stop(t + 0.05);
 }
 
-// Every swipe: a finger brushing across paper. Noise with a grainy, uneven
+// A swipe that doesn't merge: each theme has its own slide sound
+function soundSlide() { themeId === 'halloween' ? ghostSwoosh() : paperSwipe(); }
+
+// Fruit Picnic: a finger brushing across paper. Noise with a grainy, uneven
 // texture (paper fibres), filtered to a soft papery "shhf" that swells and
 // fades over the slide. A little random tilt so no two swipes sound the same.
 let paperBuf = null;
@@ -180,6 +183,12 @@ function mnote(i) {                                   // i = 0 is the home note;
 }
 function bell(t, f, vol, d = 0.7, send = 0.2) {
   tone(t, { f, vol, a: 0.003, d, send });
+  // low bells get a quiet octave too, or a phone's small speaker loses them
+  const low = Math.min(Math.max((260 - f) / 100, 0), 1);
+  if (low) {
+    tone(t, { f: f * 2, vol: vol * 0.9 * low, a: 0.003, d: d * 0.6, send });
+    tone(t, { f: f * 3, vol: vol * 0.35 * low, a: 0.002, d: d * 0.4, send });
+  }
   tone(t, { f: f * 2.76, vol: vol * 0.22, a: 0.002, d: d * 0.45, send });
   tone(t, { f: f * 5.4, vol: vol * 0.07, a: 0.002, d: d * 0.25, send });
 }
@@ -226,6 +235,34 @@ function musicBoxNewTile(value) {
     if (L >= 6) [b - 5, b - 3, b - 2, b].forEach((i, k) => bell(at + 0.03 + k * 0.05, mnote(i), 0.03, 1.4, 0.6));
   });
 }
+
+// Spooky Picnic: a soft ghostly "whoo". Smooth breath noise through a narrow,
+// vowel-like filter that swoops down, with a little more echo than the paper.
+let ghostBuf = null;
+function ghostSwoosh() {
+  withAudio(t => {
+    if (!ghostBuf) {
+      ghostBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.4), audioCtx.sampleRate);
+      const d = ghostBuf.getChannelData(0);
+      for (let k = 0; k < d.length; k++) d[k] = Math.random() * 2 - 1;
+    }
+    const len = 0.22, w = 0.92 + Math.random() * 0.16;
+    const src = audioCtx.createBufferSource(), bp = audioCtx.createBiquadFilter(),
+      lp = audioCtx.createBiquadFilter(), g = audioCtx.createGain();
+    src.buffer = ghostBuf;
+    bp.type = 'bandpass'; bp.Q.value = 5;
+    bp.frequency.setValueAtTime(1150 * w, t);
+    bp.frequency.exponentialRampToValueAtTime(560 * w, t + len);
+    lp.type = 'lowpass'; lp.frequency.value = 2400;
+    src.connect(bp); bp.connect(lp); lp.connect(g);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(GHOST_VOL, t + 0.06);
+    g.gain.exponentialRampToValueAtTime(0.0005, t + len);
+    route(g, 0.25);
+    src.start(t); src.stop(t + len + 0.02);
+  });
+}
+const GHOST_VOL = 0.095;
 
 function soundMerge(value) { themeId === 'halloween' ? keyboardMerge(value) : kalimbaMerge(value); }
 function soundNewFruit(value) { themeId === 'halloween' ? musicBoxNewTile(value) : kalimbaNewFruit(value); }
@@ -534,7 +571,7 @@ async function doMove(dir) {
   busy = true;
   // One sound per swipe: a plain slide gets the paper swish; a swipe that
   // merges gets its merge sound (below) instead
-  if (!merges.length) paperSwipe();
+  if (!merges.length) soundSlide();
 
   // ① Slide every tile to its new position (CSS transition animates this)
   const removedIds = new Set(merges.map(m => m.removedId));
