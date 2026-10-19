@@ -77,42 +77,47 @@ function tap(t, vol) {
 }
 
 // A swipe that doesn't merge: each theme has its own slide sound
-function soundSlide(dir) { themeId === 'halloween' ? ghostSwoosh() : blanketSwipe(dir); }
+function soundSlide(dir) { themeId === 'halloween' ? ghostSwoosh() : paperSwipe(dir); }
 
-// Fruit Picnic: a hand smoothing a cotton picnic blanket. Soft, warm, fuzzy
-// noise that follows the swipe: it moves left or right in stereo, and sits a
-// touch higher for up and lower for down. A little random tilt so no two
-// swipes sound the same.
+// Fruit Picnic: a finger brushing across paper. Noise with a grainy, uneven
+// texture (paper fibres), filtered to a soft papery "shhf" that swells and
+// fades over the slide. It follows the swipe: left or right in stereo, a touch
+// higher for up and lower for down. A little random tilt so no two swipes
+// sound the same. Kept a little under the merge sounds.
 // gain evens out loudness: panning and the lower tilt both sound a little quieter
 const SLIDE_DIRS = {
   left: { pan: -0.45, tilt: 1, gain: 1.45 }, right: { pan: 0.45, tilt: 1, gain: 1.45 },
-  up: { pan: 0, tilt: 1.18, gain: 1 }, down: { pan: 0, tilt: 0.85, gain: 1.12 },
+  up: { pan: 0, tilt: 1.12, gain: 1 }, down: { pan: 0, tilt: 0.88, gain: 1.12 },
 };
-const BLANKET_VOL = 0.0183;
-let blanketBuf = null;
-function blanketSwipe(dir) {
+const PAPER_VOL = 0.0126;
+let paperBuf = null;
+function paperSwipe(dir) {
   withAudio(t => {
-    if (!blanketBuf) {
-      blanketBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.4), audioCtx.sampleRate);
-      const d = blanketBuf.getChannelData(0);
-      for (let k = 0; k < d.length; k++) d[k] = Math.random() * 2 - 1;
+    if (!paperBuf) {
+      paperBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.25), audioCtx.sampleRate);
+      const d = paperBuf.getChannelData(0), grain = Math.floor(audioCtx.sampleRate * 0.004);
+      let level = 1;
+      for (let k = 0; k < d.length; k++) {
+        if (k % grain === 0) level = 0.45 + Math.random() * 0.55;
+        d[k] = (Math.random() * 2 - 1) * level;
+      }
     }
     const { pan, tilt, gain } = SLIDE_DIRS[dir] || SLIDE_DIRS.left;
-    const len = 0.2, w = (0.92 + Math.random() * 0.16) * tilt, vol = BLANKET_VOL * gain;
-    const src = audioCtx.createBufferSource(), bp = audioCtx.createBiquadFilter(),
-      lp = audioCtx.createBiquadFilter(), g = audioCtx.createGain();
-    src.buffer = blanketBuf;
-    bp.type = 'bandpass'; bp.Q.value = 0.6;
-    bp.frequency.setValueAtTime(900 * w, t);
-    bp.frequency.linearRampToValueAtTime(1500 * w, t + len);
-    lp.type = 'lowpass'; lp.frequency.value = 2600;
-    src.connect(bp); bp.connect(lp); lp.connect(g);
+    const len = 0.15, w = (0.9 + Math.random() * 0.2) * tilt, vol = PAPER_VOL * gain;
+    const src = audioCtx.createBufferSource(), hp = audioCtx.createBiquadFilter(),
+      bp = audioCtx.createBiquadFilter(), g = audioCtx.createGain();
+    src.buffer = paperBuf;
+    hp.type = 'highpass'; hp.frequency.value = 900;
+    bp.type = 'bandpass'; bp.Q.value = 0.7;
+    bp.frequency.setValueAtTime(2200 * w, t);
+    bp.frequency.linearRampToValueAtTime(3600 * w, t + len);
+    src.connect(hp); hp.connect(bp); bp.connect(g);
     g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(vol, t + len * 0.3);
-    g.gain.linearRampToValueAtTime(vol * 0.6, t + len * 0.65);
+    g.gain.linearRampToValueAtTime(vol, t + 0.035);
+    g.gain.linearRampToValueAtTime(vol * 0.61, t + len * 0.6);
     g.gain.exponentialRampToValueAtTime(0.0005, t + len);
-    route(g, 0.08, pan);
-    src.start(t); src.stop(t + len + 0.03);
+    route(g, 0.05, pan);
+    src.start(t); src.stop(t + len + 0.02);
   });
 }
 
@@ -244,7 +249,7 @@ function musicBoxNewTile(value) {
 }
 
 // Spooky Picnic: a soft ghostly "whoo". Smooth breath noise through a narrow,
-// vowel-like filter that swoops down, with a little more echo than the blanket.
+// vowel-like filter that swoops down, with a little more echo than the paper.
 let ghostBuf = null;
 function ghostSwoosh() {
   withAudio(t => {
