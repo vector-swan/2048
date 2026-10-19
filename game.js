@@ -213,18 +213,17 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden && audioCtx && audioCtx.state !== 'running') audioCtx.resume().catch(() => {});
 });
 
-// Sound button icon: music notes, with a slash when sound is off
-// Header icons share one style: the tiles' ink outline with cream fills, each on
+// Header and settings icons share one style: the tiles' ink outline with cream fills, each on
 // its own pastel button (colours in style.css)
 const ICON_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="#6B3F6E" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">';
 const CREAM = '#FFFDF8';
 const NOTES = '<path d="M10 17V6.5l9-2V15"/><path d="M10 9l9-2"/>'
   + `<circle cx="7.6" cy="17" r="2.6" fill="${CREAM}"/><circle cx="16.6" cy="15" r="2.6" fill="${CREAM}"/>`;
+const SLASH = '<path d="M4 4l16 16" stroke-width="2.2"/>';
+// Settings switch for sound: music notes, with a slash when sound is off
 function showSoundIcon() {
-  const btn = document.getElementById('soundBtn');
-  btn.innerHTML = ICON_OPEN + NOTES
-    + (soundOn ? '' : '<path d="M4 4l16 16" stroke-width="2.2"/>') + '</svg>';
-  btn.setAttribute('aria-label', soundOn ? 'Sound on' : 'Sound off');
+  document.getElementById('soundIco').innerHTML = ICON_OPEN + NOTES + (soundOn ? '' : SLASH) + '</svg>';
+  document.getElementById('soundToggle').setAttribute('aria-checked', soundOn);
 }
 
 // ── Haptics (iPhone app only) ─────────────────────────────────────────────────
@@ -245,12 +244,11 @@ function haptic(kind) {
   } catch (_) {}
 }
 function showHapticsIcon() {
-  const btn = document.getElementById('hapticsBtn');
-  btn.innerHTML = ICON_OPEN
+  document.getElementById('hapticsIco').innerHTML = ICON_OPEN
     + `<rect x="8" y="3.5" width="8" height="17" rx="2.2" fill="${CREAM}"/>`
     + '<path d="M4.5 8.5v7M19.5 8.5v7M2 10.5v3M22 10.5v3"/>'
-    + (hapticsOn ? '' : '<path d="M4 4l16 16" stroke-width="2.2"/>') + '</svg>';
-  btn.setAttribute('aria-label', hapticsOn ? 'Vibration on' : 'Vibration off');
+    + (hapticsOn ? '' : SLASH) + '</svg>';
+  document.getElementById('hapticsToggle').setAttribute('aria-checked', hapticsOn);
 }
 
 // Reaching 2048: the watermelon phrase is the finale
@@ -477,6 +475,7 @@ let queuedDir = null;
 async function doMove(dir) {
   if (typeof lbIsOpen !== 'undefined' && lbIsOpen) return;   // leaderboard panel is open
   if (typeof howtoOpen !== 'undefined' && howtoOpen) return; // how-to card is open
+  if (typeof settingsOpen !== 'undefined' && settingsOpen) return; // settings card is open
   if (busy) { queuedDir = dir; return; }
   const { newPos, merges, moved, scoreAdd } = computeMove(dir);
   if (!moved) return;
@@ -695,13 +694,13 @@ document.addEventListener('touchmove', e => {
 
 // ── Buttons ───────────────────────────────────────────────────────────────────
 document.getElementById('newGameBtn').addEventListener('click', newGame);
-document.getElementById('soundBtn').addEventListener('click', () => {
+document.getElementById('soundToggle').addEventListener('click', () => {
   soundOn = !soundOn;
   if (soundOn) unlockAudio();
   showSoundIcon();
   try { localStorage.setItem('2048sound', soundOn ? 'on' : 'off'); } catch (_) {}
 });
-document.getElementById('hapticsBtn').addEventListener('click', () => {
+document.getElementById('hapticsToggle').addEventListener('click', () => {
   hapticsOn = !hapticsOn;
   showHapticsIcon();
   haptic('merge');
@@ -748,16 +747,10 @@ const THEME_UI = {
     color: '#1E1533', next: 'fruit',
   },
 };
-// The theme button shows the theme you'll switch to: a pumpkin, or cherries
-const THEME_ICONS = {
-  halloween: ICON_OPEN   // pumpkin
-    + '<path fill="#FFFDF8" d="M12 7.6c-2.4-1.2-5.8-.5-7.1 2.4-1.5 3.3-.2 8.1 3.5 8.7 1.3.2 2.5-.1 3.6-.6 1.1.5 2.3.8 3.6.6 3.7-.6 5-5.4 3.5-8.7-1.3-2.9-4.7-3.6-7.1-2.4z"/>'
-    + '<path d="M9.4 8.3c-1.3 2.7-1.3 7 0 9.8M14.6 8.3c1.3 2.7 1.3 7 0 9.8M12 7.6V5.4c0-.9.6-1.6 1.6-1.8"/></svg>',
-  fruit: ICON_OPEN   // cherries
-    + '<path d="M8 13.4c1.3-3.9 3.2-7 5.8-9.3M16.4 12.3c-.4-3.3-1.2-6-2.6-8.2"/>'
-    + '<path fill="#7ED36E" d="M13.8 4.1c1.7-1.3 4.1-1.2 5.4.3-1.7 1.1-3.8 1-5.4-.3z"/>'
-    + '<circle fill="#FFFDF8" cx="8" cy="16.6" r="3.2"/><circle fill="#FFFDF8" cx="16.4" cy="15.5" r="3.2"/></svg>',
-};
+const GEAR_ICON = ICON_OPEN
+  + '<path fill="#FFFDF8" d="M10.3 2.8h3.4l.5 2.4 1.6.9 2.3-.8 1.7 2.9-1.8 1.6v1.9l1.8 1.6-1.7 2.9-2.3-.8-1.6.9-.5 2.4h-3.4l-.5-2.4-1.6-.9-2.3.8-1.7-2.9 1.8-1.6v-1.9L4.2 8.2l1.7-2.9 2.3.8 1.6-.9z"/>'
+  + '<circle cx="12" cy="12" r="2.8"/></svg>';
+document.getElementById('settingsBtn').innerHTML = GEAR_ICON;
 const TROPHY_ICON = ICON_OPEN
   + '<path fill="#FFFDF8" d="M7.5 4.5h9v4.3a4.5 4.5 0 0 1-9 0z"/>'
   + '<path d="M7.5 6.2H5.1c0 2.4 1.1 3.8 3 4.1M16.5 6.2h2.4c0 2.4-1.1 3.8-3 4.1M12 13.3v3"/>'
@@ -785,20 +778,47 @@ function applyTheme(id) {
   Object.keys(artSrc).forEach(k => delete artSrc[k]);
   Object.keys(TILE_ART).forEach(v => { const i = artNode(v); i.decode && i.decode().catch(() => {}); });
   liveTiles.forEach(t => applyTileDisplay(t));
-  const btn = document.getElementById('themeBtn');
-  btn.innerHTML = THEME_ICONS[ui.next];
-  btn.setAttribute('aria-label', 'Switch to ' + THEME_UI[ui.next].title);
-  btn.title = 'Switch to ' + THEME_UI[ui.next].title;
+  document.querySelectorAll('.theme-opt').forEach(b => b.setAttribute('aria-checked', b.dataset.theme === id));
   try { localStorage.setItem('2048theme', id); } catch (_) {}
   if (typeof tutorialRefresh === 'function') tutorialRefresh();
 }
-document.getElementById('themeBtn').addEventListener('click', () => applyTheme(THEME_UI[themeId].next));
+
+// ── Settings card ─────────────────────────────────────────────────────────────
+// Sound, vibration and theme all live behind the gear button.
+// Each theme is shown with its 2048 tile, so you can see what you're picking.
+const themePick = document.getElementById('themePick');
+themePick.setAttribute('role', 'radiogroup');
+themePick.setAttribute('aria-label', 'Theme');
+Object.keys(THEME_UI).forEach(id => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'theme-opt';
+  b.dataset.theme = id;
+  b.setAttribute('role', 'radio');
+  b.innerHTML = `<img alt="" src="${svgURL(THEMES[id].art[2048])}"><span>${THEME_UI[id].title}</span>`;
+  b.addEventListener('click', () => { if (themeId !== id) applyTheme(id); });
+  themePick.appendChild(b);
+});
+let settingsOpen = false;
+function openSettings() {
+  settingsOpen = true;
+  document.getElementById('settings').classList.add('show');
+}
+function closeSettings() {
+  settingsOpen = false;
+  document.getElementById('settings').classList.remove('show');
+}
+document.getElementById('settingsBtn').addEventListener('click', openSettings);
+document.getElementById('settingsClose').addEventListener('click', closeSettings);
+// Tapping the dimmed space around the card closes it too
+document.getElementById('settings').addEventListener('click', e => { if (e.target.id === 'settings') closeSettings(); });
+document.addEventListener('keydown', e => { if (settingsOpen && e.key === 'Escape') closeSettings(); });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 document.getElementById('best').textContent = best;
 applyTheme(themeId);
 showSoundIcon();
-if (native) { document.getElementById('hapticsBtn').hidden = false; showHapticsIcon(); }
+if (native) { document.getElementById('hapticsToggle').hidden = false; showHapticsIcon(); }
 newGame();
 
 // Test shortcut: open the game with #almost-win at the end of the link to

@@ -104,9 +104,9 @@ h1 {
   color: var(--muted);
 }
 
-/* Sound button shows a drawn music-note icon (set in game.js) */
-#soundBtn, #themeBtn, #hapticsBtn, #boardBtn { display: flex; align-items: center; justify-content: center; }
-#soundBtn svg, #themeBtn svg, #hapticsBtn svg, #boardBtn svg { width: 22px; height: 22px; display: block; }
+/* Header icon buttons show drawn icons (set in game.js) */
+#settingsBtn, #boardBtn { display: flex; align-items: center; justify-content: center; }
+#settingsBtn svg, #boardBtn svg { width: 22px; height: 22px; display: block; }
 
 .scores { display: flex; gap: 8px; }
 
@@ -269,7 +269,7 @@ h1 {
 .t4096, .t8192 { box-shadow: 0 0 18px rgba(255,200,60,0.7), 0 2px 0 rgba(160,110,60,0.22); }
 
 /* ── Overlays ── */
-.celebration, .gameover, .leaderboard, .howto {
+.celebration, .gameover, .leaderboard, .howto, .settings {
   position: fixed;
   inset: 0;
   display: flex;
@@ -282,9 +282,9 @@ h1 {
   background: rgba(255, 248, 236, 0.6);
   backdrop-filter: blur(6px);
 }
-.celebration.show, .gameover.show, .leaderboard.show, .howto.show { opacity: 1; pointer-events: all; }
+.celebration.show, .gameover.show, .leaderboard.show, .howto.show, .settings.show { opacity: 1; pointer-events: all; }
 
-.celebration-content, .gameover-content, .leaderboard-content, .howto-content {
+.celebration-content, .gameover-content, .leaderboard-content, .howto-content, .settings-content {
   background: #fff;
   border: 3px dashed var(--stitch);
   border-radius: 26px;
@@ -308,7 +308,7 @@ h1 {
   to   { transform: translateY(-12px) scale(1.06); }
 }
 
-.celebration-content h2, .gameover-content h2, .leaderboard-content h2, .howto-content h2 {
+.celebration-content h2, .gameover-content h2, .leaderboard-content h2, .howto-content h2, .settings-content h2 {
   font-family: var(--display);
   font-size: 1.8rem;
   font-weight: 800;
@@ -417,25 +417,23 @@ html[data-skin="halloween"] .cell { background: rgba(255, 255, 255, 0.07); }
 /* Header buttons: a pastel colour each, the same in both themes */
 .controls .btn-icon { background: var(--b); box-shadow: 0 4px 0 var(--bd); }
 .controls .btn-icon:active { box-shadow: 0 1px 0 var(--bd); }
-#soundBtn   { --b: #FFB3CF; --bd: #E7859F; }
-#hapticsBtn { --b: #AEE8D2; --bd: #6FC3A3; }
-#boardBtn   { --b: #FFE07A; --bd: #E3B547; }
-#themeBtn   { --b: #FFC08A; --bd: #E8955A; }
+#boardBtn    { --b: #FFE07A; --bd: #E3B547; }
+#settingsBtn { --b: #FFB3CF; --bd: #E7859F; }
 /* Spooky Picnic: richer Halloween-candy colours that suit the night sky */
-html[data-skin="halloween"] #soundBtn   { --b: #B48CF0; --bd: #7A55C0; }
-html[data-skin="halloween"] #hapticsBtn { --b: #6FD3C2; --bd: #3E9E8E; }
-html[data-skin="halloween"] #boardBtn   { --b: #FFA24A; --bd: #C9701E; }
-html[data-skin="halloween"] #themeBtn   { --b: #FF7A93; --bd: #C94A65; }
+html[data-skin="halloween"] #boardBtn    { --b: #FFA24A; --bd: #C9701E; }
+html[data-skin="halloween"] #settingsBtn { --b: #B48CF0; --bd: #7A55C0; }
 html[data-skin="halloween"] .controls .btn-icon svg { stroke: #3A2550; }
 html[data-skin="halloween"] .controls .btn-icon svg [fill="#FFFDF8"] { fill: #FFF6E8; }
 html[data-skin="halloween"] .celebration,
 html[data-skin="halloween"] .gameover,
 html[data-skin="halloween"] .leaderboard,
-html[data-skin="halloween"] .howto { background: rgba(20, 12, 40, 0.55); }
+html[data-skin="halloween"] .howto,
+html[data-skin="halloween"] .settings { background: rgba(20, 12, 40, 0.55); }
 html[data-skin="halloween"] .celebration-content,
 html[data-skin="halloween"] .gameover-content,
 html[data-skin="halloween"] .leaderboard-content,
-html[data-skin="halloween"] .howto-content {
+html[data-skin="halloween"] .howto-content,
+html[data-skin="halloween"] .settings-content {
   background: #2C2148;
   border-color: #FF8A2A;
   box-shadow: 0 6px 0 #170F2A, 0 16px 40px rgba(0, 0, 0, 0.4);
@@ -543,3 +541,54 @@ html[data-skin="halloween"] .coach-bubble,
 html[data-skin="halloween"] .coach-toast { background: #2C2148; border-color: #FF8A2A; color: #F3E8FF; box-shadow: 0 4px 0 #170F2A; }
 html[data-skin="halloween"] .step { background: rgba(255, 255, 255, 0.06); }
 html[data-skin="halloween"] .step .txt { color: #F3E8FF; }
+
+/* ── Settings ── */
+.settings-content { width: min(330px, calc(100vw - 32px)); max-width: none; padding: 26px 20px; gap: 12px; }
+.set-rows { display: grid; gap: 8px; width: 100%; }
+.set-row {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 8px 12px 8px 8px; border: none; border-radius: 14px; cursor: pointer;
+  background: rgba(0, 0, 0, 0.035); color: var(--text-dark);
+  font: 800 1rem var(--display); text-align: left;
+}
+.set-row:focus-visible, .theme-opt:focus-visible { outline: 3px solid var(--text-dark); outline-offset: 2px; }
+.set-ico {
+  flex: none; width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; background: var(--b);
+}
+.set-ico svg { width: 22px; height: 22px; display: block; }
+#soundIco   { --b: #FFB3CF; }
+#hapticsIco { --b: #AEE8D2; }
+.set-label { flex: 1; }
+/* An on/off switch: strawberry red when on */
+.switch {
+  flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px;
+  background: #E6D6C6; transition: background 0.2s;
+}
+.switch::after {
+  content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); transition: transform 0.2s;
+}
+.set-row[aria-checked="true"] .switch { background: var(--accent); }
+.set-row[aria-checked="true"] .switch::after { transform: translateX(18px); }
+.set-heading {
+  align-self: flex-start; margin: 4px 0 -4px 4px;
+  font: 800 0.72rem var(--display); letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted);
+}
+.theme-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.theme-opt {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 10px 6px; border-radius: 14px; cursor: pointer;
+  border: 3px solid transparent; background: rgba(0, 0, 0, 0.035);
+  font: 800 0.88rem var(--display); color: var(--text-dark);
+}
+.theme-opt img { width: 54px; height: 54px; border-radius: 12px; display: block; }
+.theme-opt[aria-checked="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+html[data-skin="halloween"] .set-row,
+html[data-skin="halloween"] .theme-opt { background: rgba(255, 255, 255, 0.06); color: #F3E8FF; }
+html[data-skin="halloween"] .theme-opt[aria-checked="true"] { background: rgba(255, 138, 42, 0.18); }
+html[data-skin="halloween"] .switch { background: rgba(255, 255, 255, 0.18); }
+html[data-skin="halloween"] #soundIco   { --b: #B48CF0; }
+html[data-skin="halloween"] #hapticsIco { --b: #6FD3C2; }
+html[data-skin="halloween"] .set-ico svg { stroke: #3A2550; }
+@media (prefers-reduced-motion: reduce) { .switch, .switch::after { transition: none; } }

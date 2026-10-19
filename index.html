@@ -35,10 +35,8 @@
       </div>
       <div class="controls">
         <button class="btn" id="newGameBtn">✿ New game</button>
-        <button class="btn btn-icon" id="soundBtn" title="Sound on/off" aria-label="Sound on"></button>
-        <button class="btn btn-icon" id="hapticsBtn" type="button" title="Vibration on/off" aria-label="Vibration on" hidden></button>
         <button class="btn btn-icon" id="boardBtn" type="button" title="Leaderboard" aria-label="Leaderboard" hidden></button>
-        <button class="btn btn-icon" id="themeBtn" type="button" title="Switch theme" aria-label="Switch theme"></button>
+        <button class="btn btn-icon" id="settingsBtn" type="button" title="Settings" aria-label="Settings"></button>
       </div>
     </header>
 
@@ -109,6 +107,24 @@
       <h2>How to play</h2>
       <div class="steps" id="howtoSteps"></div>
       <button class="btn btn-big" id="howtoClose" type="button">Let’s play!</button>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="settings" id="settings">
+    <div class="settings-content" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <h2 id="settingsTitle">Settings</h2>
+      <div class="set-rows">
+        <button class="set-row" id="soundToggle" type="button" role="switch" aria-checked="true">
+          <span class="set-ico" id="soundIco" aria-hidden="true"></span><span class="set-label">Sound</span><span class="switch" aria-hidden="true"></span>
+        </button>
+        <button class="set-row" id="hapticsToggle" type="button" role="switch" aria-checked="true" hidden>
+          <span class="set-ico" id="hapticsIco" aria-hidden="true"></span><span class="set-label">Vibration</span><span class="switch" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="set-heading">Theme</div>
+      <div class="theme-pick" id="themePick"></div>
+      <button class="btn btn-big" id="settingsClose" type="button">Done</button>
     </div>
   </div>
 
