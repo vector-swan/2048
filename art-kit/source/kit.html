@@ -65,17 +65,28 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
 .slot img { width: 100%; display: block; }
 .slot .ln { font-size: 7.5pt; color: var(--muted); border-bottom: 1px solid var(--lavline); padding: 7px 0 1px; }
 
-/* wireframes */
-.wf { position: relative; border: 2px solid var(--lav); border-radius: 22px; overflow: hidden;
-  background: repeating-linear-gradient(135deg, var(--lavbg) 0 14px, #FBF8FF 14px 28px); }
-.num { position: absolute; width: 19px; height: 19px; border-radius: 50%; background: var(--accent); color: #fff;
-  font: 800 9pt/19px var(--display); text-align: center; z-index: 3; box-shadow: 0 0 0 2px #fff; }
-.num.inline { position: static; display: inline-block; margin-right: 5px; vertical-align: 1px; }
-.bar { background: #E2D8F4; border-radius: 6px; }
-.dash { border: 1.5px dashed var(--lav); border-radius: 8px; background: #fff; }
-.parts p { margin-bottom: 7px; }
-.fill { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 22px; margin-top: 6px; }
-.fill div { border-bottom: 1.5px solid var(--lavline); padding: 14px 0 3px; color: var(--soft); }
+/* background and win/lose art */
+figure { text-align: center; font: 700 10pt var(--display); }
+.bgs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 8px; }
+.bg { height: 1.7in; border-radius: 14px; border: 1.5px solid var(--lavline); margin-bottom: 5px; }
+/* the same CSS the game uses (style.css) */
+.bg-fruit { background-color: #FFF8EC; background-image:
+  repeating-linear-gradient(0deg, rgba(255, 140, 160, 0.13) 0 22px, transparent 22px 44px),
+  repeating-linear-gradient(90deg, rgba(255, 140, 160, 0.13) 0 22px, transparent 22px 44px); }
+.bg-spooky { background-color: #1E1533; background-image:
+  radial-gradient(1.6px 1.6px at 12% 18%, #fff 60%, transparent),
+  radial-gradient(1.4px 1.4px at 38% 8%, #fff 60%, transparent),
+  radial-gradient(1.2px 1.2px at 64% 22%, #fff 60%, transparent),
+  radial-gradient(1.3px 1.3px at 90% 12%, #fff 60%, transparent),
+  radial-gradient(1.2px 1.2px at 6% 62%, #fff 60%, transparent),
+  linear-gradient(170deg, #2E2052 0%, #171028 100%); }
+.arts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 14px; margin-top: 8px; }
+.art { height: 1.55in; border-radius: 14px; background: #fff; border: 1.5px solid var(--lavline); margin-bottom: 5px;
+  display: flex; align-items: center; justify-content: center; }
+.art img { width: 1.3in; height: 1.3in; }
+.art.dark { background: #2C2148; }
+.blank { background: #fff !important; border: 1.5px dashed var(--pink) !important;
+  font: 600 8pt/1.35 'Nunito'; color: #C2457A; }
 </style>
 </head>
 <body>
@@ -83,7 +94,7 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
 <!-- 1 ─────────────────────────────────────────────────────────────── -->
 <section class="page">
   <h1>New theme art kit</h1>
-  <p class="lead">Fruit Picnic is a cute merge-puzzle game like 2048: two matching tiles join into the next one. This kit has what you need to design a whole new theme.</p>
+  <p class="lead">Fruit Picnic is a cute merge-puzzle game like 2048: two matching tiles join into the next one. This kit covers the art for a new theme.</p>
   <div class="note"><b>Your style, your ideas.</b> The examples show today’s game, not rules. The only must-haves are on page 4.</div>
 
   <h2>The story</h2>
@@ -93,10 +104,9 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
   <div class="two">
     <div class="box">
       <ul class="check">
-        <li><b>14 tiles</b> (2 to 16384)</li>
-        <li><b>Game screen:</b> background, title, buttons and board (page 6)</li>
-        <li><b>Win and lose screens</b> (page 7)</li>
-        <li><b>Names</b> for the theme and each tile</li>
+        <li><b>14 tiles</b>, each with its background color (page 5)</li>
+        <li><b>Game background</b> (page 6)</li>
+        <li><b>Win and lose art</b> (page 6)</li>
       </ul>
     </div>
     <div class="box">
@@ -143,7 +153,7 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
     <li><b>Tiles are square</b> and fill the whole square, background included.</li>
     <li><b>Keep the top-left corner clear</b> for the number badge, and key details away from the rounded corners.</li>
     <li><b>Tiles are small on phones</b> (about 70–110 px), so each one should be easy to recognize and tell apart.</li>
-    <li><b>Icons</b> show at about 22 px, and <b>win and lose art</b> at about 150 px.</li>
+    <li><b>Win and lose art</b> shows at about 150 px.</li>
   </ul>
   <div class="two" style="margin-top:18px; align-items:center">
     <img src="../tile-template.svg" style="width:100%; border:1.5px solid var(--lavline); border-radius:14px; background:#fff">
@@ -160,95 +170,27 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
 
 <!-- 6 ─────────────────────────────────────────────────────────────── -->
 <section class="page">
-  <h2>Game screen</h2>
-  <p>Everything here can be restyled for the theme:</p>
-  <div style="display:grid; grid-template-columns: 2.6in 1fr; gap: 22px; margin-top: 8px">
-    <div class="wf" style="height:5.1in">
-      <span class="num" style="left:10px; bottom:10px">1</span>
-      <span class="num" style="left:10px; top:8px">2</span>
-      <div class="bar" style="position:absolute; left:14px; top:22px; width:112px; height:20px"></div>
-      <div class="bar" style="position:absolute; left:14px; top:47px; width:66px; height:7px"></div>
-      <span class="num" style="left:140px; top:8px">3</span>
-      <div class="dash" style="position:absolute; left:152px; top:18px; width:38px; height:34px; font:700 6pt/34px Nunito; text-align:center; color:#9A8A9C">SCORE</div>
-      <div class="dash" style="position:absolute; left:196px; top:18px; width:38px; height:34px; font:700 6pt/34px Nunito; text-align:center; color:#9A8A9C">BEST</div>
-      <span class="num" style="left:6px; top:62px">4</span>
-      <div style="position:absolute; left:14px; top:72px; width:96px; height:28px; border-radius:14px; background:#FFC2D6; font:800 7.5pt/28px var(--display); text-align:center; color:#3E2140">✿ New game</div>
-      <span class="num" style="left:114px; top:62px">5</span>
-      <div style="position:absolute; left:120px; top:72px; width:36px; height:28px; border-radius:14px; background:#FFE9A8; font-size:10pt; line-height:28px; text-align:center">🏆</div>
-      <div style="position:absolute; left:162px; top:72px; width:36px; height:28px; border-radius:14px; background:#FFD3E3; font-size:10pt; line-height:28px; text-align:center">⚙︎</div>
-      <span class="num" style="left:6px; top:112px">6</span>
-      <div style="position:absolute; left:14px; top:120px; width:220px; height:220px; border-radius:14px; background:#E2D8F4; padding:7px; display:grid; grid-template-columns:repeat(4,1fr); gap:7px" id="wfBoard"></div>
-      <div style="position:absolute; left:0; right:0; top:352px; text-align:center; font-size:7pt; color:#9A8A9C">Swipe to play · How to play</div>
-    </div>
-    <div class="parts">
-      <p><span class="num inline">1</span><b>Background:</b> a color, pattern or scene.</p>
-      <p><span class="num inline">2</span><b>Title</b> and subtitle.</p>
-      <p><span class="num inline">3</span><b>Score boxes:</b> Score and Best.</p>
-      <p><span class="num inline">4</span><b>New game button:</b> the main accent color.</p>
-      <p><span class="num inline">5</span><b>Round buttons:</b> leaderboard and settings, each with an icon.</p>
-      <p><span class="num inline">6</span><b>Board:</b> the tray and its empty spaces.</p>
-    </div>
+  <h2>Background</h2>
+  <p>The scene behind the whole game: a color, pattern or picture. The board and buttons sit on top of it.</p>
+  <div class="bgs">
+    <figure><div class="bg bg-fruit"></div>Gingham picnic blanket</figure>
+    <figure><div class="bg bg-spooky"></div>Night sky</figure>
+    <figure><div class="bg blank"></div>Your background</figure>
   </div>
-  <h3 style="margin-top:18px">Colors</h3>
-  <div class="fill">
-    <div>Background</div><div>Round buttons</div>
-    <div>Title and accent</div><div>Board</div>
+
+  <h2 style="margin-top:22px">Win and lose art</h2>
+  <p>One picture when the player reaches 2048, and one when they run out of moves.</p>
+  <div class="arts">
+    <figure><div class="art" id="artFruitWin"></div>Fruit Picnic: win</figure>
+    <figure><div class="art" id="artFruitLose"></div>Fruit Picnic: lose</figure>
+    <figure><div class="art dark" id="artSpookyWin"></div>Spooky Picnic: win</figure>
+    <figure><div class="art dark" id="artSpookyLose"></div>Spooky Picnic: lose</figure>
+    <figure><div class="art blank">Win art<br>(full / celebrating)</div>Your win art</figure>
+    <figure><div class="art blank">Lose art<br>(empty)</div>Your lose art</figure>
   </div>
 </section>
 
 
-<!-- 7 ─────────────────────────────────────────────────────────────── -->
-<section class="page">
-  <h2>Win and lose screens</h2>
-  <p>Shown when the player reaches 2048, or runs out of moves.</p>
-  <div class="two" style="margin-top:10px; gap:40px; padding:0 0.4in">
-    <div style="text-align:center; font:800 11pt var(--display)">
-      <div class="wf" style="height:4.3in; margin-bottom:6px" id="wfWin">
-        <span class="num" style="left:8px; top:8px">11</span>
-        <span class="num" style="left:16px; top:30px">7</span>
-        <div class="dash" style="position:absolute; inset:40px 22px 34px; border-width:2px; border-color:#C9A8E8; border-radius:16px; background:#fff"></div>
-        <span class="num" style="left:58px; top:46px">8</span>
-        <div style="position:absolute; left:50%; transform:translateX(-50%); top:56px; width:96px; height:96px; border:1.5px dashed var(--pink); border-radius:12px; font:600 7pt/1.3 Nunito; color:#C2457A; display:flex; align-items:center; justify-content:center">Win art<br>(full / celebrating)</div>
-        <div style="position:absolute; left:0; right:0; top:164px; font:800 12pt var(--display); color:#C9A8E8"><span class="num inline">10</span>Win headline</div>
-        <div class="bar" style="position:absolute; left:50%; transform:translateX(-50%); top:192px; width:110px; height:6px"></div>
-        <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:206px; width:126px; height:20px"></div>
-        <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:232px; width:126px; height:20px"></div>
-        <div style="position:absolute; left:50%; transform:translateX(-50%); top:266px; width:70px; height:24px; border-radius:12px; background:#FFC2D6; font:800 7pt/24px var(--display)">Keep going!</div>
-        <div style="position:absolute; left:50%; transform:translateX(-50%); top:300px; width:64px; height:24px; border-radius:12px; background:#FFE9A8; font:800 7pt/24px var(--display)">New game</div>
-      </div>
-      Win screen
-    </div>
-    <div style="text-align:center; font:800 11pt var(--display)">
-      <div class="wf" style="height:4.3in; margin-bottom:6px">
-        <span class="num" style="left:16px; top:30px">7</span>
-        <div class="dash" style="position:absolute; inset:40px 22px 34px; border-width:2px; border-color:#C9A8E8; border-radius:16px; background:#fff"></div>
-        <span class="num" style="left:58px; top:46px">9</span>
-        <div style="position:absolute; left:50%; transform:translateX(-50%); top:56px; width:96px; height:96px; border:1.5px dashed var(--pink); border-radius:12px; font:600 7pt/1.3 Nunito; color:#C2457A; display:flex; align-items:center; justify-content:center">Lose art<br>(empty / out of moves)</div>
-        <div style="position:absolute; left:0; right:0; top:164px; font:800 12pt var(--display); color:#C9A8E8"><span class="num inline">10</span>Lose headline</div>
-        <div class="bar" style="position:absolute; left:50%; transform:translateX(-50%); top:192px; width:110px; height:6px"></div>
-        <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:206px; width:126px; height:20px"></div>
-        <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:232px; width:126px; height:20px"></div>
-        <div style="position:absolute; left:50%; transform:translateX(-50%); top:266px; width:64px; height:24px; border-radius:12px; background:#FFC2D6; font:800 7pt/24px var(--display)">Try again!</div>
-      </div>
-      Lose screen
-    </div>
-  </div>
-  <div class="two parts" style="margin-top:14px">
-    <div>
-      <p><span class="num inline">7</span><b>Card:</b> color, border and buttons.</p>
-      <p><span class="num inline">8</span><b>Win art:</b> something full and celebrating.</p>
-      <p><span class="num inline">9</span><b>Lose art:</b> something empty.</p>
-    </div>
-    <div>
-      <p><span class="num inline">10</span><b>Headlines:</b> short and fun (“Sweet victory!”).</p>
-      <p><span class="num inline">11</span><b>Confetti:</b> 5–7 colors.</p>
-    </div>
-  </div>
-  <div class="fill">
-    <div>Win headline</div><div>Card colors</div>
-    <div>Lose headline</div><div>Confetti colors</div>
-  </div>
-</section>
 
 <script src="../../tiles.js"></script>
 <script>
@@ -274,14 +216,12 @@ const GUIDE = '<svg viewBox="0 0 100 100" style="width:100%;display:block" fill=
 const TIER = v => v <= 16 ? ['SMALL', 'small'] : v <= 256 ? ['MIDDLE', 'middle'] : v <= 1024 ? ['BIG', 'big'] : v === 2048 ? ['FINALE', 'finale'] : ['BONUS', 'bonus-t'];
 document.getElementById('sheet').innerHTML = VALUES.map(v => { const [t, c] = TIER(v);
   return `<div class="slot"><div class="hd">${v}<span class="tag ${c}">${t}</span></div>${GUIDE}<div class="ln">Name:</div><div class="ln">Background color:</div></div>`; }).join('');
-document.getElementById('wfBoard').innerHTML = '<div style="background:#F6F2FD;border-radius:8px"></div>'.repeat(16);
-// confetti dashes around the win wireframe
-const win = document.getElementById('wfWin'), CC = ['#C9A8E8', '#FFB3CF', '#A8E6CF', '#FFE08A'];
-for (let k = 0; k < 34; k++) {
-  const d = document.createElement('i'), side = k % 2, y = 30 + (k * 37) % 360;
-  d.style.cssText = `position:absolute;${side ? 'right' : 'left'}:${6 + (k * 7) % 10}px;top:${y}px;width:3px;height:8px;border-radius:2px;background:${CC[k % 4]};transform:rotate(${(k * 41) % 60 - 30}deg)`;
-  win.appendChild(d);
-}
+// the game's own win and lose pictures
+const put = (id, svg) => { document.getElementById(id).innerHTML = `<img src="${svgURL(svg)}">`; };
+put('artFruitWin', picnicBasketSVG(false, { blanket: true }));
+put('artFruitLose', picnicBasketSVG(false, { empty: true, blanket: true, ants: true }));
+put('artSpookyWin', candyBucketSVG({}));
+put('artSpookyLose', candyBucketSVG({ empty: true, spider: true }));
 // page footers
 const pages = document.querySelectorAll('.page');
 pages.forEach((p, i) => p.insertAdjacentHTML('beforeend', `<div class="foot"><span>Fruit Picnic · new theme art kit</span><span>${i + 1} / ${pages.length}</span></div>`));
