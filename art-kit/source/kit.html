@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<!--
+  Source for art-kit/Theme-Art-Kit.pdf. Rebuild with:  node art-kit/source/build.mjs
+  Tiles are drawn from the game's own tiles.js; screenshots come from capture.html.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>New theme art kit</title>
+<style>
+@font-face { font-family: 'Baloo 2'; font-weight: 800; src: url(../../fonts/baloo2-800-latin.woff2) format('woff2'); }
+@font-face { font-family: 'Nunito'; font-weight: 200 1000; src: url(../../fonts/nunito-latin.woff2) format('woff2'); }
+@page { size: letter; margin: 0; }
+:root {
+  --ink: #3E2140; --soft: #6E5370; --muted: #9A8A9C;
+  --accent: #FF5D7E; --pink: #FF8FB8; --pinkbg: #FFEAF2;
+  --lav: #CDBEEA; --lavbg: #F3EEFC; --lavline: #DCD1F0;
+  --paper: #FFFAF2;
+  --display: 'Baloo 2', 'Nunito', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: 'Nunito', sans-serif; color: var(--ink); background: #ddd; font-size: 11.5pt; line-height: 1.5; }
+.page {
+  width: 8.5in; height: 11in; padding: 0.55in 0.6in 0.5in; position: relative;
+  background: var(--paper); overflow: hidden; page-break-after: always; margin: 0 auto 20px;
+}
+@media print { body { background: none; } .page { margin: 0; } }
+.foot { position: absolute; left: 0.6in; right: 0.6in; bottom: 0.32in; display: flex; justify-content: space-between; font-size: 8pt; color: var(--muted); }
+h1 { font: 800 30pt/1.1 var(--display); color: var(--accent); margin-bottom: 10px; }
+h2 { font: 800 19pt/1.15 var(--display); color: var(--accent); margin-bottom: 8px; }
+h3 { font: 800 12pt/1.2 var(--display); color: var(--ink); margin: 14px 0 6px; }
+p { margin-bottom: 8px; }
+.lead { color: var(--soft); font-size: 12pt; }
+.note { background: var(--pinkbg); border-radius: 12px; padding: 10px 14px; margin: 12px 0; color: var(--soft); }
+.note b { color: var(--accent); }
+ul { padding-left: 18px; margin-bottom: 8px; }
+li { margin-bottom: 3px; }
+code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.box { border: 2px dashed #FFC2D6; border-radius: 14px; padding: 12px 16px; }
+.check li { list-style: none; margin-left: -18px; }
+.check li::before { content: '☐ '; color: var(--soft); }
+.new { display: inline-block; font: 800 7pt/1 var(--display); letter-spacing: 1px; color: #fff; background: var(--accent); border-radius: 6px; padding: 3px 5px 2px; vertical-align: 2px; margin-left: 4px; }
+
+/* screenshots */
+.shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 10px 0 4px; }
+.shot { text-align: center; font: 700 10.5pt var(--display); }
+.shot img { width: 100%; aspect-ratio: 375 / 730; object-fit: cover; object-position: top; border-radius: 14px; border: 1.5px solid var(--lavline); display: block; margin-bottom: 4px; }
+.shot.settings img { aspect-ratio: 375 / 540; object-position: 0 46%; }
+
+/* tile grids */
+.tiles { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 4px; }
+.tiles.dark { background: #2C2148; padding: 10px; border-radius: 14px; }
+.tile { text-align: center; font: 700 9pt/1.25 'Nunito'; }
+.tile img { width: 100%; aspect-ratio: 1; border-radius: 10px; display: block; margin-bottom: 3px; }
+.tile.bonus img { outline: 3px solid #FFD36B; outline-offset: -3px; }
+.tile span { display: block; font-weight: 600; color: var(--muted); }
+.tiles.dark .tile { color: #F3E8FF; } .tiles.dark .tile span { color: #BFA8E0; }
+
+/* tile sheet */
+.sheet { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 8px; }
+.slot { border: 1.5px solid var(--lavline); border-radius: 10px; padding: 7px; background: #fff; }
+.slot .hd { display: flex; justify-content: space-between; align-items: center; font: 800 11pt var(--display); margin-bottom: 4px; }
+.tag { font: 800 7pt/1 var(--display); letter-spacing: 1px; color: #fff; border-radius: 8px; padding: 3px 7px 2px; }
+.small { background: #C7A6EA; } .middle { background: #8CCFA8; } .big { background: #F2A65A; } .finale { background: var(--accent); } .bonus-t { background: #E2B54A; }
+.slot img { width: 100%; display: block; }
+.slot .ln { font-size: 7.5pt; color: var(--muted); border-bottom: 1px solid var(--lavline); padding: 7px 0 1px; }
+
+/* wireframes */
+.wf { position: relative; border: 2px solid var(--lav); border-radius: 22px; overflow: hidden;
+  background: repeating-linear-gradient(135deg, var(--lavbg) 0 14px, #FBF8FF 14px 28px); }
+.num { position: absolute; width: 19px; height: 19px; border-radius: 50%; background: var(--accent); color: #fff;
+  font: 800 9pt/19px var(--display); text-align: center; z-index: 3; box-shadow: 0 0 0 2px #fff; }
+.num.inline { position: static; display: inline-block; margin-right: 5px; vertical-align: 1px; }
+.bar { background: #E2D8F4; border-radius: 6px; }
+.dash { border: 1.5px dashed var(--lav); border-radius: 8px; background: #fff; }
+.parts p { margin-bottom: 7px; }
+.fill { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 22px; margin-top: 6px; }
+.fill div { border-bottom: 1.5px solid var(--lavline); padding: 14px 0 3px; color: var(--soft); }
+</style>
+</head>
+<body>
+
+<!-- 1 ─────────────────────────────────────────────────────────────── -->
+<section class="page">
+  <h1>New theme art kit</h1>
+  <p class="lead">Fruit Picnic is a cozy, cute merge-puzzle game (like 2048). Two matching tiles slide together and become the next one, so the art tells a little story that grows from tiny to grand. Each theme is a complete makeover of the game, and this kit has everything needed to create a new one.</p>
+  <div class="note"><b>Your style, your ideas.</b> The examples in this kit show what the game looks like today, not rules. Feel free to bring your own style, shapes, colours and details. The only real limits are a few technical ones on page 4.</div>
+
+  <h2>The story</h2>
+  <p>Plan <b>14 tiles</b> that grow from small and simple to big and special, so players feel a little reward each time a new one appears:</p>
+  <ul>
+    <li><b>Small (2–16):</b> these show up constantly, so they should be quick to recognise.</li>
+    <li><b>Middle (32–256)</b> and <b>Big (512–1024):</b> rarer, more exciting things.</li>
+    <li><b>Finale (2048):</b> the goal of the game, the most special tile. It also stands for the whole theme in the Settings theme picker.</li>
+    <li><b>Bonus (4096–16384):</b> a secret “after the win” round for great players.</li>
+  </ul>
+
+  <h2>What to deliver: the whole theme</h2>
+  <div class="two">
+    <div class="box">
+      <ul class="check">
+        <li><b>14 tiles</b> (2 to 16384)</li>
+        <li><b>Game screen:</b> background, title style, colours (page 6)</li>
+        <li><b>Buttons:</b> New game button, plus 2 round buttons with icons: leaderboard and settings</li>
+        <li><b>Score boxes and board</b> look</li>
+        <li><b>Settings card:</b> card style, sound and vibration icons, switch colour, theme picker look (page 7) <span class="new">NEW</span></li>
+        <li><b>Win screen:</b> card style, win art, headline, confetti colours (page 8)</li>
+        <li><b>Lose screen:</b> card style, lose art, headline (page 8)</li>
+        <li><b>Names:</b> theme name and a name for each tile</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3 style="margin-top:0">Files</h3>
+      <ul>
+        <li><b>Tiles and art:</b> SVG (vector) preferred, or PNG at <b>1024 × 1024 px</b></li>
+        <li><b>Win and lose art:</b> transparent background</li>
+        <li><b>Icons:</b> SVG, simple enough to read at about 22 px</li>
+        <li><b>Screens:</b> a mockup of each screen (image or Figma) with the colours listed</li>
+        <li>Name tiles by value: <code>tile-0002</code> … <code>tile-16384</code></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 2 ─────────────────────────────────────────────────────────────── -->
+<section class="page">
+  <h2>Example: Fruit Picnic</h2>
+  <p>The original theme: a cozy picnic blanket, a fruit ladder from cherries to watermelon, and a picnic basket on the win and lose cards.</p>
+  <div class="shots">
+    <div class="shot"><img src="shots/fruit-game.png">Game screen</div>
+    <div class="shot"><img src="shots/fruit-win.png">Win screen</div>
+    <div class="shot"><img src="shots/fruit-lose.png">Lose screen</div>
+  </div>
+  <h3>All 14 tiles</h3>
+  <div class="tiles" data-theme="fruit"></div>
+</section>
+
+<!-- 3 ─────────────────────────────────────────────────────────────── -->
+<section class="page">
+  <h2>Example: Spooky Picnic</h2>
+  <p>The Halloween theme: a moonlit night sky, candy and witchy tiles up to a haunted house, a candy bucket on the cards, and its own button colours.</p>
+  <div class="shots">
+    <div class="shot"><img src="shots/halloween-game.png">Game screen</div>
+    <div class="shot"><img src="shots/halloween-win.png">Win screen</div>
+    <div class="shot"><img src="shots/halloween-lose.png">Lose screen</div>
+  </div>
+  <h3>All 14 tiles</h3>
+  <div class="tiles dark" data-theme="halloween"></div>
+</section>
+
+<!-- 4 ─────────────────────────────────────────────────────────────── -->
+<section class="page">
+  <h2>The technical bits</h2>
+  <p>These are the only must-haves, so the art works in the game:</p>
+  <div class="two">
+    <ul>
+      <li><b>Tiles are square</b> and fill the whole square, including their own background.</li>
+      <li><b>The game rounds the corners</b> a little, so keep important details away from the very corners.</li>
+      <li><b>The top-left corner</b> shows the tile’s number in a small white badge. Keep anything important out of that spot.</li>
+      <li><b>Tiles are small on phones</b> (about 70–110 px). Each one should still be recognisable at that size.</li>
+    </ul>
+    <ul>
+      <li><b>Every tile must look different</b> from the others at a glance, so players can tell them apart quickly.</li>
+      <li><b>Text must stay readable:</b> title, scores and card text need enough contrast with what’s behind them.</li>
+      <li><b>Icons</b> on the buttons and in Settings are shown at about 22 px, so keep them simple.</li>
+      <li><b>The 2048 tile</b> doubles as the theme’s picture in Settings, at about 54 px.</li>
+      <li><b>Win and lose art</b> is shown at about 150 × 150 px.</li>
+    </ul>
+  </div>
+  <div class="two" style="margin-top:14px; align-items:center">
+    <img src="../tile-template.svg" style="width:100%; border:1.5px solid var(--lavline); border-radius:14px; background:#fff">
+    <p style="color:var(--soft)">A full-size version of this guide is included as <code>tile-template.png</code> (for Procreate) and <code>tile-template.svg</code> (for Illustrator or Figma). The dashed area is just a helpful suggestion for where to keep key details.</p>
+  </div>
+</section>
+
+<!-- 5 ─────────────────────────────────────────────────────────────── -->
+<section class="page">
+  <h2>Tile sheet</h2>
+  <p>A place to plan the 14 tiles: sketch each one in its slot and note its name and background colour.</p>
+  <div class="sheet" id="sheet"></div>
+</section>
+
+<!-- 6 ─────────────────────────────────────────────────────────────── -->
+<section class="page">
+  <h2>Game screen</h2>
+  <p>Everything on the main screen can be restyled for the theme. The numbers match the parts to design:</p>
+  <div style="display:grid; grid-template-columns: 2.6in 1fr; gap: 22px; margin-top: 8px">
+    <div class="wf" style="height:5.1in">
+      <span class="num" style="left:10px; bottom:10px">1</span>
+      <span class="num" style="left:10px; top:8px">2</span>
+      <div class="bar" style="position:absolute; left:14px; top:22px; width:112px; height:20px"></div>
+      <div class="bar" style="position:absolute; left:14px; top:47px; width:66px; height:7px"></div>
+      <span class="num" style="left:140px; top:8px">3</span>
+      <div class="dash" style="position:absolute; left:152px; top:18px; width:38px; height:34px; font:700 6pt/34px Nunito; text-align:center; color:#9A8A9C">SCORE</div>
+      <div class="dash" style="position:absolute; left:196px; top:18px; width:38px; height:34px; font:700 6pt/34px Nunito; text-align:center; color:#9A8A9C">BEST</div>
+      <span class="num" style="left:6px; top:62px">4</span>
+      <div style="position:absolute; left:14px; top:72px; width:96px; height:28px; border-radius:14px; background:#FFC2D6; font:800 7.5pt/28px var(--display); text-align:center; color:#3E2140">✿ New game</div>
+      <span class="num" style="left:114px; top:62px">5</span>
+      <div style="position:absolute; left:120px; top:72px; width:36px; height:28px; border-radius:14px; background:#FFE9A8; font-size:10pt; line-height:28px; text-align:center">🏆</div>
+      <div style="position:absolute; left:162px; top:72px; width:36px; height:28px; border-radius:14px; background:#FFD3E3; font-size:10pt; line-height:28px; text-align:center">⚙︎</div>
+      <span class="num" style="left:6px; top:112px">6</span>
+      <div style="position:absolute; left:14px; top:120px; width:220px; height:220px; border-radius:14px; background:#E2D8F4; padding:7px; display:grid; grid-template-columns:repeat(4,1fr); gap:7px" id="wfBoard"></div>
+      <div style="position:absolute; left:0; right:0; top:352px; text-align:center; font-size:7pt; color:#9A8A9C">Swipe to play · How to play</div>
+    </div>
+    <div class="parts">
+      <p><span class="num inline">1</span><b>Background:</b> colour, pattern or scene behind everything (e.g. gingham picnic blanket, starry night).</p>
+      <p><span class="num inline">2</span><b>Title:</b> theme name, its colour and style; a small subtitle underneath.</p>
+      <p><span class="num inline">3</span><b>Score boxes:</b> Score and Best.</p>
+      <p><span class="num inline">4</span><b>New game button:</b> the main accent colour.</p>
+      <p><span class="num inline">5</span><b>Two round buttons:</b> leaderboard and settings (a gear). Each can have its own colour, plus an icon. Sound, vibration and the theme switch now live inside Settings (page 7), so there’s no separate theme-switch symbol to draw.</p>
+      <p><span class="num inline">6</span><b>Board:</b> the tray the tiles sit on and the empty spaces.</p>
+    </div>
+  </div>
+  <h3 style="margin-top:18px">Colours</h3>
+  <div class="fill">
+    <div>Background</div><div>2 round buttons</div>
+    <div>Title</div><div>Score boxes</div>
+    <div>Accent / New game button</div><div>Board and empty spaces</div>
+  </div>
+</section>
+
+<!-- 7 ─────────────────────────────────────────────────────────────── -->
+<section class="page">
+  <h2>Settings card <span class="new" style="font-size:8pt">NEW</span></h2>
+  <p>The gear button opens a small card with on/off switches for sound and vibration, and a picker for the themes. Vibration only appears in the iPhone app.</p>
+  <div style="display:grid; grid-template-columns: 1.75in 1.75in 1fr; gap: 16px; margin-top: 10px; align-items: start">
+    <div class="shot settings"><img src="shots/fruit-settings.png">Fruit Picnic</div>
+    <div class="shot settings"><img src="shots/halloween-settings.png">Spooky Picnic</div>
+    <div class="wf" style="height:3.05in; background:#FBF8FF">
+      <span class="num" style="left:12px; top:12px">7</span>
+      <div class="dash" style="position:absolute; inset:20px 18px; border-width:2px; border-color:#C9A8E8; border-radius:16px"></div>
+      <div style="position:absolute; left:0; right:0; top:34px; text-align:center; font:800 13pt var(--display); color:#C9A8E8">Settings</div>
+      <span class="num" style="left:26px; top:68px">8</span>
+      <span class="num" style="right:24px; top:68px">9</span>
+      <div style="position:absolute; left:32px; right:32px; top:72px; display:grid; gap:6px">
+        <div style="display:flex; align-items:center; gap:7px; background:#F1EBFA; border-radius:9px; padding:5px 7px"><span style="width:20px; height:20px; border-radius:6px; background:#FFD3E3; font-size:9pt; text-align:center; line-height:20px">♪</span><span style="flex:1; font:800 8pt var(--display)">Sound</span><span style="width:28px; height:16px; border-radius:8px; background:#FFC2D6"></span></div>
+        <div style="display:flex; align-items:center; gap:7px; background:#F1EBFA; border-radius:9px; padding:5px 7px"><span style="width:20px; height:20px; border-radius:6px; background:#C8F0E2; font-size:9pt; text-align:center; line-height:20px">📳</span><span style="flex:1; font:800 8pt var(--display)">Vibration</span><span style="width:28px; height:16px; border-radius:8px; background:#FFC2D6"></span></div>
+      </div>
+      <span class="num" style="left:26px; top:150px">10</span>
+      <div style="position:absolute; left:32px; right:32px; top:156px; display:grid; grid-template-columns:1fr 1fr; gap:6px">
+        <div style="border:2px solid #FFC2D6; border-radius:9px; padding:5px; text-align:center; font:800 7pt var(--display)"><div class="dash" style="width:30px; height:30px; margin:0 auto 3px; border-radius:6px"></div>This theme</div>
+        <div style="background:#F1EBFA; border-radius:9px; padding:5px; text-align:center; font:800 7pt var(--display)"><div class="dash" style="width:30px; height:30px; margin:0 auto 3px; border-radius:6px"></div>Other themes</div>
+      </div>
+      <div style="position:absolute; left:50%; transform:translateX(-50%); bottom:30px; width:56px; height:22px; border-radius:11px; background:#FFC2D6; font:800 7.5pt/22px var(--display); text-align:center">Done</div>
+    </div>
+  </div>
+  <div class="parts" style="margin-top:16px">
+    <p><span class="num inline">7</span><b>Card style:</b> the same card look as the win and lose screens, with your theme’s border and Done button.</p>
+    <p><span class="num inline">8</span><b>Sound and vibration icons:</b> two little icons on coloured squares. The game adds a slash across an icon when it’s switched off, so draw them “on”.</p>
+    <p><span class="num inline">9</span><b>Switch colour:</b> the colour of a switch when it’s on (both themes use their accent colour).</p>
+    <p><span class="num inline">10</span><b>Theme picker:</b> each theme is shown by its 2048 tile and name, and the chosen one gets a coloured outline. Your finale tile becomes this theme’s picture here, so nothing extra to draw.</p>
+  </div>
+  <h3>Colours</h3>
+  <div class="fill">
+    <div>Card and border</div><div>Switch (on)</div>
+    <div>Sound / vibration icon squares</div><div>Chosen-theme outline</div>
+  </div>
+</section>
+
+<!-- 8 ─────────────────────────────────────────────────────────────── -->
+<section class="page">
+  <h2>Win and lose screens</h2>
+  <p>The win screen appears when the player reaches 2048, and the lose screen when they run out of moves. Both show the player’s top tile and score.</p>
+  <div class="two" style="margin-top:10px; gap:40px; padding:0 0.4in">
+    <div style="text-align:center; font:800 11pt var(--display)">
+      <div class="wf" style="height:4.3in; margin-bottom:6px" id="wfWin">
+        <span class="num" style="left:8px; top:8px">15</span>
+        <span class="num" style="left:16px; top:30px">11</span>
+        <div class="dash" style="position:absolute; inset:40px 22px 34px; border-width:2px; border-color:#C9A8E8; border-radius:16px; background:#fff"></div>
+        <span class="num" style="left:58px; top:46px">12</span>
+        <div style="position:absolute; left:50%; transform:translateX(-50%); top:56px; width:96px; height:96px; border:1.5px dashed var(--pink); border-radius:12px; font:600 7pt/1.3 Nunito; color:#C2457A; display:flex; align-items:center; justify-content:center">Win art<br>(full / celebrating)</div>
+        <div style="position:absolute; left:0; right:0; top:164px; font:800 12pt var(--display); color:#C9A8E8"><span class="num inline">14</span>Win headline</div>
+        <div class="bar" style="position:absolute; left:50%; transform:translateX(-50%); top:192px; width:110px; height:6px"></div>
+        <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:206px; width:126px; height:20px"></div>
+        <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:232px; width:126px; height:20px"></div>
+        <div style="position:absolute; left:50%; transform:translateX(-50%); top:266px; width:70px; height:24px; border-radius:12px; background:#FFC2D6; font:800 7pt/24px var(--display)">Keep going!</div>
+        <div style="position:absolute; left:50%; transform:translateX(-50%); top:300px; width:64px; height:24px; border-radius:12px; background:#FFE9A8; font:800 7pt/24px var(--display)">New game</div>
+      </div>
+      Win screen
+    </div>
+    <div style="text-align:center; font:800 11pt var(--display)">
+      <div class="wf" style="height:4.3in; margin-bottom:6px">
+        <span class="num" style="left:16px; top:30px">11</span>
+        <div class="dash" style="position:absolute; inset:40px 22px 34px; border-width:2px; border-color:#C9A8E8; border-radius:16px; background:#fff"></div>
+        <span class="num" style="left:58px; top:46px">13</span>
+        <div style="position:absolute; left:50%; transform:translateX(-50%); top:56px; width:96px; height:96px; border:1.5px dashed var(--pink); border-radius:12px; font:600 7pt/1.3 Nunito; color:#C2457A; display:flex; align-items:center; justify-content:center">Lose art<br>(empty / out of moves)</div>
+        <div style="position:absolute; left:0; right:0; top:164px; font:800 12pt var(--display); color:#C9A8E8"><span class="num inline">14</span>Lose headline</div>
+        <div class="bar" style="position:absolute; left:50%; transform:translateX(-50%); top:192px; width:110px; height:6px"></div>
+        <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:206px; width:126px; height:20px"></div>
+        <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:232px; width:126px; height:20px"></div>
+        <div style="position:absolute; left:50%; transform:translateX(-50%); top:266px; width:64px; height:24px; border-radius:12px; background:#FFC2D6; font:800 7pt/24px var(--display)">Try again!</div>
+      </div>
+      Lose screen
+    </div>
+  </div>
+  <div class="two parts" style="margin-top:14px">
+    <div>
+      <p><span class="num inline">11</span><b>Card style:</b> colour, border and buttons.</p>
+      <p><span class="num inline">12</span><b>Win art:</b> the celebration picture (e.g. a full basket, a candy bucket full of sweets).</p>
+    </div>
+    <div>
+      <p><span class="num inline">13</span><b>Lose art:</b> the “empty” picture (e.g. an empty basket, an empty bucket with a spider).</p>
+      <p><span class="num inline">14</span><b>Headlines:</b> short, fun and in the theme (e.g. “Sweet victory!”, “Out of treats!”).</p>
+      <p><span class="num inline">15</span><b>Confetti:</b> 5–7 colours that fall behind the win card.</p>
+    </div>
+  </div>
+  <div class="fill">
+    <div>Win headline</div><div>Card colours</div>
+    <div>Lose headline</div><div>Confetti colours</div>
+  </div>
+</section>
+
+<script src="../../tiles.js"></script>
+<script>
+const svgURL = svg => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+const VALUES = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384];
+const NAMES = {
+  fruit: ['Cherries', 'Strawberry', 'Grapes', 'Lemon', 'Orange', 'Apple', 'Peach', 'Pear', 'Pineapple', 'Melon', 'Watermelon',
+    'Picnic basket', 'Fruit tart', 'Celebration cake'],
+  halloween: ['Candy corn', 'Hard candy', 'Lollipop', 'Candy bucket', 'Spider', 'Potion', 'Witch hat', 'Cauldron', 'Ghost', 'Jack-o’-lantern', 'Haunted house',
+    'Witchy cat', 'Sleepy moon', 'Wise owl'],
+};
+document.querySelectorAll('.tiles[data-theme]').forEach(grid => {
+  const id = grid.dataset.theme;
+  grid.innerHTML = VALUES.map((v, i) =>
+    `<div class="tile${v >= 4096 ? ' bonus' : ''}"><img src="${svgURL(THEMES[id].art[v])}">${NAMES[id][i]}<span>${v}</span></div>`).join('');
+});
+// The tile guide without its labels, small enough to sketch in
+const GUIDE = '<svg viewBox="0 0 100 100" style="width:100%;display:block" fill="none">'
+  + '<rect x="0" y="0" width="32" height="16" fill="#FF8FB8" fill-opacity="0.18"/>'
+  + '<rect x="0.6" y="0.6" width="98.8" height="98.8" rx="12" stroke="#B9A2E8" stroke-width="0.8"/>'
+  + '<rect x="8" y="10" width="84" height="84" rx="6" stroke="#FF8FB8" stroke-width="0.6" stroke-dasharray="2 1.5"/>'
+  + '<path d="M50 2v96M2 52h96" stroke="#D9CCF0" stroke-width="0.5"/></svg>';
+const TIER = v => v <= 16 ? ['SMALL', 'small'] : v <= 256 ? ['MIDDLE', 'middle'] : v <= 1024 ? ['BIG', 'big'] : v === 2048 ? ['FINALE', 'finale'] : ['BONUS', 'bonus-t'];
+document.getElementById('sheet').innerHTML = VALUES.map(v => { const [t, c] = TIER(v);
+  return `<div class="slot"><div class="hd">${v}<span class="tag ${c}">${t}</span></div>${GUIDE}<div class="ln">Name:</div><div class="ln">Background colour:</div></div>`; }).join('');
+document.getElementById('wfBoard').innerHTML = '<div style="background:#F6F2FD;border-radius:8px"></div>'.repeat(16);
+// confetti dashes around the win wireframe
+const win = document.getElementById('wfWin'), CC = ['#C9A8E8', '#FFB3CF', '#A8E6CF', '#FFE08A'];
+for (let k = 0; k < 34; k++) {
+  const d = document.createElement('i'), side = k % 2, y = 30 + (k * 37) % 360;
+  d.style.cssText = `position:absolute;${side ? 'right' : 'left'}:${6 + (k * 7) % 10}px;top:${y}px;width:3px;height:8px;border-radius:2px;background:${CC[k % 4]};transform:rotate(${(k * 41) % 60 - 30}deg)`;
+  win.appendChild(d);
+}
+// page footers
+const pages = document.querySelectorAll('.page');
+pages.forEach((p, i) => p.insertAdjacentHTML('beforeend', `<div class="foot"><span>Fruit Picnic · new theme art kit</span><span>${i + 1} / ${pages.length}</span></div>`));
+</script>
+</body>
+</html>
