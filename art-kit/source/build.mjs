@@ -34,7 +34,7 @@ const chrome = (args, url) => run(CHROME, ['--headless=new', '--disable-gpu', '-
 
 try {
   for (const theme of ['fruit', 'halloween']) {
-    for (const scene of ['game', 'win', 'lose', 'settings']) {
+    for (const scene of ['game', 'win', 'lose']) {
       await chrome(['--force-device-scale-factor=2', '--window-size=375,812', '--virtual-time-budget=5000',
         `--screenshot=${join(ROOT, 'art-kit/source/shots', `${theme}-${scene}.png`)}`],
         `${base}/art-kit/source/capture.html?theme=${theme}&scene=${scene}`);

@@ -2,7 +2,7 @@
 <!--
   Screenshot rig for the art kit. Loads the real game in a phone-sized frame
   and sets up one scene, chosen by the link:
-    capture.html?theme=fruit|halloween&scene=game|win|lose|settings
+    capture.html?theme=fruit|halloween&scene=game|win|lose
   build.mjs points headless Chrome at each combination.
 -->
 <html>
@@ -48,15 +48,11 @@ function setUp() {
       liveTiles.push({ id: nextId++, value, r, c, el });
     });
     score = ${scene === 'win' ? 20512 : 1236};
-    document.getElementById('score').textContent = score.toLocaleString('en-US').replace(',', ',');
+    document.getElementById('score').textContent = score.toLocaleString('en-US');
     document.getElementById('best').textContent = '20512';
   `);
   if (scene === 'win') g.eval('showCelebration()');
   if (scene === 'lose') g.eval('showGameOver()');
-  if (scene === 'settings') g.eval(`
-    document.getElementById('hapticsToggle').hidden = false; showHapticsIcon();
-    openSettings();
-  `);
   // let fades and confetti settle, then flag that the shot is ready
   setTimeout(() => { document.title = 'ready'; }, scene === 'win' ? 1400 : 700);
 }

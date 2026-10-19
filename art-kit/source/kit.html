@@ -41,13 +41,11 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
 .box { border: 2px dashed #FFC2D6; border-radius: 14px; padding: 12px 16px; }
 .check li { list-style: none; margin-left: -18px; }
 .check li::before { content: '☐ '; color: var(--soft); }
-.new { display: inline-block; font: 800 7pt/1 var(--display); letter-spacing: 1px; color: #fff; background: var(--accent); border-radius: 6px; padding: 3px 5px 2px; vertical-align: 2px; margin-left: 4px; }
 
 /* screenshots */
 .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 10px 0 4px; }
 .shot { text-align: center; font: 700 10.5pt var(--display); }
 .shot img { width: 100%; aspect-ratio: 375 / 730; object-fit: cover; object-position: top; border-radius: 14px; border: 1.5px solid var(--lavline); display: block; margin-bottom: 4px; }
-.shot.settings img { aspect-ratio: 375 / 540; object-position: 0 46%; }
 
 /* tile grids */
 .tiles { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 4px; }
@@ -85,40 +83,27 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
 <!-- 1 ─────────────────────────────────────────────────────────────── -->
 <section class="page">
   <h1>New theme art kit</h1>
-  <p class="lead">Fruit Picnic is a cozy, cute merge-puzzle game (like 2048). Two matching tiles slide together and become the next one, so the art tells a little story that grows from tiny to grand. Each theme is a complete makeover of the game, and this kit has everything needed to create a new one.</p>
-  <div class="note"><b>Your style, your ideas.</b> The examples in this kit show what the game looks like today, not rules. Feel free to bring your own style, shapes, colours and details. The only real limits are a few technical ones on page 4.</div>
+  <p class="lead">Fruit Picnic is a cute merge-puzzle game like 2048: two matching tiles join into the next one. This kit has what you need to design a whole new theme.</p>
+  <div class="note"><b>Your style, your ideas.</b> The examples show today’s game, not rules. The only must-haves are on page 4.</div>
 
   <h2>The story</h2>
-  <p>Plan <b>14 tiles</b> that grow from small and simple to big and special, so players feel a little reward each time a new one appears:</p>
-  <ul>
-    <li><b>Small (2–16):</b> these show up constantly, so they should be quick to recognise.</li>
-    <li><b>Middle (32–256)</b> and <b>Big (512–1024):</b> rarer, more exciting things.</li>
-    <li><b>Finale (2048):</b> the goal of the game, the most special tile. It also stands for the whole theme in the Settings theme picker.</li>
-    <li><b>Bonus (4096–16384):</b> a secret “after the win” round for great players.</li>
-  </ul>
+  <p>Plan <b>14 tiles</b> that grow from small and simple (2) to a grand finale (2048), plus three bonus tiles (4096–16384) for after the win.</p>
 
-  <h2>What to deliver: the whole theme</h2>
+  <h2>What to deliver</h2>
   <div class="two">
     <div class="box">
       <ul class="check">
         <li><b>14 tiles</b> (2 to 16384)</li>
-        <li><b>Game screen:</b> background, title style, colours (page 6)</li>
-        <li><b>Buttons:</b> New game button, plus 2 round buttons with icons: leaderboard and settings</li>
-        <li><b>Score boxes and board</b> look</li>
-        <li><b>Settings card:</b> card style, sound and vibration icons, switch colour, theme picker look (page 7) <span class="new">NEW</span></li>
-        <li><b>Win screen:</b> card style, win art, headline, confetti colours (page 8)</li>
-        <li><b>Lose screen:</b> card style, lose art, headline (page 8)</li>
-        <li><b>Names:</b> theme name and a name for each tile</li>
+        <li><b>Game screen:</b> background, title, buttons and board (page 6)</li>
+        <li><b>Win and lose screens</b> (page 7)</li>
+        <li><b>Names</b> for the theme and each tile</li>
       </ul>
     </div>
     <div class="box">
-      <h3 style="margin-top:0">Files</h3>
       <ul>
-        <li><b>Tiles and art:</b> SVG (vector) preferred, or PNG at <b>1024 × 1024 px</b></li>
-        <li><b>Win and lose art:</b> transparent background</li>
-        <li><b>Icons:</b> SVG, simple enough to read at about 22 px</li>
-        <li><b>Screens:</b> a mockup of each screen (image or Figma) with the colours listed</li>
+        <li><b>Files:</b> SVG, or PNG at 1024 × 1024 px</li>
         <li>Name tiles by value: <code>tile-0002</code> … <code>tile-16384</code></li>
+        <li>Win and lose art on a transparent background</li>
       </ul>
     </div>
   </div>
@@ -140,7 +125,7 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
 <!-- 3 ─────────────────────────────────────────────────────────────── -->
 <section class="page">
   <h2>Example: Spooky Picnic</h2>
-  <p>The Halloween theme: a moonlit night sky, candy and witchy tiles up to a haunted house, a candy bucket on the cards, and its own button colours.</p>
+  <p>The Halloween theme: a moonlit night sky, candy and witchy tiles up to a haunted house, a candy bucket on the cards, and its own button colors.</p>
   <div class="shots">
     <div class="shot"><img src="shots/halloween-game.png">Game screen</div>
     <div class="shot"><img src="shots/halloween-win.png">Win screen</div>
@@ -153,39 +138,30 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
 <!-- 4 ─────────────────────────────────────────────────────────────── -->
 <section class="page">
   <h2>The technical bits</h2>
-  <p>These are the only must-haves, so the art works in the game:</p>
-  <div class="two">
-    <ul>
-      <li><b>Tiles are square</b> and fill the whole square, including their own background.</li>
-      <li><b>The game rounds the corners</b> a little, so keep important details away from the very corners.</li>
-      <li><b>The top-left corner</b> shows the tile’s number in a small white badge. Keep anything important out of that spot.</li>
-      <li><b>Tiles are small on phones</b> (about 70–110 px). Each one should still be recognisable at that size.</li>
-    </ul>
-    <ul>
-      <li><b>Every tile must look different</b> from the others at a glance, so players can tell them apart quickly.</li>
-      <li><b>Text must stay readable:</b> title, scores and card text need enough contrast with what’s behind them.</li>
-      <li><b>Icons</b> on the buttons and in Settings are shown at about 22 px, so keep them simple.</li>
-      <li><b>The 2048 tile</b> doubles as the theme’s picture in Settings, at about 54 px.</li>
-      <li><b>Win and lose art</b> is shown at about 150 × 150 px.</li>
-    </ul>
-  </div>
-  <div class="two" style="margin-top:14px; align-items:center">
+  <p>The only must-haves, so the art works in the game:</p>
+  <ul>
+    <li><b>Tiles are square</b> and fill the whole square, background included.</li>
+    <li><b>Keep the top-left corner clear</b> for the number badge, and key details away from the rounded corners.</li>
+    <li><b>Tiles are small on phones</b> (about 70–110 px), so each one should be easy to recognize and tell apart.</li>
+    <li><b>Icons</b> show at about 22 px, and <b>win and lose art</b> at about 150 px.</li>
+  </ul>
+  <div class="two" style="margin-top:18px; align-items:center">
     <img src="../tile-template.svg" style="width:100%; border:1.5px solid var(--lavline); border-radius:14px; background:#fff">
-    <p style="color:var(--soft)">A full-size version of this guide is included as <code>tile-template.png</code> (for Procreate) and <code>tile-template.svg</code> (for Illustrator or Figma). The dashed area is just a helpful suggestion for where to keep key details.</p>
+    <p style="color:var(--soft)">Full-size guide: <code>tile-template.png</code> (Procreate) and <code>tile-template.svg</code> (Illustrator or Figma).</p>
   </div>
 </section>
 
 <!-- 5 ─────────────────────────────────────────────────────────────── -->
 <section class="page">
   <h2>Tile sheet</h2>
-  <p>A place to plan the 14 tiles: sketch each one in its slot and note its name and background colour.</p>
+  <p>Sketch each tile and note its name and background color.</p>
   <div class="sheet" id="sheet"></div>
 </section>
 
 <!-- 6 ─────────────────────────────────────────────────────────────── -->
 <section class="page">
   <h2>Game screen</h2>
-  <p>Everything on the main screen can be restyled for the theme. The numbers match the parts to design:</p>
+  <p>Everything here can be restyled for the theme:</p>
   <div style="display:grid; grid-template-columns: 2.6in 1fr; gap: 22px; margin-top: 8px">
     <div class="wf" style="height:5.1in">
       <span class="num" style="left:10px; bottom:10px">1</span>
@@ -205,73 +181,35 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
       <div style="position:absolute; left:0; right:0; top:352px; text-align:center; font-size:7pt; color:#9A8A9C">Swipe to play · How to play</div>
     </div>
     <div class="parts">
-      <p><span class="num inline">1</span><b>Background:</b> colour, pattern or scene behind everything (e.g. gingham picnic blanket, starry night).</p>
-      <p><span class="num inline">2</span><b>Title:</b> theme name, its colour and style; a small subtitle underneath.</p>
+      <p><span class="num inline">1</span><b>Background:</b> a color, pattern or scene.</p>
+      <p><span class="num inline">2</span><b>Title</b> and subtitle.</p>
       <p><span class="num inline">3</span><b>Score boxes:</b> Score and Best.</p>
-      <p><span class="num inline">4</span><b>New game button:</b> the main accent colour.</p>
-      <p><span class="num inline">5</span><b>Two round buttons:</b> leaderboard and settings (a gear). Each can have its own colour, plus an icon. Sound, vibration and the theme switch now live inside Settings (page 7), so there’s no separate theme-switch symbol to draw.</p>
-      <p><span class="num inline">6</span><b>Board:</b> the tray the tiles sit on and the empty spaces.</p>
+      <p><span class="num inline">4</span><b>New game button:</b> the main accent color.</p>
+      <p><span class="num inline">5</span><b>Round buttons:</b> leaderboard and settings, each with an icon.</p>
+      <p><span class="num inline">6</span><b>Board:</b> the tray and its empty spaces.</p>
     </div>
   </div>
-  <h3 style="margin-top:18px">Colours</h3>
+  <h3 style="margin-top:18px">Colors</h3>
   <div class="fill">
-    <div>Background</div><div>2 round buttons</div>
-    <div>Title</div><div>Score boxes</div>
-    <div>Accent / New game button</div><div>Board and empty spaces</div>
+    <div>Background</div><div>Round buttons</div>
+    <div>Title and accent</div><div>Board</div>
   </div>
 </section>
+
 
 <!-- 7 ─────────────────────────────────────────────────────────────── -->
 <section class="page">
-  <h2>Settings card <span class="new" style="font-size:8pt">NEW</span></h2>
-  <p>The gear button opens a small card with on/off switches for sound and vibration, and a picker for the themes. Vibration only appears in the iPhone app.</p>
-  <div style="display:grid; grid-template-columns: 1.75in 1.75in 1fr; gap: 16px; margin-top: 10px; align-items: start">
-    <div class="shot settings"><img src="shots/fruit-settings.png">Fruit Picnic</div>
-    <div class="shot settings"><img src="shots/halloween-settings.png">Spooky Picnic</div>
-    <div class="wf" style="height:3.05in; background:#FBF8FF">
-      <span class="num" style="left:12px; top:12px">7</span>
-      <div class="dash" style="position:absolute; inset:20px 18px; border-width:2px; border-color:#C9A8E8; border-radius:16px"></div>
-      <div style="position:absolute; left:0; right:0; top:34px; text-align:center; font:800 13pt var(--display); color:#C9A8E8">Settings</div>
-      <span class="num" style="left:26px; top:68px">8</span>
-      <span class="num" style="right:24px; top:68px">9</span>
-      <div style="position:absolute; left:32px; right:32px; top:72px; display:grid; gap:6px">
-        <div style="display:flex; align-items:center; gap:7px; background:#F1EBFA; border-radius:9px; padding:5px 7px"><span style="width:20px; height:20px; border-radius:6px; background:#FFD3E3; font-size:9pt; text-align:center; line-height:20px">♪</span><span style="flex:1; font:800 8pt var(--display)">Sound</span><span style="width:28px; height:16px; border-radius:8px; background:#FFC2D6"></span></div>
-        <div style="display:flex; align-items:center; gap:7px; background:#F1EBFA; border-radius:9px; padding:5px 7px"><span style="width:20px; height:20px; border-radius:6px; background:#C8F0E2; font-size:9pt; text-align:center; line-height:20px">📳</span><span style="flex:1; font:800 8pt var(--display)">Vibration</span><span style="width:28px; height:16px; border-radius:8px; background:#FFC2D6"></span></div>
-      </div>
-      <span class="num" style="left:26px; top:150px">10</span>
-      <div style="position:absolute; left:32px; right:32px; top:156px; display:grid; grid-template-columns:1fr 1fr; gap:6px">
-        <div style="border:2px solid #FFC2D6; border-radius:9px; padding:5px; text-align:center; font:800 7pt var(--display)"><div class="dash" style="width:30px; height:30px; margin:0 auto 3px; border-radius:6px"></div>This theme</div>
-        <div style="background:#F1EBFA; border-radius:9px; padding:5px; text-align:center; font:800 7pt var(--display)"><div class="dash" style="width:30px; height:30px; margin:0 auto 3px; border-radius:6px"></div>Other themes</div>
-      </div>
-      <div style="position:absolute; left:50%; transform:translateX(-50%); bottom:30px; width:56px; height:22px; border-radius:11px; background:#FFC2D6; font:800 7.5pt/22px var(--display); text-align:center">Done</div>
-    </div>
-  </div>
-  <div class="parts" style="margin-top:16px">
-    <p><span class="num inline">7</span><b>Card style:</b> the same card look as the win and lose screens, with your theme’s border and Done button.</p>
-    <p><span class="num inline">8</span><b>Sound and vibration icons:</b> two little icons on coloured squares. The game adds a slash across an icon when it’s switched off, so draw them “on”.</p>
-    <p><span class="num inline">9</span><b>Switch colour:</b> the colour of a switch when it’s on (both themes use their accent colour).</p>
-    <p><span class="num inline">10</span><b>Theme picker:</b> each theme is shown by its 2048 tile and name, and the chosen one gets a coloured outline. Your finale tile becomes this theme’s picture here, so nothing extra to draw.</p>
-  </div>
-  <h3>Colours</h3>
-  <div class="fill">
-    <div>Card and border</div><div>Switch (on)</div>
-    <div>Sound / vibration icon squares</div><div>Chosen-theme outline</div>
-  </div>
-</section>
-
-<!-- 8 ─────────────────────────────────────────────────────────────── -->
-<section class="page">
   <h2>Win and lose screens</h2>
-  <p>The win screen appears when the player reaches 2048, and the lose screen when they run out of moves. Both show the player’s top tile and score.</p>
+  <p>Shown when the player reaches 2048, or runs out of moves.</p>
   <div class="two" style="margin-top:10px; gap:40px; padding:0 0.4in">
     <div style="text-align:center; font:800 11pt var(--display)">
       <div class="wf" style="height:4.3in; margin-bottom:6px" id="wfWin">
-        <span class="num" style="left:8px; top:8px">15</span>
-        <span class="num" style="left:16px; top:30px">11</span>
+        <span class="num" style="left:8px; top:8px">11</span>
+        <span class="num" style="left:16px; top:30px">7</span>
         <div class="dash" style="position:absolute; inset:40px 22px 34px; border-width:2px; border-color:#C9A8E8; border-radius:16px; background:#fff"></div>
-        <span class="num" style="left:58px; top:46px">12</span>
+        <span class="num" style="left:58px; top:46px">8</span>
         <div style="position:absolute; left:50%; transform:translateX(-50%); top:56px; width:96px; height:96px; border:1.5px dashed var(--pink); border-radius:12px; font:600 7pt/1.3 Nunito; color:#C2457A; display:flex; align-items:center; justify-content:center">Win art<br>(full / celebrating)</div>
-        <div style="position:absolute; left:0; right:0; top:164px; font:800 12pt var(--display); color:#C9A8E8"><span class="num inline">14</span>Win headline</div>
+        <div style="position:absolute; left:0; right:0; top:164px; font:800 12pt var(--display); color:#C9A8E8"><span class="num inline">10</span>Win headline</div>
         <div class="bar" style="position:absolute; left:50%; transform:translateX(-50%); top:192px; width:110px; height:6px"></div>
         <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:206px; width:126px; height:20px"></div>
         <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:232px; width:126px; height:20px"></div>
@@ -282,11 +220,11 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
     </div>
     <div style="text-align:center; font:800 11pt var(--display)">
       <div class="wf" style="height:4.3in; margin-bottom:6px">
-        <span class="num" style="left:16px; top:30px">11</span>
+        <span class="num" style="left:16px; top:30px">7</span>
         <div class="dash" style="position:absolute; inset:40px 22px 34px; border-width:2px; border-color:#C9A8E8; border-radius:16px; background:#fff"></div>
-        <span class="num" style="left:58px; top:46px">13</span>
+        <span class="num" style="left:58px; top:46px">9</span>
         <div style="position:absolute; left:50%; transform:translateX(-50%); top:56px; width:96px; height:96px; border:1.5px dashed var(--pink); border-radius:12px; font:600 7pt/1.3 Nunito; color:#C2457A; display:flex; align-items:center; justify-content:center">Lose art<br>(empty / out of moves)</div>
-        <div style="position:absolute; left:0; right:0; top:164px; font:800 12pt var(--display); color:#C9A8E8"><span class="num inline">14</span>Lose headline</div>
+        <div style="position:absolute; left:0; right:0; top:164px; font:800 12pt var(--display); color:#C9A8E8"><span class="num inline">10</span>Lose headline</div>
         <div class="bar" style="position:absolute; left:50%; transform:translateX(-50%); top:192px; width:110px; height:6px"></div>
         <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:206px; width:126px; height:20px"></div>
         <div class="dash" style="position:absolute; left:50%; transform:translateX(-50%); top:232px; width:126px; height:20px"></div>
@@ -297,18 +235,18 @@ code { font: 600 10.5pt ui-monospace, Menlo, monospace; color: var(--soft); }
   </div>
   <div class="two parts" style="margin-top:14px">
     <div>
-      <p><span class="num inline">11</span><b>Card style:</b> colour, border and buttons.</p>
-      <p><span class="num inline">12</span><b>Win art:</b> the celebration picture (e.g. a full basket, a candy bucket full of sweets).</p>
+      <p><span class="num inline">7</span><b>Card:</b> color, border and buttons.</p>
+      <p><span class="num inline">8</span><b>Win art:</b> something full and celebrating.</p>
+      <p><span class="num inline">9</span><b>Lose art:</b> something empty.</p>
     </div>
     <div>
-      <p><span class="num inline">13</span><b>Lose art:</b> the “empty” picture (e.g. an empty basket, an empty bucket with a spider).</p>
-      <p><span class="num inline">14</span><b>Headlines:</b> short, fun and in the theme (e.g. “Sweet victory!”, “Out of treats!”).</p>
-      <p><span class="num inline">15</span><b>Confetti:</b> 5–7 colours that fall behind the win card.</p>
+      <p><span class="num inline">10</span><b>Headlines:</b> short and fun (“Sweet victory!”).</p>
+      <p><span class="num inline">11</span><b>Confetti:</b> 5–7 colors.</p>
     </div>
   </div>
   <div class="fill">
-    <div>Win headline</div><div>Card colours</div>
-    <div>Lose headline</div><div>Confetti colours</div>
+    <div>Win headline</div><div>Card colors</div>
+    <div>Lose headline</div><div>Confetti colors</div>
   </div>
 </section>
 
@@ -335,7 +273,7 @@ const GUIDE = '<svg viewBox="0 0 100 100" style="width:100%;display:block" fill=
   + '<path d="M50 2v96M2 52h96" stroke="#D9CCF0" stroke-width="0.5"/></svg>';
 const TIER = v => v <= 16 ? ['SMALL', 'small'] : v <= 256 ? ['MIDDLE', 'middle'] : v <= 1024 ? ['BIG', 'big'] : v === 2048 ? ['FINALE', 'finale'] : ['BONUS', 'bonus-t'];
 document.getElementById('sheet').innerHTML = VALUES.map(v => { const [t, c] = TIER(v);
-  return `<div class="slot"><div class="hd">${v}<span class="tag ${c}">${t}</span></div>${GUIDE}<div class="ln">Name:</div><div class="ln">Background colour:</div></div>`; }).join('');
+  return `<div class="slot"><div class="hd">${v}<span class="tag ${c}">${t}</span></div>${GUIDE}<div class="ln">Name:</div><div class="ln">Background color:</div></div>`; }).join('');
 document.getElementById('wfBoard').innerHTML = '<div style="background:#F6F2FD;border-radius:8px"></div>'.repeat(16);
 // confetti dashes around the win wireframe
 const win = document.getElementById('wfWin'), CC = ['#C9A8E8', '#FFB3CF', '#A8E6CF', '#FFE08A'];
