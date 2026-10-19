@@ -73,6 +73,39 @@ function tap(t, vol) {
   src.start(t); src.stop(t + 0.05);
 }
 
+// Every swipe: a finger brushing across paper. Noise with a grainy, uneven
+// texture (paper fibres), filtered to a soft papery "shhf" that swells and
+// fades over the slide. A little random tilt so no two swipes sound the same.
+let paperBuf = null;
+function paperSwipe() {
+  withAudio(t => {
+    if (!paperBuf) {
+      paperBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.25), audioCtx.sampleRate);
+      const d = paperBuf.getChannelData(0), grain = Math.floor(audioCtx.sampleRate * 0.004);
+      let level = 1;
+      for (let k = 0; k < d.length; k++) {
+        if (k % grain === 0) level = 0.45 + Math.random() * 0.55;
+        d[k] = (Math.random() * 2 - 1) * level;
+      }
+    }
+    const len = 0.15, w = 0.9 + Math.random() * 0.2;
+    const src = audioCtx.createBufferSource(), hp = audioCtx.createBiquadFilter(),
+      bp = audioCtx.createBiquadFilter(), g = audioCtx.createGain();
+    src.buffer = paperBuf;
+    hp.type = 'highpass'; hp.frequency.value = 900;
+    bp.type = 'bandpass'; bp.Q.value = 0.7;
+    bp.frequency.setValueAtTime(2200 * w, t);
+    bp.frequency.linearRampToValueAtTime(3600 * w, t + len);
+    src.connect(hp); hp.connect(bp); bp.connect(g);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.065, t + 0.035);
+    g.gain.linearRampToValueAtTime(0.04, t + len * 0.6);
+    g.gain.exponentialRampToValueAtTime(0.0005, t + len);
+    route(g, 0.05);
+    src.start(t); src.stop(t + len + 0.02);
+  });
+}
+
 function kalimba(t, f, vol, send = 0.15) {
   tone(t, { f, type: 'triangle', vol, a: 0.003, d: 0.5, lp: 2200, send });
   tone(t, { f: f * 2, vol: vol * 0.3, a: 0.002, d: 0.15, send });
@@ -481,6 +514,7 @@ async function doMove(dir) {
   if (!moved) return;
 
   busy = true;
+  paperSwipe();
 
   // ① Slide every tile to its new position (CSS transition animates this)
   const removedIds = new Set(merges.map(m => m.removedId));
