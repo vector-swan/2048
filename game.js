@@ -98,8 +98,8 @@ function paperSwipe() {
     bp.frequency.linearRampToValueAtTime(3600 * w, t + len);
     src.connect(hp); hp.connect(bp); bp.connect(g);
     g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.026, t + 0.035);
-    g.gain.linearRampToValueAtTime(0.016, t + len * 0.6);
+    g.gain.linearRampToValueAtTime(0.018, t + 0.035);
+    g.gain.linearRampToValueAtTime(0.011, t + len * 0.6);
     g.gain.exponentialRampToValueAtTime(0.0005, t + len);
     route(g, 0.05);
     src.start(t); src.stop(t + len + 0.02);
