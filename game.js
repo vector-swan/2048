@@ -781,9 +781,10 @@ const THEME_UI = {
     color: '#1E1533', next: 'fruit',
   },
 };
+// A chunky six-tooth gear; the hole shows the button's own colour
 const GEAR_ICON = ICON_OPEN
-  + '<path fill="#FFFDF8" d="M10.3 2.8h3.4l.5 2.4 1.6.9 2.3-.8 1.7 2.9-1.8 1.6v1.9l1.8 1.6-1.7 2.9-2.3-.8-1.6.9-.5 2.4h-3.4l-.5-2.4-1.6-.9-2.3.8-1.7-2.9 1.8-1.6v-1.9L4.2 8.2l1.7-2.9 2.3.8 1.6-.9z"/>'
-  + '<circle cx="12" cy="12" r="2.8"/></svg>';
+  + '<path fill="#FFFDF8" d="M9.7 4.8L10.2 2L13.8 2L14.3 4.8L17.1 6.4L19.8 5.4L21.6 8.5L19.4 10.4L19.4 13.6L21.6 15.5L19.8 18.6L17.1 17.6L14.3 19.2L13.8 22L10.2 22L9.7 19.2L6.9 17.6L4.2 18.6L2.4 15.5L4.6 13.6L4.6 10.4L2.4 8.5L4.2 5.4L6.9 6.4z"/>'
+  + '<circle cx="12" cy="12" r="3.2" fill="var(--b)"/></svg>';
 document.getElementById('settingsBtn').innerHTML = GEAR_ICON;
 const TROPHY_ICON = ICON_OPEN
   + '<path fill="#FFFDF8" d="M7.5 4.5h9v4.3a4.5 4.5 0 0 1-9 0z"/>'
