@@ -124,10 +124,8 @@ async function lbOpen() {
     rows.forEach((r, i) => {
       const li = document.createElement('li');
       if (lbName() && r.name === lbName()) li.className = 'me';
-      const art = TILE_ART[r.top_tile] || TILE_ART[Math.max(...Object.keys(TILE_ART).map(Number))];
-      li.innerHTML = `<span class="lb-rank">${i + 1}</span><img alt=""><span class="lb-name"></span><span class="lb-score">${Number(r.score).toLocaleString()}</span>`;
-      li.querySelector('img').src = svgURL(art);
-      li.querySelector('img').alt = tileName(r.top_tile);
+      // No top-tile picture: it would spoil the bigger tiles for newer players
+      li.innerHTML = `<span class="lb-rank">${i + 1}</span><span class="lb-name"></span><span class="lb-score">${Number(r.score).toLocaleString()}</span>`;
       li.querySelector('.lb-name').textContent = r.name;
       list.appendChild(li);
     });

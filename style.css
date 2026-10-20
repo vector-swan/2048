@@ -449,14 +449,13 @@ html[data-skin="halloween"] .btn-secondary { color: #fff; }
 .lb-list { list-style: none; width: 100%; max-height: min(52vh, 460px); overflow-y: auto; display: grid; gap: 6px; padding: 2px; }
 .lb-list li {
   display: flex; align-items: center; gap: 8px;
-  padding: 5px 10px 5px 6px; border-radius: 12px;
+  padding: 9px 12px 9px 8px; border-radius: 12px;
   background: rgba(0, 0, 0, 0.035);
   font-weight: 800; color: var(--text-dark);
 }
 .lb-list li.me { background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .lb-rank { width: 1.6em; text-align: center; font-family: var(--display); color: var(--muted); }
 .lb-list li:nth-child(1) .lb-rank, .lb-list li:nth-child(2) .lb-rank, .lb-list li:nth-child(3) .lb-rank { color: var(--accent); }
-.lb-list img { width: 34px; height: 34px; border-radius: 8px; flex: none; }
 .lb-name { flex: 1; min-width: 0; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-score { font-family: var(--display); font-variant-numeric: tabular-nums; color: var(--accent); }
 .lb-note { font-size: 0.85rem; font-weight: 700; color: var(--muted); }
