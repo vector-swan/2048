@@ -109,8 +109,14 @@ async function lbPost(row) {
 
 // ── The leaderboard panel ──
 let lbIsOpen = false;
+// Each load gets a number, and only the newest one may fill the list. Without
+// this, opening the board again while it's still loading (for example after
+// changing your name, especially in Safari, which pauses loading while the
+// name box is up) showed every score twice.
+let lbLoad = 0;
 async function lbOpen() {
   lbIsOpen = true;
+  const load = ++lbLoad;
   const panel = document.getElementById('leaderboard'), list = document.getElementById('lbList'), status = document.getElementById('lbStatus');
   panel.classList.add('show');
   document.getElementById('lbMe').hidden = !lbName();
@@ -120,16 +126,18 @@ async function lbOpen() {
   try {
     await lbFlush().catch(() => {});
     const rows = await lbFetchTop();
+    if (load !== lbLoad) return;   // a newer load has taken over
     status.textContent = rows.length ? '' : 'No scores yet. Finish a game to be first!';
-    rows.forEach((r, i) => {
+    list.replaceChildren(...rows.map((r, i) => {
       const li = document.createElement('li');
       if (lbName() && r.name === lbName()) li.className = 'me';
       // No top-tile picture: it would spoil the bigger tiles for newer players
       li.innerHTML = `<span class="lb-rank">${i + 1}</span><span class="lb-name"></span><span class="lb-score">${Number(r.score).toLocaleString()}</span>`;
       li.querySelector('.lb-name').textContent = r.name;
-      list.appendChild(li);
-    });
+      return li;
+    }));
   } catch (_) {
+    if (load !== lbLoad) return;
     status.textContent = 'Couldn’t load the leaderboard. Check your connection and try again.';
   }
 }
