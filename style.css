@@ -613,3 +613,23 @@ html[data-skin="halloween"] .set-ico svg { stroke: #3A2550; }
 @media (prefers-reduced-motion: reduce) {
   @keyframes scorePop { 0%, 100% { opacity: 0; transform: translate(-50%, 0); } 15%, 75% { opacity: 1; transform: translate(-50%, 0); } }
 }
+
+/* "+8" that floats up from a tile where two matched */
+.tile-points {
+  position: absolute; z-index: 40; pointer-events: none; white-space: nowrap;
+  font-family: var(--display); font-weight: 800;
+  font-size: calc(var(--tile-size) * 0.24);
+  color: var(--accent);
+  -webkit-text-stroke: calc(var(--tile-size) * 0.035) #fff; paint-order: stroke fill;
+  text-shadow: 0 2px 6px rgba(74, 42, 76, 0.25);
+  animation: tilePoints 0.95s ease-out forwards;
+}
+@keyframes tilePoints {
+  0%   { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+  18%  { transform: translate(-50%, -70%) scale(1.1); opacity: 1; }
+  60%  { opacity: 1; }
+  100% { transform: translate(-50%, -150%) scale(1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  @keyframes tilePoints { 0%, 100% { opacity: 0; transform: translate(-50%, -70%); } 20%, 70% { opacity: 1; transform: translate(-50%, -70%); } }
+}

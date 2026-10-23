@@ -611,6 +611,7 @@ async function doMove(dir) {
       void survivor.el.offsetWidth; // force reflow so animation restarts
       survivor.el.classList.add('tile-pop');
       survivor.el.addEventListener('animationend', () => survivor.el.classList.remove('tile-pop'), { once: true });
+      if (TILE_POPS) tilePop(survivor.r, survivor.c, m.newValue);
     }
 
     const removed = liveTiles.find(t => t.id === m.removedId);
@@ -710,9 +711,22 @@ function relayout() {
 }
 
 // ── Score ─────────────────────────────────────────────────────────────────────
-// Try-out: a "+24" floats up from the Score box after each swipe (open the game
-// with ?pop at the end of the link to see it)
-const SCORE_POPS = new URLSearchParams(location.search).has('pop');
+// Try-out (open the game with ?pop at the end of the link to see it):
+//   ?pop        each match shows its points floating up from the new tile
+//   ?pop=score  one "+24" badge per swipe on the Score box
+const POP_MODE = new URLSearchParams(location.search).get('pop');   // null = off
+const SCORE_POPS = POP_MODE === 'score';
+const TILE_POPS = POP_MODE !== null && POP_MODE !== 'score';
+function tilePop(r, c, points) {
+  const pop = document.createElement('span');
+  pop.className = 'tile-points';
+  pop.textContent = '+' + points.toLocaleString();
+  const s = tileSize();
+  pop.style.left = (tileLeft(c) + s / 2) + 'px';
+  pop.style.top = (tileTop(r) + s * 0.42) + 'px';
+  tilesEl.appendChild(pop);
+  pop.addEventListener('animationend', () => pop.remove(), { once: true });
+}
 function scorePop(add) {
   const pop = document.createElement('span');
   pop.className = 'score-pop';
