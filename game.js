@@ -611,7 +611,6 @@ async function doMove(dir) {
       void survivor.el.offsetWidth; // force reflow so animation restarts
       survivor.el.classList.add('tile-pop');
       survivor.el.addEventListener('animationend', () => survivor.el.classList.remove('tile-pop'), { once: true });
-      if (TILE_POPS) tilePop(survivor.r, survivor.c, m.newValue);
     }
 
     const removed = liveTiles.find(t => t.id === m.removedId);
@@ -715,12 +714,8 @@ function relayout() {
 }
 
 // ── Score ─────────────────────────────────────────────────────────────────────
-// Try-out (open the game with ?pop at the end of the link to see it):
-//   ?pop        each match shows its points floating up from the new tile
-//   ?pop=score  one "+24" badge per swipe on the Score box
-const POP_MODE = new URLSearchParams(location.search).get('pop');   // null = off
-const SCORE_POPS = POP_MODE === 'score';
-const TILE_POPS = POP_MODE !== null && POP_MODE !== 'score';
+// A soft "+4" floating up from a tile; the guided first game uses it to
+// teach that matching earns points (normal play stays quiet)
 function tilePop(r, c, points) {
   const pop = document.createElement('span');
   pop.className = 'tile-points';
@@ -731,18 +726,10 @@ function tilePop(r, c, points) {
   tilesEl.appendChild(pop);
   pop.addEventListener('animationend', () => pop.remove(), { once: true });
 }
-function scorePop(add) {
-  const pop = document.createElement('span');
-  pop.className = 'score-pop';
-  pop.textContent = '+' + add.toLocaleString();
-  document.getElementById('score').parentElement.appendChild(pop);
-  pop.addEventListener('animationend', () => pop.remove(), { once: true });
-}
 function updateScore(add) {
   score += add;
   const el = document.getElementById('score');
   el.textContent = score;
-  if (SCORE_POPS && add > 0) scorePop(add);
   el.classList.remove('score-bump');
   void el.offsetWidth;
   el.classList.add('score-bump');

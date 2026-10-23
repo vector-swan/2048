@@ -593,28 +593,7 @@ html[data-skin="halloween"] #hapticsIco { --b: #6FD3C2; }
 html[data-skin="halloween"] .set-ico svg { stroke: #3A2550; }
 @media (prefers-reduced-motion: reduce) { .switch, .switch::after { transition: none; } }
 
-/* "+24" badge that pops onto the Score box after a swipe */
-.score-pop {
-  position: absolute; left: 50%; top: -11px; z-index: 30;
-  pointer-events: none; white-space: nowrap;
-  padding: 1px 8px; border-radius: 99px;
-  background: var(--accent); color: #fff;
-  font-family: var(--display); font-weight: 800; font-size: 0.82rem; line-height: 1.35;
-  box-shadow: 0 2px 0 var(--accent-dark);
-  animation: scorePop 0.9s ease-out forwards;
-}
-@keyframes scorePop {
-  0%   { transform: translate(-50%, 4px) scale(0.6); opacity: 0; }
-  14%  { transform: translate(-50%, 0) scale(1.12); opacity: 1; }
-  24%  { transform: translate(-50%, 0) scale(1); opacity: 1; }
-  70%  { transform: translate(-50%, -2px) scale(1); opacity: 1; }
-  100% { transform: translate(-50%, -8px) scale(0.95); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  @keyframes scorePop { 0%, 100% { opacity: 0; transform: translate(-50%, 0); } 15%, 75% { opacity: 1; transform: translate(-50%, 0); } }
-}
-
-/* "+8" that floats up from a tile where two matched */
+/* "+4" that floats up from a tile (guided first game) */
 .tile-points {
   position: absolute; z-index: 40; pointer-events: none; white-space: nowrap;
   font-family: var(--display); font-weight: 800;
