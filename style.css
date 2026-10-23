@@ -633,3 +633,24 @@ html[data-skin="halloween"] .set-ico svg { stroke: #3A2550; }
 @media (prefers-reduced-motion: reduce) {
   @keyframes tilePoints { 0%, 100% { opacity: 0; transform: translate(-50%, -70%); } 20%, 70% { opacity: 1; transform: translate(-50%, -70%); } }
 }
+
+/* Guided first game: bubble updates, score glow, mystery tile */
+.coach.no-hand .coach-hand, .coach.no-hand .coach-trail { display: none; }
+.coach-bubble.coach-new { animation: coachIn 0.35s ease-out; }
+@keyframes coachIn { from { transform: translateX(-50%) scale(0.9); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
+.coach { transition: opacity 0.35s; }
+.coach.coach-out { opacity: 0; }
+.coach-bubble { display: flex; align-items: center; gap: 6px; }
+.coach-q, .mystery-tile {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 26px; height: 26px; border-radius: 7px;
+  background: rgba(0, 0, 0, 0.05); border: 2px dashed var(--stitch);
+  font: 800 15px var(--display); color: var(--accent);
+}
+.mystery-tile { width: 34px; height: 34px; border-radius: 8px; font-size: 18px; }
+html[data-skin="halloween"] .coach-q, html[data-skin="halloween"] .mystery-tile { background: rgba(255, 255, 255, 0.08); }
+.score-box.score-glow { animation: scoreGlow 1.4s ease-out; }
+@keyframes scoreGlow {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  25% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 18px color-mix(in srgb, var(--accent) 55%, transparent); }
+}

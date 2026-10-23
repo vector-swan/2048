@@ -628,7 +628,7 @@ async function doMove(dir) {
       else { soundMerge(top); haptic('merge'); }
     }
     highestThisGame = Math.max(highestThisGame, top);
-    if (typeof tutorialMerged === 'function') tutorialMerged();
+    if (typeof tutorialMerged === 'function') tutorialMerged(merges);
   }
 
   // ④ Update score
@@ -670,6 +670,7 @@ function canMove() {
   return false;
 }
 
+let spawnOverride = null;   // { value, r, c }, set by the tutorial
 function spawnTile() {
   const occupied = new Set(liveTiles.map(t => `${t.r},${t.c}`));
   const empty = [];
@@ -678,8 +679,11 @@ function spawnTile() {
       if (!occupied.has(`${r},${c}`)) empty.push([r, c]);
   if (!empty.length) return;
 
-  const [r, c] = empty[Math.floor(Math.random() * empty.length)];
-  const value  = Math.random() < 0.9 ? 2 : 4;
+  // the tutorial can ask for a particular tile in a particular spot, once
+  const want = spawnOverride; spawnOverride = null;
+  const free = want && empty.some(([er, ec]) => er === want.r && ec === want.c);
+  const [r, c] = free ? [want.r, want.c] : empty[Math.floor(Math.random() * empty.length)];
+  const value  = want ? want.value : (Math.random() < 0.9 ? 2 : 4);
   const id     = nextId++;
   const el     = makeTileEl(value, r, c);  // position set before append
   tilesEl.appendChild(el);
