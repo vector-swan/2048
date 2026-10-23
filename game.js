@@ -710,10 +710,21 @@ function relayout() {
 }
 
 // ── Score ─────────────────────────────────────────────────────────────────────
+// Try-out: a "+24" floats up from the Score box after each swipe (open the game
+// with ?pop at the end of the link to see it)
+const SCORE_POPS = new URLSearchParams(location.search).has('pop');
+function scorePop(add) {
+  const pop = document.createElement('span');
+  pop.className = 'score-pop';
+  pop.textContent = '+' + add.toLocaleString();
+  document.getElementById('score').parentElement.appendChild(pop);
+  pop.addEventListener('animationend', () => pop.remove(), { once: true });
+}
 function updateScore(add) {
   score += add;
   const el = document.getElementById('score');
   el.textContent = score;
+  if (SCORE_POPS && add > 0) scorePop(add);
   el.classList.remove('score-bump');
   void el.offsetWidth;
   el.classList.add('score-bump');
