@@ -1,7 +1,7 @@
 {
   "name": "Fruit Picnic",
   "short_name": "Fruit Picnic",
-  "description": "Merge cute fruit from cherries to a watermelon.",
+  "description": "A cozy merge puzzle with cute fruit. Match two to discover what comes next!",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
