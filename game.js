@@ -440,7 +440,9 @@ let busy = false;             // blocks input during slide+merge animation
 const tilesEl = document.getElementById('tiles');
 
 // ── Tile sizing helpers ───────────────────────────────────────────────────────
-let cachedTileSize = 0;
+// Tiles are as wide as the board allows; on tall phones they grow taller to
+// fill the screen (up to 1.75× their width), so the board reaches the bottom.
+let cachedTileSize = 0, cachedTileH = 0;
 function tileSize() {
   if (!cachedTileSize) {
     const w = tilesEl.offsetWidth;
@@ -448,8 +450,27 @@ function tileSize() {
   }
   return cachedTileSize;
 }
+function tileH() {
+  if (!cachedTileH) {
+    const h = tilesEl.offsetHeight;
+    cachedTileH = h > 0 ? (h - (SIZE - 1) * GAP) / SIZE : tileSize();
+  }
+  return cachedTileH;
+}
 function tileLeft(c) { return c * (tileSize() + GAP); }
-function tileTop(r)  { return r * (tileSize() + GAP); }
+function tileTop(r)  { return r * (tileH() + GAP); }
+
+// Stretch the board down to the bottom of the screen (leaving room for the
+// "How to play" line); never shorter than square, never taller than 1.75×
+function fitBoard() {
+  const board = document.getElementById('board'), hint = document.querySelector('.hint');
+  const w = board.offsetWidth;
+  const tw = (w - 2 * GAP - (SIZE - 1) * GAP) / SIZE;
+  const below = (hint ? hint.offsetHeight + 14 : 0) + 22 + (parseFloat(getComputedStyle(document.querySelector('.app')).paddingBottom) || 0);
+  const avail = window.innerHeight - board.getBoundingClientRect().top - below;
+  const th = Math.max(tw, Math.min(tw * 1.75, (avail - 2 * GAP - (SIZE - 1) * GAP) / SIZE));
+  board.style.height = (2 * GAP + SIZE * th + (SIZE - 1) * GAP) + 'px';
+}
 
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 function tileClass(value) { return 't' + Math.min(value, 8192); }
@@ -477,8 +498,7 @@ function makeTileEl(value, r, c) {
   el.className = `tile ${tileClass(value)}`;
   el.dataset.v = value;
   el.appendChild(artNode(value));
-  const sz = tileSize();
-  el.style.cssText = `width:${sz}px;height:${sz}px;translate:${tileLeft(c)}px ${tileTop(r)}px`;
+  el.style.cssText = `width:${tileSize()}px;height:${tileH()}px;translate:${tileLeft(c)}px ${tileTop(r)}px`;
   return el;
 }
 
@@ -494,9 +514,8 @@ function placeTile(el, r, c) {
 }
 
 function sizeTile(el) {
-  const sz = tileSize();
-  el.style.width  = sz + 'px';
-  el.style.height = sz + 'px';
+  el.style.width  = tileSize() + 'px';
+  el.style.height = tileH() + 'px';
 }
 
 // ── Move computation (pure — does not touch DOM) ───────────────────────────────
@@ -701,9 +720,10 @@ function relayout() {
   // Phones fire resize events for toolbar changes even when the board stays
   // the same size; only snap tiles into place when the size really changed,
   // otherwise it would cut slide animations short.
-  const old = cachedTileSize;
-  cachedTileSize = 0;
-  if (old && Math.abs(tileSize() - old) < 0.5) return;
+  const old = cachedTileSize, oldH = cachedTileH;
+  fitBoard();
+  cachedTileSize = 0; cachedTileH = 0;
+  if (old && Math.abs(tileSize() - old) < 0.5 && Math.abs(tileH() - oldH) < 0.5) return;
   liveTiles.forEach(t => {
     t.el.classList.add('no-anim');
     sizeTile(t.el);
@@ -720,9 +740,8 @@ function tilePop(r, c, points) {
   const pop = document.createElement('span');
   pop.className = 'tile-points';
   pop.textContent = '+' + points.toLocaleString();
-  const s = tileSize();
-  pop.style.left = (tileLeft(c) + s / 2) + 'px';
-  pop.style.top = (tileTop(r) + s * 0.42) + 'px';
+  pop.style.left = (tileLeft(c) + tileSize() / 2) + 'px';
+  pop.style.top = (tileTop(r) + tileH() * 0.42) + 'px';
   tilesEl.appendChild(pop);
   pop.addEventListener('animationend', () => pop.remove(), { once: true });
 }
@@ -936,7 +955,11 @@ document.addEventListener('keydown', e => { if (settingsOpen && e.key === 'Escap
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 document.getElementById('best').textContent = best;
+fitBoard();
 applyTheme(themeId);
+// the header can change height once the fonts finish loading
+if (document.fonts) document.fonts.ready.then(relayout);
+window.addEventListener('load', relayout);
 showSoundIcon();
 if (native) { document.getElementById('hapticsToggle').hidden = false; showHapticsIcon(); }
 newGame();
