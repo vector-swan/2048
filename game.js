@@ -480,9 +480,29 @@ function tileClass(value) { return 't' + Math.min(value, 8192); }
 // Each illustration is shown as an <img>, so the browser rasterises it once
 // and reuses the bitmap while tiles slide (live SVG was re-drawn every frame).
 const artSrc = {};
+// Tall tiles: keep the drawing centred at its normal size and stretch only the
+// background (and the bonus tiles' gold frame) to the tile's shape
+let artAspect = 1;
+function tallArt(svg, aspect) {
+  if (aspect <= 1.001) return svg;
+  const e = +((100 * aspect - 100) / 2).toFixed(2);
+  return svg
+    .replace('viewBox="0 0 100 100"', `viewBox="0 ${-e} 100 ${100 + 2 * e}" preserveAspectRatio="none"`)
+    .replace(/<rect width="100" height="100"/g, `<rect y="${-e}" width="100" height="${100 + 2 * e}"`)
+    .replace(/<rect x="1\.8" y="1\.8" width="96\.4" height="96\.4"/g, `<rect x="1.8" y="${(1.8 - e).toFixed(2)}" width="96.4" height="${(96.4 + 2 * e).toFixed(2)}"`);
+}
+// When the tile shape changes, redraw the art to match
+function syncArtAspect() {
+  const aspect = Math.round(tileH() / tileSize() * 100) / 100;
+  if (aspect === artAspect) return;
+  artAspect = aspect;
+  Object.keys(artSrc).forEach(k => delete artSrc[k]);
+  liveTiles.forEach(t => applyTileDisplay(t));
+}
 function artNode(value) {
   if (!artSrc[value]) {
-    artSrc[value] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(TILE_ART[value] || TILE_ART[Math.max(...Object.keys(TILE_ART).map(Number))]);
+    const svg = TILE_ART[value] || TILE_ART[Math.max(...Object.keys(TILE_ART).map(Number))];
+    artSrc[value] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(tallArt(svg, artAspect));
   }
   const img = new Image();
   img.src = artSrc[value];
@@ -723,6 +743,7 @@ function relayout() {
   const old = cachedTileSize, oldH = cachedTileH;
   fitBoard();
   cachedTileSize = 0; cachedTileH = 0;
+  syncArtAspect();
   if (old && Math.abs(tileSize() - old) < 0.5 && Math.abs(tileH() - oldH) < 0.5) return;
   liveTiles.forEach(t => {
     t.el.classList.add('no-anim');
@@ -956,6 +977,7 @@ document.addEventListener('keydown', e => { if (settingsOpen && e.key === 'Escap
 // ── Start ─────────────────────────────────────────────────────────────────────
 document.getElementById('best').textContent = best;
 fitBoard();
+syncArtAspect();
 applyTheme(themeId);
 // the header can change height once the fonts finish loading
 if (document.fonts) document.fonts.ready.then(relayout);
